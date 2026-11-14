@@ -172,7 +172,12 @@ Current team folders: `aidan-newsome`, `christian-huber`, `fendy-seitiawan`, `gi
 
 ### Walking
 
-Right now the game fakes walking: the sprite bobs (`.ch.walking`, 0.3 s) while it moves. If you make real walk cycles, deliver them as extra files in the same box and placement, for example `front-walk.svg` with the frames inside as a discrete SMIL animation (4 frames, about 0.5 s loop). Tell the front end, and they get wired in next to the idle files.
+Every character has a **walk cycle** for each direction, with moving legs (from "DIWhy Walk Animations - Revised Side Views": `<Name> - Front.svg`, `- Back.svg`, `- Left.svg`, `- Right.svg`). The game shows the walk cycle **only while the character is actually moving**, and the idle sprite as soon as it stops or pushes against a wall or furniture.
+
+- Same box and placement as the idle files (160 x 160, feet at 95 %), so the swap does not jump.
+- The legs are separate groups rotated with `animateTransform` (about 0.8 s per step cycle for the side views, 0.72 s front and back).
+- The files start their animation after `begin=".42s"`; the game rewrites that to `0s` when embedding them, so a character steps off at once. Deliver new walk cycles in the same format.
+- In `index.html` they are embedded as `window.WALK`, next to the idle `window.SPRITES`; `turn(ch, dir, walking)` picks between them.
 
 ### Faces (phone avatars)
 
