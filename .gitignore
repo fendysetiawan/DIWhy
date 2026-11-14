@@ -1,0 +1,5 @@
+.venv/
+
+# Local-only: registry config and lockfile can contain internal registry URLs.
+.npmrc
+package-lock.json
