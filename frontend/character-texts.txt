@@ -1,0 +1,340 @@
+DIWhy: character texts
+======================
+40 text messages per character. The game draws from these at random.
+Lines starting with a number are the texts. {days} and {price} are filled in by the game.
+
+Casting: every game, the 7 sprites are shuffled. The player picks one sprite as the Home Owner;
+until they do, the Home Owner is random too. The other six are dealt out to the NPC roles at random.
+
+
+## HOME OWNER (player): quick replies, overly confident
+1. Relax, I watched a video.
+2. How hard can it be?
+3. I have a level. I am the level.
+4. Measure once, cut twice. Wait.
+5. Totally under control.
+6. That's a tomorrow problem.
+7. I was born for this.
+8. Already on it. Mentally.
+9. Duct tape is a structural material.
+10. Trust the process. My process.
+11. It's basically done.
+12. I've got a guy. The guy is me.
+13. Pros are overrated.
+14. Nailed it. Literally, once.
+15. It's load bearing? Since when?
+16. I read half the manual.
+17. Bold of you to doubt me.
+18. Ten more minutes.
+19. I'll do it right after this snack.
+20. It's rustic on purpose.
+21. The wobble adds character.
+22. I'm in my DIY era.
+23. Safety glasses are for quitters. Kidding. Mostly.
+24. Sounds like a Saturday job.
+25. I can fix that with caulk.
+26. Plans are just suggestions.
+27. Who needs a permit?
+28. I'm ahead of schedule, spiritually.
+29. Budget is a state of mind.
+30. Leave it to me.
+31. Watch and learn.
+32. It's called improvising.
+33. Easy. Probably.
+34. I own a hammer, so yes.
+35. That noise is normal.
+36. I'll Google it.
+37. Cool cool cool.
+38. Good news: I found more problems.
+39. Mistakes are just bonus features.
+40. Hold my coffee.
+
+
+## PARTNER (cares about the BUDGET this game)
+1. Quick question: why is there a $340 charge called "misc wood"?
+2. I moved the vacation fund to a jar labeled "drywall". Please don't make me cry.
+3. You said "cheap fix". The receipt is longer than my arm.
+4. We are now eating pasta. Every night. Forever. For the tiles.
+5. Please stop saying "it's an investment" about a second nail gun.
+6. The bank called to ask if we're okay.
+7. If you buy one more "time saving" tool I'm selling the house with you in it.
+8. I found the Home Center receipts in the freezer. Why the freezer?
+9. Our budget had a funeral today. You weren't there.
+10. Reminder: the money tree in the yard is a regular tree.
+11. Did we really need the gold plated faucet? Our sink is beige.
+12. I'm putting a lock on the credit card. The lock was $40. Worth it.
+13. You promised under budget. The budget is now a distant memory.
+14. Our savings account sent me a sad face emoji.
+15. Every time I hear the truck I lose $200.
+16. Can we please stop buying "spares"? We have spare spares.
+17. Remember when we had money? Good times.
+18. I made a spreadsheet. It's red. The whole thing.
+19. If it costs more than the couch, it needs a family vote.
+20. I love you. I do not love this invoice.
+
+## PARTNER (cares about the TIMELINE this game)
+21. Day 14 of "just one weekend". Thoughts?
+22. My mom asked if the kitchen is done. I laughed until I cried.
+23. The bathroom has been "almost finished" since spring.
+24. I brushed my teeth with the garden hose again today.
+25. We have guests in two weeks. Is a tarp a wall?
+26. You said Friday. Which Friday? Of which year?
+27. I made a countdown calendar. It now counts up.
+28. The dog thinks the living room is outside now.
+29. Can we at least have a door on the bathroom by the weekend?
+30. I set a timer for your "five minute fix". It's in its third hour.
+31. The neighbors are taking bets on the finish date. I put money on never.
+32. Fun fact: I have forgotten what our floor looks like.
+33. We said one room at a time. Why are all the rooms open?
+34. I'm not mad. I'm just eating cereal on a ladder.
+35. The microwave has lived in the hallway for nine days.
+36. If it's not done by the anniversary, we celebrate in the garage.
+37. Pretty sure the plaster has been "drying" since March.
+38. Our kid now thinks "almost done" means "never".
+39. When you say "quick fix", do you mean in dog years?
+40. Can I have my kitchen back for my birthday? Asking nicely.
+
+
+## NOSY NEIGHBOR: wants quiet, gives good or terrible advice, must know everything
+1. What are you building? Is it a pool? Tell me it's a pool.
+2. Your saw woke up my cat. My cat is 19.
+3. Saw you carrying a big box. What was in the box?
+4. Free advice: never paint on a Tuesday. Trust me.
+5. Is that a permit in your window or just a printout?
+6. You know, my late husband did his kitchen in one afternoon.
+7. Hammering at 7:02. I wrote it down.
+8. I used a dish sponge on my grout. Changed my life. Try it.
+9. Just checking: is your dumpster supposed to be in my tulips?
+10. Heard a crash. Everyone okay? Who fell? What fell?
+11. I'm not snooping, the blinds just open by themselves.
+12. Measure the wall with a tape, not with your feelings.
+13. My nephew is a contractor. Well, he owns a ladder.
+14. If you need a hand, I'll supervise from my porch.
+15. What color is the bathroom? I need it for my notes.
+16. The HOA asked about your "situation". I didn't tell them anything. Much.
+17. Pro tip: drywall dust makes a nice face mask. Probably.
+18. Did you know your fence leans? It leans toward me. Personally.
+19. Is it done yet? How about now? Now?
+20. Quiet hours start at 8. It is 7:58. Just saying.
+21. I baked you muffins. Now tell me everything.
+22. Use a level. I watched you not use a level.
+23. Your shed door has been open for three days. I've been worried.
+24. I saw the delivery truck. Big spender!
+25. Want to borrow my stud finder? It's my husband. He's very good at it.
+26. Silicone fixes everything. I sealed my mailbox shut once. Worth it.
+27. You should really hire a pro. Not my nephew though.
+28. I can hear you sanding in my dreams.
+29. What's the budget? Ballpark. Rough. Exact.
+30. My leaf blower and your tile saw should never be on at the same time.
+31. Good advice: turn off the water first. Bad advice: whatever you're doing now.
+32. Did you just say a bad word? My parrot learned it.
+33. If you need more space, my garage is free. For a fee.
+34. Your music is fine. Your singing is not.
+35. I counted 47 trips to the car today. Everything okay?
+36. Small thing, but your ladder is in my hydrangeas. Again.
+37. When you finish, can you do mine? Joking. Unless?
+38. Noise complaint, but make it friendly.
+39. I'd paint it gray. Everyone paints it gray. Be brave. Paint it gray.
+40. I saw the whole thing. Don't worry. I told everyone.
+
+
+## CONTRACTOR: sends a quote and updates it whenever you press Update
+1. Here's my quote. Sit down first.
+2. My crew could do this in a week. Your crew is you.
+3. Saw your photo. Is that wall supposed to bend like that?
+4. Friendly reminder: I'm still available. For a premium.
+5. My quote includes "fixing your fix".
+6. Before you touch the electrical, please send me your will.
+7. Load bearing walls are not a suggestion.
+8. That's not a crack, that's an invitation for a bigger crack.
+9. I priced it in two versions: "done right" and "done by you".
+10. Do you want the bad news or the expensive news?
+11. Counter offer: you stop, I start.
+12. You're doing great. For a podcast. Not for a house.
+13. My hourly rate just went up after seeing your tiling.
+14. I can start in three months. Your ceiling can't wait that long.
+15. Pro tip: the pipe goes inside the wall, not on top of it.
+16. Every hour you DIY adds two hours to my quote.
+17. I respect the confidence. I fear the results.
+18. If you hear dripping, call me. If you hear sparks, call 911, then me.
+19. That level you're using: is it level?
+20. Just so you know, "it'll be fine" is not a building code.
+21. My guys have a bet on how long you'll last. I picked Thursday.
+22. Grout lines should be straight. Yours are expressive.
+23. Did you shim it or wish it?
+24. My quote has a line item called "emotional support".
+25. You saved $500 and spent $900 doing it. Classic.
+26. I'll fix it. I'll also tell this story at every barbecue.
+27. Permits exist so we don't learn things the hard way.
+28. Your subfloor called. It's not doing well.
+29. Measure twice, cut once, call me never? Bold.
+30. Your project is now a case study at the union hall.
+
+## CONTRACTOR (quote updates): {days} and {price} are filled in
+31. Updated quote: {days} days, {price}. Lumber found out you tried it yourself.
+32. New quote: {days} days and {price}. The extra is for "watching you".
+33. Quote updated: {days} days, {price}. Prices went up while you were reading this.
+34. Fresh quote: {days} days, {price}. I added a line for the thing you just did.
+35. Here you go: {days} days, {price}. Still cheaper than a second attempt.
+36. Revised: {days} days, {price}. Includes undoing the tutorial video.
+37. Okay: {days} days, {price}. My accountant laughed, so it's fair.
+38. Quote 2.0: {days} days, {price}. Now with 20% more sighing.
+39. Updated: {days} days, {price}. Your neighbor told me about the ladder.
+40. Final final quote: {days} days, {price}. Until you press Update again.
+
+
+## STORE CLERK: has everything you need, and a lot you don't
+1. Found your screws! Also, have you met our new 18-volt everything?
+2. You need one bag of grout. Most people buy six. Just saying.
+3. The paint is in aisle 9. The paint you'll actually want is in aisle 10.
+4. Great choice on the hammer. Want the hammer that comes with a better hammer?
+5. Our tile saw rental is $65. Buying one is only $499 and you'll feel amazing.
+6. Bring your old faucet back and get 10% off a faucet you'll regret less.
+7. We have a sale: buy two levels, get a third level to check the first two.
+8. Today's special: a drill that makes you feel like a contractor.
+9. Have you considered a laser measure? Tape measures are so last century.
+10. Your 2x4s are ready. Can I interest you in 4x4s? Twice the fours.
+11. You don't need a wet vac until you really, really need a wet vac.
+12. Return policy is 90 days. Your project is on day 112. Hmm.
+13. Saw you eyeing the gloves. Our premium gloves have feelings.
+14. Got your caulk. Want the caulk gun with cup holder?
+15. Spoiler: you will be back for more drywall screws.
+16. Store tip: buy 10% extra tile. Pro tip: buy 30%. Your tip: buy all of it.
+17. Members save 5%! Membership is $89.
+18. Your order is ready. I threw in a catalog. And a second catalog.
+19. Most people forget the primer. Then they come back crying. Want primer?
+20. We restocked the safety glasses. Your face will thank you.
+21. Friendly reminder: a sander is a lifestyle, not a tool.
+22. Got the outlet covers! Want them in "almost white" or "mostly white"?
+23. Need help? I'm literally standing behind you.
+24. We're out of the cheap nails. The expensive nails are lovely though.
+25. Thinking about a workbench? Every great DIY disaster starts with a workbench.
+26. Our new multi tool does 14 things. You will use 1 of them.
+27. Your total is $47. Or $1,200 if you listen to me for five more minutes.
+28. That lumber is warped. Here's straighter lumber at "premium straightness".
+29. Sale ends Sunday. It always ends Sunday. Every Sunday.
+30. Couldn't help noticing your trolley looks lonely.
+31. We have an app now. It notifies you when you need things. Constantly.
+32. You want the 5 gallon bucket. Everyone wants the 5 gallon bucket.
+33. Free workshop Saturday: "How to fix what you broke on Friday".
+34. Paint chip samples are free. Regret is also free.
+35. The extended warranty covers "enthusiasm related damage".
+36. A real DIYer owns three tape measures. Where are your other two?
+37. I set aside the last pressure washer for you. It was fate.
+38. You're our customer of the month. It's the 4th.
+39. Bought a ladder last week? Have you seen this taller ladder?
+40. Thanks for shopping! See you in about an hour.
+
+
+## PARENT: unsolicited advice, buried in a long paragraph, plus stories from back in the day
+1. Hi sweetie, I was just talking to Linda from church, her son retiled his whole house with a butter knife, anyway the weather is lovely, your father found a raccoon in the shed, and please don't forget to turn the water off before touching the pipes, love you, call me.
+2. Back in my day we didn't have YouTube, we had a book and a dream and a lot of bandaids. Your grandfather built our porch with nails he found in the road. It's still standing. Mostly. Please wear gloves. Also eat a vegetable.
+3. Did you know your uncle once put a window in upside down? We still don't talk about it at Thanksgiving. Anyway, I'm sure yours will be fine. Make sure the window opens the right way. Which way is right? Ask someone. Not your uncle.
+4. I saw a documentary about mold last night, so naturally I thought of you. Keep the bathroom ventilated, use the good paint, and don't sand without a mask. Your cousin Darren is engaged, by the way. To a carpenter. Just saying.
+5. When we bought our first house, the kitchen was a hot plate and a bucket. We were happy! Well, your father wasn't, but I was. Anyway, the bucket is still in the garage if you need it. Do you need it? I'll drop it off.
+6. Your father says hi and that you're holding the drill wrong. He hasn't seen you hold the drill. He just knows. Anyway, how's the weather there, are you sleeping, are you drinking enough water, and is the kitchen done yet?
+7. In 1987 we redid the living room with wood paneling and it was the height of fashion. You should consider it. Very warm. Very brown. Your friends will be jealous. Also, have you called your aunt? She worries. I don't worry. I just wonder.
+8. I'm not telling you what to do, but if I were telling you what to do, I'd tell you to hire someone. Or at least read the instructions. All of them. Even the small print. Especially the small print. Love, your mother who is not telling you what to do.
+9. Your grandmother always said "a crooked shelf is an honest shelf". She also said a lot of other things that were not true. Anyway, use a level. And bring a sweater, it's getting cold. Are you wearing a sweater? You're not, are you.
+10. I bought you a book called "Home Repair for Beginners". Don't be offended, it was on sale. Chapter one is about knowing when to stop. I put a sticky note on chapter one. And chapter two. And all the chapters.
+11. Fun story: your father once tried to fix the toilet and we had a fountain in the bathroom for three days. The plumber still sends us a Christmas card. Anyway, I'm sure you know what you're doing. Do you know what you're doing?
+12. Just a thought, and you can ignore it, but maybe paint the walls a nice beige. Beige never offended anybody. Your sister painted hers green and look how that turned out. Divorced. Not because of the green. But still.
+13. Back in the day we didn't have power tools, we had elbows. We used them. Everything was harder and we were happier. Except your father. He was never happy. Anyway, how's the project going? Are you using your elbows?
+14. Remember to lift with your legs, not your back. Your grandpa lifted with his back his whole life and now he can only look at the floor. He says it's fine, he finds a lot of coins. Anyway, love you, be careful, call me.
+15. I talked to Barbara and she said her nephew does renovations and he could take a look. He's very nice, very handsome, and single. Not that this is about that. It's about your kitchen. And also maybe about that.
+16. I don't want to be that parent, but is the house still standing? I had a dream it fell over. In the dream you were smiling. Maybe it was a good dream. Anyway, check the foundation. What is a foundation? You know. The bottom part.
+17. When I was your age I had three kids, a full time job, and I wallpapered the whole house in a weekend. I'm not saying this to make you feel bad. I'm just saying it. Out loud. To you. Specifically. Love you.
+18. Your father wants to know if you've tried turning it off and on again. I don't know what "it" is. He doesn't either. He read it somewhere. Anyway we're coming Sunday. Don't clean. Do clean. We'll bring food.
+19. A little advice: always keep a fire extinguisher nearby. Not because I think you'll start a fire. Just because. Your cousin started a fire. With a toaster. While renovating. So. Just in case. Love you so much.
+20. Back in the day, a "smart home" meant the kids did their chores. Now everything needs WiFi. Does your new faucet need WiFi? Don't let your faucet get WiFi. That's how it starts. Then it knows things.
+21. I found your baby pictures today and you were so cute with your little plastic hammer. You hit the dog with it. Anyway. Please don't hit anything important with your real hammer. Like a pipe. Or the dog. Or your thumb.
+22. I'm sure you checked, but did you check if that wall is load bearing? Your father says to knock on it. If it knocks back, it's load bearing. I don't think that's right. But he seemed very confident. Like you.
+23. Just so you know, the paint store near us is having a sale, and I bought you twelve gallons of "Peaceful Meadow". You don't have to use it. You should use it. It's very peaceful. Very meadow.
+24. Your great grandfather built his house with his bare hands and a donkey. The donkey did most of the work. We've always been proud of the donkey. Anyway, if you need help, let me know, I can't lift anything but I can watch.
+25. Please remember to eat lunch. Nobody can tile on an empty stomach. Well, your uncle did once and he fainted into the grout. You can still see the face print. It's a family heirloom now.
+26. I read online that you should never mix the blue chemical with the yellow chemical. I don't know what chemicals you have. But don't mix them. Or any colors. Just to be safe. Love you, call me, don't mix colors.
+27. When your father and I renovated, we fought about the tiles for two weeks. Then we went with the ones I liked. He's still bitter. Anyway, choose tiles you both like, or choose the ones your partner likes. Trust me.
+28. Back in my day, we called a handyman a "husband". Now everyone does it themselves. Very modern. Very brave. Very dusty. Wear a mask. Your lungs are the only ones you get. I checked.
+29. I'm proud of you for trying. I'm also a little scared. Mostly proud. Sixty forty. Seventy thirty on Tuesdays. Anyway, did you remember to unplug the saw before changing the blade? Say yes. Please say yes.
+30. Fun fact: our house has a door that opens onto a wall because your father "had a vision". We call it the vision door. Don't make a vision door. Make normal doors. Normal doors are lovely.
+31. Have you thought about just moving? I'm kidding. Unless you want to. There's a lovely place near us. With a finished kitchen. And a mother nearby who could visit every day. Just a thought. A nice thought.
+32. Your father wants to know what drill bit you're using. I told him I'd ask. I won't understand the answer. Just say "the good one" and he'll be happy. He just wants to feel involved. We both do. Call me.
+33. When I was little, we had one tool in the house and it was a spoon. We fixed everything with that spoon. We ate with it too. Kids today have it too easy. Anyway, do you need a spoon? I have spoons.
+34. I just want to say I trust you completely, and also I'll be calling every hour, and also your aunt is coming to "help", and also she's bringing her own ladder because she doesn't trust yours. Love you!
+35. Don't forget to take breaks. Your grandfather never took breaks and he finished the attic in a week. Then he slept for a month. So maybe take breaks. Or work very fast. Either way, drink water.
+36. I'm not saying the bathroom tiles you chose are ugly. I'm saying "bold". Bold is good. Bold is brave. Bold is what people say when they're being nice. Anyway, they're bold. Love you.
+37. A little story: our neighbor Gary tried to renovate his own roof in 1994. Gary is fine. The roof is fine now. Gary's pride is not fine. Please don't be Gary. Please be careful on ladders. Love, Mom.
+38. You know what they used to say: "if it ain't broke, don't fix it". You know what they say now? I don't know. But I'm sure it's about calling a professional. Or about avocados. One of the two.
+39. I keep thinking about your kitchen. Is the sink connected to anything? Like a pipe? Your cousin had a sink that wasn't connected to anything. It was decorative. It was not decorative. Check the pipe.
+40. Just checking in, no pressure, but your father bet our neighbors you'd be done by Christmas, and he can't afford to lose again, he already lost the boat in 2009. So. No pressure. Love you.
+
+
+## FRIEND: wants to hang out, brings beer, helps once in a while, backs off when it's not fun
+1. Brought beer. Is that helping?
+2. I'm outside with chips. Is it a demolition day? I love demolition days.
+3. Can I help? Not with sanding though. Or painting. Or lifting.
+4. I'll hold the flashlight. I'm a world class flashlight holder.
+5. Took a look at the job list. Want to go bowling instead?
+6. I can lend you my nail gun. It only jams on Tuesdays.
+7. Me and the beer are on our way. Me and the beer are not bringing tools.
+8. I would help but my back gets weird around drywall.
+9. I know a tiler who owes me a favor. He owes everyone a favor.
+10. You need me to smash something? I'm amazing at smashing.
+11. Grouting sounds boring. Call me for the fun part. Is there a fun part?
+12. Game night Thursday. The tile will still be broken Friday.
+13. Need a second opinion? It's crooked. Want a third opinion? Beer.
+14. Can't help today, I'm emotionally exhausted from watching you work.
+15. I helped my cousin once. We're not cousins anymore.
+16. On my way! Wait, is this the painting thing? Never mind.
+17. Fine, I'll help. I'm only carrying the light stuff. Like snacks.
+18. You need a break. I need a break. Let's break.
+19. Pizza is ordered. Your kitchen can be a dining room tonight.
+20. My uncle has a truck. My uncle does not lend the truck. But he has one.
+21. Bro, I just watched one video and now I'm basically certified.
+22. Remember when we said this would take two weekends? Cute.
+23. I can come Saturday. After brunch. And a nap. Maybe Sunday.
+24. Sent you a meme about your project. It's the one with the dog in the fire.
+25. Is demo day done? Because I really only signed up for demo day.
+26. I'll supervise. Every project needs a guy in a lawn chair.
+27. Just pulled up. Is the fridge working? Asking for the beer.
+28. I'll help paint if you let me pick the color. It's orange.
+29. Today I'm the morale officer. I brought speakers.
+30. I could help but your partner gives me the look.
+31. Ok, I'll come. But if I hear the word "grout", I'm leaving.
+32. You're doing great. Want to celebrate prematurely?
+33. My hands are for gaming, not for drywall.
+34. Pulled a muscle reading your task list.
+35. I fixed my shelf once. It's on the floor now, but it's fixed.
+36. Can I bring my dog? He's useless too, but in a cute way.
+37. Fine, I'll carry boards. Two. Then a beer. Then maybe a third board.
+38. Saw your post. Is that a wall or a modern art piece?
+39. I was going to help, but then I got comfortable on your couch. Which is in the yard.
+40. Drinks on me when you finish. So, in about 2032?
+
+
+## PAYMENTS: bank fraud alert flow (in the code as pay(); keep it when the code is combined)
+Whenever the player pays for anything (finishing a task with a cost, or buying from the Store Clerk):
+- The payment is put ON HOLD. The Budget line on the post-it shows "$... on hold".
+- The BANK (an extra contact with a bank icon) texts: "Potential fraud: a payment of $X at the hardware store (item) is on hold. Was this you?"
+- The STORE CLERK texts that the card is not going through.
+- The player answers the bank: "Yes, it was me." (the money leaves the budget) or "No, block it." (red, the payment is cancelled).
+- Bank and clerk then confirm what happened.
+
+Clerk, card declined:
+- Hm, your card isn't going through. Want to try another one? We also sell gift cards.
+- Card declined. Happens all the time. Mostly to people buying this much grout.
+- The machine says no. I say: have you seen our payment plans?
+- Your card got rejected. I'll keep your cart warm. And add a few things.
+- Card not going through. Did your bank see your project?
+Clerk, after "Yes, it was me":
+- It went through! Receipt's in the bag. Also, have you seen our new cordless everything?
+- Approved! See you in about an hour.
+- Payment worked. Your bank must believe in you. I do too. Mostly.
+Clerk, after "No, block it":
+- Still declined. I put your stuff behind the counter. It misses you already.
+- No luck. Cash works. So does a second card. So does a third.
+
+
+## CRACKED PHONE (in the code as crackPhone())
+After a big fix (a task costing $300 or more, or an urgent one), there is a 1 in 10 chance the phone gets a small crack
+in the lower left corner of the screen. The text stays readable. Add ?crack to the address to see it straight away.
