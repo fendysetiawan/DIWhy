@@ -283,6 +283,51 @@ html[data-theme="dark"] #homeView{background:linear-gradient(165deg,#24485a 0%,#
 .floors button.here{opacity:.45;cursor:default}
 .floors button.here small::after{content:" (you are here)"}
 body.inside{background:#231912}
+/* the staircase: the house in section; the other storeys light up */
+.floor-pick{width:min(340px,calc(100vw - 32px))}
+.section{position:relative;width:220px;margin:4px auto 16px;display:flex;flex-direction:column;align-items:center}
+.section .roof{display:block;width:220px;height:64px;margin-bottom:-2px}
+.storey{position:relative;width:196px;height:62px;margin-top:-2px;display:flex;align-items:flex-end;justify-content:space-evenly;padding:0 10px 10px;
+  background:#e6dac1;border:2px solid #2b1a12;border-radius:2px;cursor:pointer;transition:filter .2s,box-shadow .25s,transform .3s var(--pop)}
+.storey .win{width:20px;height:22px;background:#7fb3d0;border:2px solid #6b4423;box-shadow:inset 3px 3px 0 #d6eef8}
+.storey .win.low{height:12px}
+.storey .door{width:22px;height:36px;background:#8f5a31;border:2px solid #2b1a12;border-bottom:0}
+.storey.under{background:#9f9b92}
+.grade{width:220px;height:8px;margin-top:-2px;background:repeating-linear-gradient(90deg,#5a9737 0 6px,#70b245 6px 12px);border-top:2px solid #2b1a12;border-bottom:2px solid #2b1a12;z-index:1}
+.storey:not(.here){animation:storeyGlow 1.6s ease-in-out infinite;z-index:2}
+@keyframes storeyGlow{0%,100%{box-shadow:0 0 0 2px #c9fff1,0 0 12px 3px rgba(34,195,160,.55)}50%{box-shadow:0 0 0 3px #c9fff1,0 0 22px 7px rgba(34,195,160,.9)}}
+.storey:not(.here):hover,.storey:not(.here):focus-visible{filter:brightness(1.12);transform:scale(1.03);outline:none}
+.storey.here{filter:saturate(.55) brightness(.9);cursor:default}
+.storey .nm{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:4px 11px;border-radius:999px;background:var(--glass);border:1px solid var(--btn-border);box-shadow:var(--shadow);color:var(--ink);font-size:12.5px;font-weight:650;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s}
+.storey:not(.here):hover .nm,.storey:not(.here):focus-visible .nm{opacity:1}
+.storey .me{position:absolute;right:-14px;top:-12px;width:32px;height:32px;border-radius:50%;overflow:hidden;background:#f7e5cd;border:2px solid #fff;box-shadow:var(--shadow);display:none}
+.storey .me img{display:block;width:100%;height:100%}
+.storey.here .me{display:block}
+/* what people say: bottom centre, above the arrows */
+.talk{position:fixed;left:50%;bottom:132px;z-index:6;transform:translate(-50%,10px);width:min(520px,calc(100vw - 32px));display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-radius:20px;
+  background:var(--glass);border:1px solid var(--btn-border);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);color:var(--ink);opacity:0;pointer-events:none;transition:opacity .3s,transform .4s var(--settle)}
+.talk.show{opacity:1;transform:translate(-50%,0)}
+.talk .av{width:44px;height:44px;flex:none}
+.talk b{font-size:14px;font-weight:650}
+.talk i{font-style:normal;font-size:10.5px;font-weight:650;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin-left:7px}
+.talk p{margin:3px 0 0;font-size:14px;line-height:1.4}
+body.in-scene .talk{display:none}
+/* the store: ask first, or leave (bottom right) */
+.store-card{max-height:calc(100vh - 190px)}
+.store-ask{position:absolute;right:16px;bottom:16px;width:min(400px,calc(100vw - 32px));display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.ask-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.ask-row button{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;font-size:13px;font-weight:650;background:var(--btn-bg);border:1px solid var(--btn-border);box-shadow:var(--shadow);color:var(--ink);transition:background .2s,transform .3s var(--pop)}
+.ask-row button:hover:not(:disabled){background:var(--btn-hover)}
+.ask-row button:active:not(:disabled){transform:scale(.95)}
+.ask-row button:disabled{opacity:.55;cursor:default}
+#askGPT{background:#111;color:#fff;border-color:#111}
+#storeLeave{background:var(--soft)}
+.ask-out{max-width:100%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.4;background:var(--glass);border:1px solid var(--btn-border);box-shadow:var(--shadow);color:var(--ink);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+.ask-out:empty{display:none}
+.ask-out b{margin-right:4px}
+.ask-out small{color:var(--ink-3)}
+.pbar{display:block;height:4px;margin-top:6px;border-radius:999px;background:var(--trough);overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:#ff0033}
 .view-title{padding:8px 18px 8px;font-size:26px;font-weight:750;letter-spacing:-.02em}
 .list{flex:1;overflow-y:auto;padding:0 8px 8px;scrollbar-width:none}
 .list::-webkit-scrollbar{display:none}
@@ -697,6 +742,7 @@ html[data-theme="dark"] .diy-sprite,html[data-theme="dark"] .diy canvas{filter:b
 <div class="yard" id="yard"></div>
 <div class="hots" id="hots"></div>
 <div class="floor-tag" id="floorTag"></div>
+<div class="talk" id="talk" role="status" aria-live="polite"></div>
 
 <!-- ============ DIY project in elevation view ============ -->
 <div class="diy" id="diy">
@@ -713,9 +759,15 @@ html[data-theme="dark"] .diy-sprite,html[data-theme="dark"] .diy canvas{filter:b
   <div class="modal" id="eventCard"><div class="eyebrow"></div><h3></h3><p></p><div class="prep"></div><div class="opts"></div><div class="res"></div></div>
 </div>
 <div class="modal" id="diyAsk"><div class="eyebrow"></div><h3></h3><p></p><div class="est"></div><div class="prepline"></div><div class="row"><button class="yes">Take it on</button><button class="no">Not now</button></div></div>
-<div class="modal" id="floorAsk"><div class="eyebrow">Stairs</div><h3>Which floor?</h3>
-  <div class="floors"><button data-f="upper">Upstairs<small>3 bedrooms, bathroom</small></button><button data-f="ground">Ground floor<small>kitchen, dining, living</small></button><button data-f="basement">Basement<small>laundry, workshop</small></button></div>
-  <div class="row"><button class="no">Stay here</button></div></div>
+<div class="modal floor-pick" id="floorAsk"><div class="eyebrow">Stairs</div><h3>Where to?</h3>
+  <div class="section" aria-label="The house">
+    <svg class="roof" viewBox="0 0 220 64" shape-rendering="crispEdges" aria-hidden="true"><path d="M168 6h14v34h-14z" fill="#2b1a12"/><path d="M170 8h10v30h-10z" fill="#a3533b"/><path d="M0 64L110 2L220 64z" fill="#2b1a12"/><path d="M9 62L110 7L211 62z" fill="#c97a5d"/><path d="M40 52h140M70 36h80" stroke="#ab6148" stroke-width="3"/></svg>
+    <button class="storey" data-f="upper"><span class="win"></span><span class="win"></span><span class="win"></span><span class="win"></span><span class="nm">Upstairs</span><span class="me"></span></button>
+    <button class="storey" data-f="ground"><span class="win"></span><span class="door"></span><span class="win"></span><span class="nm">Ground floor</span><span class="me"></span></button>
+    <div class="grade" aria-hidden="true"></div>
+    <button class="storey under" data-f="basement"><span class="win low"></span><span class="win low"></span><span class="nm">Basement</span><span class="me"></span></button>
+  </div>
+  <div class="row"><button class="no">Cancel</button></div></div>
 <!-- ============ the hardware store: the clerk behind the counter ============ -->
 <div class="store" id="store">
   <canvas id="storeBack" width="533" height="300"></canvas>
@@ -724,6 +776,10 @@ html[data-theme="dark"] .diy-sprite,html[data-theme="dark"] .diy canvas{filter:b
   <img id="storePlayer" alt="">
   <div class="say store-say" id="storeSay"></div>
   <div class="store-card" id="storeCard"></div>
+  <div class="store-ask" id="storeAsk">
+    <div class="ask-out" id="askOut"></div>
+    <div class="ask-row"><button id="askYT"><span class="yt-mark"><i></i></span>Watch YouTube first</button><button id="askGPT">Ask ChatGPT first</button><button id="storeLeave">Leave the store</button></div>
+  </div>
 </div>
 <div class="fade" id="fade"></div>
 <div class="dpad" id="dpad" aria-label="Move">
@@ -2128,6 +2184,7 @@ function askFloor() {
     b.onclick = e => { e.stopPropagation(); floorAsk.classList.remove('open'); frozen = false; travel(b.dataset.f, 900, 372, 'front'); };
   });
   floorAsk.querySelector('.no').onclick = e => { e.stopPropagation(); floorAsk.classList.remove('open'); frozen = false; };
+  floorAsk.querySelectorAll('.me').forEach(m => { m.innerHTML = face(owner); });   /* you are here */
   floorAsk.classList.add('open');
 }
 /* night: light the room the player is in */
@@ -2580,9 +2637,9 @@ function visit(role, line, stay) {
   const via = routeVia(scene, p.x, p.y), goal = [p.x + (p.x > 700 ? -62 : 62), p.y + 4];
   n.path = [...via, goal]; visitor = role;
   n.onArrive = () => {
-    turn(ch, p.x < ch.x ? 'left' : 'right'); say(ch, line, stay); n.talking = true;
+    turn(ch, p.x < ch.x ? 'left' : 'right'); talk(role, line, stay); n.talking = true;
     n.leaveT = setTimeout(() => {
-      n.talking = false; say(ch, '');
+      n.talking = false; hideTalk();
       n.path = [...via.slice().reverse(), start];
       n.onArrive = () => { visitor = null; resetNPC(role); };
     }, stay);
@@ -2591,8 +2648,25 @@ function visit(role, line, stay) {
 }
 function endVisits() {
   if (!visitor) return;
-  const n = NPCS[visitor]; clearTimeout(n.leaveT); const r = visitor; visitor = null; resetNPC(r);
+  const n = NPCS[visitor]; clearTimeout(n.leaveT); const r = visitor; visitor = null; hideTalk(); resetNPC(r);
 }
+/* spoken lines appear at the bottom of the screen, above the arrows */
+const talkEl = $('#talk');
+function talk(role, text, ms) {
+  const c = C.find(x => x.id === role); if (!c) return;
+  talkEl.innerHTML = `<span class="av">${face(c.name)}</span><div><b>${c.name}</b><i>${c.role}</i><p>${text}</p></div>`;
+  talkEl.classList.add('show'); clearTimeout(talkEl._t); talkEl._t = setTimeout(hideTalk, ms || 6000);
+}
+function hideTalk() { clearTimeout(talkEl._t); talkEl.classList.remove('show'); }
+/* the neighbor is peeping over the fence: step outside and they come over to talk */
+const baseTravel = travel;
+travel = (name, x, y, dir) => {
+  const from = scene; baseTravel(name, x, y, dir);
+  if (name === 'yard' && from !== 'yard') setTimeout(() => {
+    const n = NPCS.neighbor;
+    if (n.scene === 'yard' && !n.path.length && !visitor) visit('neighbor', oneOf(TEXTS.neighbor), 7000);
+  }, 1100);
+};
 /* the neighbor drops in every few minutes; the friend or a parent sometimes (10 % a minute) */
 setTimeout(function neighborLoop() { visit('neighbor', oneOf(TEXTS.neighbor), 7000); setTimeout(neighborLoop, 150000 + Math.random() * 60000); }, 45000);
 setInterval(() => { if (Math.random() < .1) { const who = Math.random() < .5 ? 'friend' : 'parent'; visit(who, oneOf(TEXTS[who]), 22000); } }, 60000);
@@ -2695,7 +2769,7 @@ function goBuy() {
 function openStore() {
   const clerk = C.find(x => x.id === 'clerk');
   stClerk.src = SPRITES[clerk.name].front; stPlayer.src = SPRITES[owner].back;
-  storeEl.classList.add('open'); fitStore(); renderStore();
+  storeEl.classList.add('open'); fitStore(); renderStore(); askOut.innerHTML = ''; updAsk();
   stSay.textContent = oneOf(TEXTS.clerk); stSay.classList.add('show');
   fadeEl.classList.remove('on');
 }
@@ -2732,11 +2806,45 @@ function backToJob() {
     const me = chars[selected]; me.scripted = false; script = null;
     setScene(storeReturn.scene, storeReturn.x, storeReturn.y, 'back');
     document.body.classList.add('in-diy'); diyEl.classList.add('open'); fitDiy();
-    const need = $('#diyNeed'); if (need) need.remove();
-    run.waitTool = null; run.paused = false; run.last = performance.now();
+    if (INV.has(run.waitTool)) { const need = $('#diyNeed'); if (need) need.remove(); run.waitTool = null; }   /* left without it: the job still waits ("Go buy it") */
+    run.paused = false; run.last = performance.now();
     fadeEl.classList.remove('on');
   }, 320);
 }
+/* in the store: ask YouTube or ChatGPT for their pick before buying (it costs time, like in the phone apps) */
+const askOut = $('#askOut');
+const storeTools = () => Object.values(TOOLS_NEEDED[run.id] || {}).filter(t => !INV.has(t));
+function updAsk() {
+  const p = PREP[run.id] || {};
+  $('#askYT').disabled = !!p.yt; $('#askYT').lastChild.textContent = p.yt ? 'Watched on YouTube' : 'Watch YouTube first';
+  $('#askGPT').disabled = !!p.gpt; $('#askGPT').textContent = p.gpt ? 'Asked ChatGPT' : 'Ask ChatGPT first';
+}
+$('#askYT').onclick = e => {
+  e.stopPropagation(); if (!run || PREP[run.id].yt || askOut.dataset.busy) return;
+  const v = VIDEOS.find(x => x.project === run.id); askOut.dataset.busy = '1';
+  askOut.innerHTML = `<b>YouTube</b> Watching "${v.title}"... <span class="pbar"><i></i></span>`;
+  const bar = askOut.querySelector('i'); let t = 0;
+  const iv = setInterval(() => {
+    t += .08; bar.style.width = Math.min(100, t * 100) + '%';
+    if (t < 1) return;
+    clearInterval(iv); delete askOut.dataset.busy;
+    v.watched = true; PREP[run.id].yt = true; spend('yt', v.min); renderYT();
+    const picks = storeTools().map(tl => SHOP[tl].opts.find(o => o[2] === 'right')[0].toLowerCase());
+    askOut.innerHTML = `<b>YouTube</b> ${picks.length ? 'Get the ' + picks.join(' and the ') + '. Skip the fancy stuff.' : 'You already have what you need.'} <small>(${fmtMin(v.min)})</small>`;
+    renderStore(); updAsk();
+  }, 100);
+};
+$('#askGPT').onclick = e => {
+  e.stopPropagation(); if (!run || PREP[run.id].gpt || askOut.dataset.busy) return;
+  askOut.dataset.busy = '1'; askOut.innerHTML = '<b>ChatGPT</b> <span class="dots"><i></i><i></i><i></i></span>';
+  setTimeout(() => {
+    delete askOut.dataset.busy; PREP[run.id].gpt = true; spend('gpt', 20); renderChips();
+    const picks = storeTools().map(tl => SHOP[tl].opts[SHOP[tl].gpt][0].toLowerCase());
+    askOut.innerHTML = `<b>ChatGPT</b> ${picks.length ? 'Great question! You just need the ' + picks.join(' and the ') + '. That is it!' : 'Looks like you are all set!'} <small>(20 min)</small>`;
+    renderStore(); updAsk();
+  }, 1100);
+};
+$('#storeLeave').onclick = e => { e.stopPropagation(); backToJob(); };
 /* ---------- in the DIY scene the player walks to each work spot, back to the camera, and works with a tool ---------- */
 const WORK_X = {   /* where to stand for each step, in scene units (null for the event card) */
   wall:  [700, 810, 810, null, 810, 810, 810],

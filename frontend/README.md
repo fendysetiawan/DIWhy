@@ -16,7 +16,7 @@ The game's user interface as a single self-contained page. Open `index.html` in 
 
 - **Going in:** walk up to the front door; it glows. Click it (or press **Space** or **Enter**) and the scene changes to the inside of the house.
 - **The cottage:** a Northeast-style cottage with 3 bedrooms, 2 bathrooms, two storeys and a basement. Each floor is a plan seen from above with low walls. Walls and big furniture are colliders: you walk around them, never over them.
-- **Stairs:** one staircase, in the hall on every floor (the way down runs under the way up). Walk up to it; it glows. Click it and choose the floor.
+- **Stairs:** one staircase, in the hall on every floor (the way down runs under the way up). Walk up to it; it glows. Click it and the house appears in section: your storey is dimmed with your face on it, the other two light up. Hover one to see its name, click it to go there, or **Cancel**.
 - **Fits the screen:** inside, the house and the player shrink so the plan fits between the post-its and the phone. At night the room you are in is lit.
 - **DIY potential:** walk into a room with something to fix and it glows softly; come close and it glows fully with a label. Three spots: the **wall between kitchen and living room** (ground floor; the dining room sits next to the kitchen), the **toilet** in the upstairs bathroom and the **dryer** (basement). Click one to see the cost and time, then **Take it on**.
 - **DIY projects:** the scene changes to a side view (elevation) where the job is animated step by step. Halfway through, an event card from `events/` asks how you handle a surprise; the answer changes the cost, the days and your health. At the end the payment goes through the bank's fraud check, the days are added, and some projects change the house (the kitchen wall really disappears from the plan).
@@ -25,7 +25,7 @@ The game's user interface as a single self-contained page. Open `index.html` in 
 ## People in the world
 
 - **Partner:** lives on the ground floor and roams the living room, dining room and kitchen. Never outside.
-- **Neighbor:** stands outside the bottom fence, watching. Every few minutes walks in (through the gate, the front door, or up the stairs) to the player, says something snarky in a speech bubble, and leaves.
+- **Neighbor:** stands outside the bottom fence, peeping. Step out of the house and they come over to talk; every few minutes they also walk in (through the gate, the front door, or up the stairs). What visitors say appears at the bottom of the screen, in the middle, above the arrows.
 - **Friend and parent:** not around. Each minute there is a 10% chance one of them pops by for about 30 seconds: walks to the player, comments, leaves.
 - **Contractor:** only appears in person when the player answers "Give up." in the contractor's chat.
 - **Store clerk:** only appears behind the counter in the store.
@@ -36,6 +36,7 @@ The game's user interface as a single self-contained page. Open `index.html` in 
 - Each DIY job needs a couple of tools (`TOOLS_NEEDED` in `index.html`; the event files don't list tools yet). The player starts with a hammer, a screwdriver and a tape measure.
 - When a step needs a tool the player doesn't have, the job stops: **"Go buy it"**. The player walks out through the gate and appears in the store, in front of the counter, with the clerk behind it.
 - Each tool comes in three versions (cheap, right, fancy). Next to them: **the clerk recommends** the fancy one, **YouTube recommends** the right one (if the player watched that job's video), **ChatGPT recommends** whatever it read first (if asked; sometimes wrong). The cheap one costs a little health. Every purchase goes through `pay()`.
+- **Bottom right in the store:** **Watch YouTube first** (2 to 3 hours) or **Ask ChatGPT first** (20 minutes) to get their picks next to the items before buying, or **Leave the store** (the job keeps waiting for the tool).
 - **Back to the job** jumps straight back into the fixing scene, which carries on.
 
 ## In a DIY scene
