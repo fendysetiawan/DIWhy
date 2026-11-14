@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DIWHY?! style</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* layout for this page only; everything brand-related comes from style.css */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100vh; padding: 48px 16px 96px; }
+    main { max-width: 1000px; margin: 0 auto; display: grid; gap: 64px; }
+    section { display: grid; gap: 24px; }
+
+    .row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-end; }
+    .swatch { width: 160px; }
+    .swatch i { display: block; height: 80px; margin-bottom: 16px; border: 4px solid var(--brand-cream); border-radius: 8px; }
+
+    .logo { width: min(100%, 424px); image-rendering: pixelated; }
+    .team-world { width: min(100%, 696px); image-rendering: pixelated; }
+
+    .cast figure { width: 112px; text-align: center; }
+    .cast .sprite { position: relative; width: 112px; height: 224px; overflow: hidden; }
+    .cast .sprite img { position: absolute; left: 50%; top: 46%; width: 320px; transform: translate(-50%, -50%); image-rendering: pixelated; }
+    .cast .cat img { width: 160px; image-rendering: pixelated; }
+
+    .slide { display: grid; gap: 32px; }
+    .slide .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; }
+  </style>
+</head>
+<body class="brand-stars">
+  <main>
+    <section>
+      <h1 class="brand-title">DIWHY?!</h1>
+      <p class="brand-text">The style guide. Everything here comes from <span class="brand-highlight">style.css</span>.</p>
+    </section>
+
+    <section>
+      <p class="brand-text brand-highlight">Colours</p>
+      <div class="row" id="swatches"></div>
+    </section>
+
+    <section>
+      <p class="brand-text brand-highlight">Font: Press Start 2P, two sizes</p>
+      <p class="brand-title">.brand-title 32px</p>
+      <p class="brand-text">.brand-text 16px, for everything else.</p>
+      <div class="row">
+        <button class="brand-button" type="button">START</button>
+        <button class="brand-button" type="button">GIVE UP</button>
+      </div>
+    </section>
+
+    <section>
+      <p class="brand-text brand-highlight">Window (.brand-window)</p>
+      <div class="brand-window slide">
+        <p class="brand-text brand-highlight">Three projects</p>
+        <h2 class="brand-title">Every job can uncover a new problem</h2>
+        <div class="cols">
+          <div>
+            <h3 class="brand-text brand-highlight">Open the floor plan</h3>
+            <p class="brand-text">A wall can hide wiring or mold. Removing too much can damage the slab.</p>
+          </div>
+          <div>
+            <h3 class="brand-text brand-highlight">Fix the bathroom leak</h3>
+            <p class="brand-text">A pipe repair can damage flooring or knock out the bathroom circuit.</p>
+          </div>
+          <div>
+            <h3 class="brand-text brand-highlight">Replace the smoking dryer</h3>
+            <p class="brand-text">Cleaning behind it can lead to opening a wall and discovering a beehive.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <p class="brand-text brand-highlight">Logos</p>
+      <img class="logo" src="logos/around-the-world-games-logo.svg" alt="Around The World Games logo" />
+      <img class="team-world" src="logos/team-world.svg" alt="The team on a spinning globe" />
+    </section>
+
+    <section>
+      <p class="brand-text brand-highlight">Characters</p>
+      <div class="row cast" id="cast"></div>
+    </section>
+  </main>
+
+  <script>
+    const tokens = [["navy", "background"], ["blue", "windows"], ["sky", "highlights"], ["cream", "text"]];
+    const css = getComputedStyle(document.documentElement);
+    document.getElementById("swatches").innerHTML = tokens.map(([t, use]) => {
+      const v = css.getPropertyValue(`--brand-${t}`).trim();
+      return `<div class="swatch"><i style="background:${v}"></i><p class="brand-text">${t}<br>${v}<br>${use}</p></div>`;
+    }).join("");
+
+    const people = [
+      ["travis-potter", "Travis"], ["aidan-newsome", "Aidan"], ["rachel-katz", "Rachel"], ["christian-huber", "Christian"],
+      ["ramy-maher", "Ramy"], ["gigi-singh", "Gigi"], ["fendy-seitiawan", "Fendy"],
+    ];
+    document.getElementById("cast").innerHTML =
+      people.map(([id, name]) =>
+        `<figure><div class="sprite"><img src="characters/${id}/front.svg" alt="${name}" /></div><figcaption class="brand-text">${name}</figcaption></figure>`
+      ).join("") +
+      `<figure class="cat"><img src="characters/cat/normal.svg" alt="The cat" /><figcaption class="brand-text">Cat</figcaption></figure>`;
+  </script>
+</body>
+</html>
