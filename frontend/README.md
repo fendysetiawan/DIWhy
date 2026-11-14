@@ -40,4 +40,6 @@ The page runs a demo loop: messages arrive every ~10 seconds, time and budget cr
 
 ## Style
 
+**Working on the graphics? Read [GRAPHICS.md](GRAPHICS.md) first:** pixel scale, palette, drawing rules, sprite format and a checklist.
+
 Follows the ramymaher.com style guide: system font, calm colours, the house easing curve `cubic-bezier(.65,0,.25,1)`, round buttons and pill chips, light and dark themes, and `prefers-reduced-motion` turns the motion off.
