@@ -98,10 +98,12 @@ html[data-theme="dark"] body{background:#1f2c30}
 
 /* ---------- the to-do post-it (top left): status, then tasks ---------- */
 .notes{
-  position:fixed; left:18px; top:18px; z-index:5;
-  width:min(300px,calc(100vw - 92px)); max-height:calc(100vh - 96px);
-  display:flex; flex-direction:column; gap:30px;
+  position:fixed; left:18px; top:18px; bottom:18px; z-index:5;   /* tasks on top, time / budget / health at the bottom */
+  width:min(300px,calc(100vw - 92px));
+  display:flex; flex-direction:column; justify-content:space-between; gap:30px; pointer-events:none;
 }
+.notes > .note{pointer-events:auto}
+.note.tasks-note{order:-1}
 .note{
   position:relative; flex:none;
   display:flex; flex-direction:column;
@@ -194,7 +196,7 @@ html[data-theme="dark"] #themeBtn .moon, html:not([data-theme="dark"]) #themeBtn
 
 /* ---------- phone (bottom left): true iPhone proportions, slides up and down only ---------- */
 .phone{
-  --ph:min(calc(100vh - 32px),660px);       /* height */
+  --ph:min(calc(100vh - 84px),660px);   /* starts below the You chip and theme button */       /* height */
   --pw:calc(var(--ph) * .4615);             /* iPhone screen ratio 9 : 19.5 */
   --peek:52px;                              /* what stays visible when put away: the status bar */
   position:fixed; right:24px; bottom:16px; z-index:8;
@@ -222,10 +224,65 @@ html[data-theme="dark"] #themeBtn .moon, html:not([data-theme="dark"]) #themeBtn
 .status svg{height:11px;fill:var(--ink)}
 .views{position:absolute;top:38px;left:0;right:0;bottom:22px;overflow:hidden}
 .view{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--screen);transition:transform .5s var(--ease),visibility 0s}
-#listView{z-index:1}
-#chatView{z-index:2;transform:translateX(100%);visibility:hidden;transition:transform .5s var(--ease),visibility 0s .5s}
-.phone.chat #listView{transform:translateX(-30%);visibility:hidden;transition:transform .5s var(--ease),visibility 0s .5s}
-.phone.chat #chatView{transform:none;visibility:visible;transition:transform .5s var(--ease),visibility 0s}
+.views .view{visibility:hidden;opacity:0;transform:translateX(16px);transition:opacity .22s,transform .35s var(--ease),visibility 0s .35s}
+.phone[data-app="home"] #homeView,.phone[data-app="messages"] #listView,.phone[data-app="chat"] #chatView,.phone[data-app="yt"] #ytView,.phone[data-app="gpt"] #gptView{visibility:visible;opacity:1;transform:none;transition:opacity .22s,transform .35s var(--ease),visibility 0s}
+/* home screen */
+#homeView{align-items:center;padding:18px 16px 10px;color:#fff;background:linear-gradient(165deg,#9fd6c9 0%,#5aa9d6 52%,#3b6688 100%)}
+html[data-theme="dark"] #homeView{background:linear-gradient(165deg,#24485a 0%,#15283f 58%,#0b1322 100%)}
+.home-date{font-size:13px;font-weight:650;opacity:.9}
+.home-time{font-size:52px;font-weight:300;letter-spacing:-.03em;line-height:1.05;font-variant-numeric:tabular-nums}
+.apps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 8px;margin-top:24px;width:100%}
+.app{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.app .ic{position:relative;width:54px;height:54px;border-radius:14px;display:grid;place-items:center;box-shadow:0 4px 12px rgba(0,0,0,.2);transition:transform .3s var(--pop)}
+.app:active .ic{transform:scale(.88)}
+.ic svg{width:30px;height:30px}
+.ic-msg{background:linear-gradient(#62e676,#1fb548)} .ic-yt{background:#fff} .ic-gpt{background:#111}
+.app-badge{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--red);color:#fff;font-size:11px;font-weight:750;display:grid;place-items:center;font-style:normal;text-shadow:none}
+.home-hint{margin-top:auto;font-size:11.5px;line-height:1.4;text-align:center;opacity:.92;padding:8px 6px;border-radius:14px;background:rgba(255,255,255,.14)}
+.app-title{font-size:17px;font-weight:750;letter-spacing:-.02em}
+.app-foot{padding:6px 12px 8px;font-size:11px;color:var(--ink-3);border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+/* YouTube */
+.yt-mark{display:inline-flex;align-items:center;gap:6px}
+.yt-mark i{position:relative;width:22px;height:15px;border-radius:4px;background:#ff0033}
+.yt-mark i::after{content:"";position:absolute;left:9px;top:4px;border-left:6px solid #fff;border-top:3.5px solid transparent;border-bottom:3.5px solid transparent}
+.yt-search{margin:8px 10px 2px;padding:7px 12px;border-radius:999px;background:var(--soft);font-size:12px;color:var(--ink-3)}
+.yt-list{flex:1;overflow-y:auto;padding:8px 10px;display:flex;flex-direction:column;gap:12px;scrollbar-width:none}
+.yt-list::-webkit-scrollbar{display:none}
+.vid{display:flex;flex-direction:column;gap:5px;text-align:left;width:100%}
+.thumb{position:relative;height:92px;border-radius:12px;overflow:hidden}
+.thumb .len{position:absolute;right:6px;bottom:7px;font-size:10.5px;font-weight:700;color:#fff;background:rgba(0,0,0,.78);padding:1px 5px;border-radius:4px}
+.thumb .play{position:absolute;left:50%;top:50%;width:36px;height:25px;margin:-12px 0 0 -18px;border-radius:7px;background:rgba(255,0,51,.92)}
+.thumb .play::after{content:"";position:absolute;left:14px;top:7px;border-left:9px solid #fff;border-top:5.5px solid transparent;border-bottom:5.5px solid transparent}
+.thumb .bar{position:absolute;left:0;bottom:0;height:4px;width:0;background:#ff0033}
+.thumb .state{position:absolute;left:8px;top:7px;font-size:10.5px;font-weight:750;color:#fff;background:rgba(0,0,0,.6);padding:2px 7px;border-radius:999px;display:none}
+.vid.playing .state,.vid.watched .state{display:block}
+.vid.playing .play{display:none}
+.vid .vt{font-size:12.5px;font-weight:650;line-height:1.25}
+.vid .vm{font-size:11px;color:var(--ink-3)}
+/* ChatGPT */
+.gpt-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;scrollbar-width:none}
+.gpt-msgs::-webkit-scrollbar{display:none}
+.gpt-hello{margin:auto 0;font-size:18px;font-weight:650;text-align:center;color:var(--ink-2)}
+.gu{align-self:flex-end;max-width:85%;padding:8px 12px;border-radius:18px;font-size:13px;background:var(--bubble)}
+.ga{font-size:13px;line-height:1.45;white-space:pre-wrap}
+.ga .skip{display:block;margin-top:6px;font-size:11.5px;color:var(--ink-3);font-style:italic;white-space:normal}
+.gpt-chips{display:flex;flex-direction:column;gap:6px;padding:8px 10px}
+.gpt-chips button{text-align:left;padding:8px 12px;border-radius:14px;font-size:12.5px;background:var(--soft);border:1px solid var(--line);color:var(--ink)}
+.gpt-chips button:hover{background:var(--btn-hover)}
+.dots{display:inline-flex;gap:3px}.dots i{width:6px;height:6px;border-radius:50%;background:var(--ink-3);animation:dot 1s infinite}.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes dot{50%{opacity:.25}}
+/* DIY hints from the apps */
+.opts .hint{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;font-size:10.5px;font-weight:700;background:rgba(34,195,160,.16);color:#0f8a70}
+.modal .prep,.modal .prepline{font-size:12.5px;font-weight:600;margin:-4px 0 10px;color:var(--ink-2)}
+.modal .prep:empty,.modal .prepline:empty{display:none}
+/* the stairs ask which floor */
+.floors{display:grid;gap:6px;margin-bottom:12px}
+.floors button{display:flex;justify-content:space-between;align-items:baseline;gap:10px;text-align:left;padding:11px 14px;border-radius:14px;font-size:14px;font-weight:650;background:var(--soft);border:1px solid var(--line);color:var(--ink);transition:background .2s,transform .3s var(--pop)}
+.floors button small{font-size:11.5px;font-weight:500;color:var(--ink-3)}
+.floors button:hover:not(:disabled){background:var(--btn-hover)}
+.floors button.here{opacity:.45;cursor:default}
+.floors button.here small::after{content:" (you are here)"}
+body.inside{background:#231912}
 .view-title{padding:8px 18px 8px;font-size:26px;font-weight:750;letter-spacing:-.02em}
 .list{flex:1;overflow-y:auto;padding:0 8px 8px;scrollbar-width:none}
 .list::-webkit-scrollbar{display:none}
@@ -368,7 +425,7 @@ html[data-theme="dark"] .diy-sprite,html[data-theme="dark"] .diy canvas{filter:b
 .dpad button.on{background:var(--btn-hover);transform:scale(.9)}
 .dpad svg{width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .dpad .up{grid-column:2;grid-row:1}.dpad .left{grid-column:1;grid-row:2}.dpad .down{grid-column:2;grid-row:2}.dpad .right{grid-column:3;grid-row:2}
-@media (max-width:760px){ .dpad{left:16px;transform:none} .notes{max-height:calc(100vh - 150px)} }
+@media (max-width:760px){ .dpad{left:16px;transform:none} .notes{bottom:130px} }
 
 /* ---------- home owner chip and picker (top right) ---------- */
 #ownerBtn{
@@ -606,9 +663,12 @@ html[data-theme="dark"] .diy-sprite,html[data-theme="dark"] .diy canvas{filter:b
     <div class="dbar"><i id="diyProg"></i></div>
     <div class="diy-foot"><span id="diyCost"></span><button id="diyLeave">Leave</button></div>
   </div>
-  <div class="modal" id="eventCard"><div class="eyebrow"></div><h3></h3><p></p><div class="opts"></div><div class="res"></div></div>
+  <div class="modal" id="eventCard"><div class="eyebrow"></div><h3></h3><p></p><div class="prep"></div><div class="opts"></div><div class="res"></div></div>
 </div>
-<div class="modal" id="diyAsk"><div class="eyebrow"></div><h3></h3><p></p><div class="est"></div><div class="row"><button class="yes">Take it on</button><button class="no">Not now</button></div></div>
+<div class="modal" id="diyAsk"><div class="eyebrow"></div><h3></h3><p></p><div class="est"></div><div class="prepline"></div><div class="row"><button class="yes">Take it on</button><button class="no">Not now</button></div></div>
+<div class="modal" id="floorAsk"><div class="eyebrow">Stairs</div><h3>Which floor?</h3>
+  <div class="floors"><button data-f="upper">Upstairs<small>3 bedrooms, bathroom</small></button><button data-f="ground">Ground floor<small>kitchen, dining, living</small></button><button data-f="basement">Basement<small>laundry, workshop</small></button></div>
+  <div class="row"><button class="no">Stay here</button></div></div>
 <div class="fade" id="fade"></div>
 <div class="dpad" id="dpad" aria-label="Move">
   <button class="up" data-dir="back" aria-label="Up"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>
@@ -641,8 +701,30 @@ html[data-theme="dark"] .diy-sprite,html[data-theme="dark"] .diy canvas{filter:b
     </div>
     <button class="banner" id="banner"></button>
     <div class="views">
+      <div class="view" id="homeView">
+        <div class="home-date" id="homeDate">Day 18</div>
+        <div class="home-time" id="homeTime">9:41</div>
+        <div class="apps">
+          <button class="app" data-open="messages"><span class="ic ic-msg"><svg viewBox="0 0 24 24"><path fill="#fff" d="M12 4C7 4 3 7.2 3 11.2c0 2.2 1.2 4.1 3.1 5.4L5.4 20l3.8-2.1c.9.2 1.8.3 2.8.3 5 0 9-3.2 9-7.2S17 4 12 4z"/></svg><b class="app-badge" id="appBadge"></b></span>Messages</button>
+          <button class="app" data-open="yt"><span class="ic ic-yt"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="4" fill="#ff0033"/><path d="M10 9l5 3-5 3z" fill="#fff"/></svg></span>YouTube</button>
+          <button class="app" data-open="gpt"><span class="ic ic-gpt"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg></span>ChatGPT</button>
+        </div>
+        <div class="home-hint">Before a DIY job, watch a video or ask ChatGPT. Knowing what to do lowers the risk, but it takes time.</div>
+      </div>
+      <div class="view" id="ytView">
+        <div class="chat-head"><button class="back home-back" aria-label="Home"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><span class="app-title yt-mark"><i></i>YouTube</span></div>
+        <div class="yt-search">diy home repair</div>
+        <div class="yt-list" id="ytList"></div>
+        <div class="app-foot" id="ytTime">Time spent here: 0 min</div>
+      </div>
+      <div class="view" id="gptView">
+        <div class="chat-head"><button class="back home-back" aria-label="Home"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><span class="app-title">ChatGPT</span></div>
+        <div class="gpt-msgs" id="gptMsgs"><div class="gpt-hello">What can I help with?</div></div>
+        <div class="gpt-chips" id="gptChips"></div>
+        <div class="app-foot" id="gptTime">Time spent here: 0 min</div>
+      </div>
       <div class="view" id="listView">
-        <div class="view-title">Messages</div>
+        <div class="chat-head"><button class="back home-back" aria-label="Home"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><span class="app-title">Messages</span></div>
         <div class="list" id="contactList"></div>
       </div>
       <div class="view" id="chatView">
@@ -1113,6 +1195,7 @@ function renderList() {
   box.querySelectorAll('.contact').forEach(b => b.onclick = e => { e.stopPropagation(); openChat(b.dataset.id); });
   const total = Object.values(unread).reduce((a,b) => a+b, 0);
   $('#badge').textContent = total;
+  const ab = $('#appBadge'); if (ab) { ab.textContent = total; ab.style.display = total ? '' : 'none'; }
   phone.classList.toggle('has-unread', total > 0);
 }
 function renderChat() {
@@ -1125,9 +1208,9 @@ function openChat(id) {
   if (!isOpen) openPhone(false);
   current = id; unread[id] = 0; sticky = true; clearTimeout(peekTimer);
   renderChat(); renderQuote(); renderReplies(); renderList(); hideBanner();
-  phone.classList.add('chat');
+  setApp('chat');
 }
-$('#backBtn').onclick = e => { e.stopPropagation(); phone.classList.remove('chat'); current = null; };
+$('#backBtn').onclick = e => { e.stopPropagation(); setApp('messages'); };
 /* the contractor's quote: pinned on top of the chat, Update asks for a new one */
 function renderQuote() {
   $('#quoteVal').textContent = plan.days + ' days, ' + money(plan.budget);
@@ -1169,7 +1252,6 @@ function renderReplies() {
 function openPhone(peek) {
   if (!isOpen) { isOpen = true; phone.classList.add('open'); phone.setAttribute('aria-expanded','true'); }
   clearTimeout(peekTimer);
-  if (peek && !sticky) peekTimer = setTimeout(closePhone, 5000);
   if (!peek) sticky = true;
 }
 function closePhone() {
@@ -1183,8 +1265,13 @@ phone.addEventListener('click', e => {
   else { sticky = true; clearTimeout(peekTimer); }
 });
 phone.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && !isOpen) { e.preventDefault(); openPhone(false); } });
-$('#statusBar').addEventListener('click', e => { if (isOpen) { e.stopPropagation(); closePhone(); } });
-$('#homeBtn').onclick = e => { e.stopPropagation(); closePhone(); };
+$('#statusBar').addEventListener('click', e => { e.stopPropagation(); setApp('home'); });
+$('#homeBtn').onclick = e => { e.stopPropagation(); setApp('home'); };
+/* the phone is always on: home screen, Messages, YouTube, ChatGPT */
+function setApp(a) { phone.dataset.app = a; if (a !== 'chat') current = null; if (a === 'messages') renderList(); }
+document.querySelectorAll('[data-open]').forEach(b => b.onclick = e => { e.stopPropagation(); setApp(b.dataset.open); });
+document.querySelectorAll('.home-back').forEach(b => b.onclick = e => { e.stopPropagation(); setApp('home'); });
+openPhone(false); setApp('home');
 
 function showBanner(id, text) {
   const c = byId[id], b = $('#banner');
@@ -1688,6 +1775,9 @@ function nightOf(P, lit, lamps, k) {
   return N;
 }
 
+/* the room you are in, at night: lamp-warm daylight colours */
+function warmOf(img) { const L = new ImageData(new Uint8ClampedArray(img.data), img.width, img.height), d = L.data; for (let i = 0; i < d.length; i += 4) { d[i] = Math.min(255, d[i]*.97 + 8); d[i+1] = d[i+1]*.92 + 2; d[i+2] = d[i+2]*.78; } return L; }
+
 /* ---------- the cottage: three floors ---------- */
 const HOUSE = Rc(250, 120, 1100, 700);
 const outerWalls = withDoor => {
@@ -1701,28 +1791,28 @@ const FLOORS = {
   ground: {
     label:'Ground floor',
     rooms:[
-      { r:Rc(266,136,528,258), f:'tile' }, { r:Rc(266,406,528,400), f:'wood' }, { r:Rc(806,136,188,670), f:'wood' },
-      { r:Rc(1006,136,328,238), f:'bath' }, { r:Rc(1006,386,328,420), f:'wood' },
-      { r:Rc(266,388,528,18), f:'wood', underWall:true },
+      { r:Rc(266,136,264,258), f:'wood' }, { r:Rc(530,136,264,258), f:'tile' }, { r:Rc(266,406,528,400), f:'wood' },
+      { r:Rc(806,136,188,670), f:'wood' }, { r:Rc(1006,136,328,238), f:'bath' }, { r:Rc(1006,386,328,420), f:'wood' },
+      { r:Rc(530,388,264,18), f:'wood', underWall:true },
     ],
     walls:[...outerWalls(true),
       Rc(794,120,12,80), Rc(794,290,12,310), Rc(794,700,12,120),
       Rc(994,120,12,100), Rc(994,300,12,260), Rc(994,680,12,140),
-      Rc(266,394,434,12, { id:'diyWall' }), Rc(1006,374,328,12)],
+      Rc(266,394,264,12), Rc(530,394,170,12, { id:'diyWall' }), Rc(1006,374,328,12)],
     items:[
-      { t:'counter', r:Rc(280,140,300,44), block:true }, { t:'fridge', r:Rc(600,140,56,60), block:true },
-      { t:'table', r:Rc(440,262,130,72), block:true },
+      { t:'table', r:Rc(320,236,160,80), block:true }, { t:'sideboard', r:Rc(272,150,30,90), block:true },
+      { t:'counter', r:Rc(544,140,190,44), block:true }, { t:'fridge', r:Rc(740,140,50,60), block:true },
       { t:'rug', r:Rc(330,560,260,200), c:['#8c3b3b','#c9a15a','#6b2e2e'] },
       { t:'fireplace', r:Rc(270,520,28,130), block:true }, { t:'sofa', r:Rc(330,724,230,62), c:'#5b7fa6', block:true },
       { t:'coffee', r:Rc(390,612,110,48), block:true }, { t:'armchair', r:Rc(622,624,70,70), c:'#a0614a', block:true },
       { t:'plant', r:Rc(736,756,40,40), block:true },
-      { t:'stairsUp', r:Rc(846,136,108,196), block:true }, { t:'runner', r:Rc(862,420,76,300) },
-      { t:'shower', r:Rc(1010,140,110,110), block:true }, { t:'vanity', r:Rc(1140,140,80,48), block:true }, { t:'toilet', r:Rc(1250,140,50,62), block:true },
-      { t:'table', r:Rc(1070,600,190,96), block:true }, { t:'sideboard', r:Rc(1012,700,40,100), block:true },
-      { t:'stairsDown', r:Rc(1200,390,134,170), block:true },
+      { t:'stairsBoth', r:Rc(846,136,108,196), block:true }, { t:'runner', r:Rc(862,420,76,300) },
+      { t:'vanity', r:Rc(1012,140,90,48), block:true }, { t:'toilet', r:Rc(1150,140,50,62), block:true }, { t:'shower', r:Rc(1230,140,100,170), block:true },
+      { t:'rug', r:Rc(1060,500,220,160), c:['#3f6d8e','#d9c08a','#2e5370'] }, { t:'armchair', r:Rc(1250,560,70,70), c:'#6f9a4a', block:true },
+      { t:'desk', r:Rc(1040,400,130,44), block:true }, { t:'shelf', r:Rc(1012,758,140,40), block:true }, { t:'plant', r:Rc(1290,756,40,40), block:true },
     ],
-    windows:[[330,'n'],[520,'n'],[1100,'n'],[330,'s'],[560,'s'],[1150,'s'],[1250,'s']],
-    lamps:[[530,265],[530,600],[900,300],[900,640],[1170,250],[1170,600]],
+    windows:[[330,'n'],[620,'n'],[1100,'n'],[330,'s'],[560,'s'],[1150,'s'],[1250,'s']],
+    lamps:[[400,265],[660,265],[530,600],[900,300],[900,640],[1170,250],[1170,600]],
   },
   upper: {
     label:'Upstairs',
@@ -1732,17 +1822,20 @@ const FLOORS = {
       { r:Rc(1006,406,328,400), f:'carpet', c:['#b4c79d','#a9bd92','#bed0a8'] },
     ],
     walls:[...outerWalls(false),
-      Rc(794,120,12,180), Rc(794,390,12,210), Rc(794,690,12,130), Rc(266,454,528,12),
-      Rc(994,120,12,100), Rc(994,300,12,260), Rc(994,650,12,170), Rc(1006,394,328,12)],
+      Rc(794,120,12,250), Rc(794,450,12,20), Rc(794,550,12,270), Rc(266,454,528,12),
+      Rc(994,120,12,100), Rc(994,300,12,120), Rc(994,495,12,325), Rc(1006,394,328,12)],
     items:[
-      { t:'bed', r:Rc(300,170,170,210), c:'#4f7fb0', block:true }, { t:'nightstand', r:Rc(480,174,40,40), block:true }, { t:'dresser', r:Rc(600,140,140,44), block:true },
-      { t:'bed', r:Rc(300,520,150,200), c:'#c4626a', block:true }, { t:'nightstand', r:Rc(460,524,40,40), block:true }, { t:'desk', r:Rc(600,756,130,44), block:true },
+      { t:'bed', r:Rc(395,140,175,165), c:'#4f7fb0', block:true }, { t:'nightstand', r:Rc(345,142,44,44), block:true }, { t:'nightstand', r:Rc(578,142,44,44), block:true },
+      { t:'wardrobe', r:Rc(744,140,46,215), block:true }, { t:'dresser', r:Rc(272,400,120,46), block:true },
+      { t:'bedS', r:Rc(450,630,150,172), c:'#c4626a', block:true }, { t:'nightstand', r:Rc(395,756,44,44), block:true }, { t:'nightstand', r:Rc(612,756,44,44), block:true },
+      { t:'wardrobe', r:Rc(746,566,44,236), block:true }, { t:'dresser', r:Rc(272,474,120,46), block:true },
       { t:'stairsDown', r:Rc(846,136,108,196), block:true }, { t:'runner', r:Rc(862,420,76,300) },
-      { t:'tub', r:Rc(1010,140,190,80), block:true }, { t:'toilet', r:Rc(1250,140,50,62), block:true }, { t:'vanity', r:Rc(1250,300,80,48), block:true },
-      { t:'bed', r:Rc(1170,580,150,200), c:'#6f9a4a', block:true }, { t:'shelf', r:Rc(1012,758,140,40), block:true },
+      { t:'vanity', r:Rc(1012,140,90,48), block:true }, { t:'toilet', r:Rc(1150,140,50,62), block:true }, { t:'shower', r:Rc(1230,140,100,170), block:true },
+      { t:'wardrobe', r:Rc(1080,412,250,40), block:true }, { t:'bedE', r:Rc(1140,480,190,130), c:'#6f9a4a', block:true },
+      { t:'desk', r:Rc(1190,760,140,40), block:true }, { t:'shelf', r:Rc(1012,758,140,40), block:true },
     ],
-    windows:[[330,'n'],[560,'n'],[1100,'n'],[360,'s'],[600,'s'],[1200,'s']],
-    lamps:[[530,300],[530,640],[900,560],[1170,260],[1170,600]],
+    windows:[[200,'w',130],[560,'w',130],[1100,'n'],[1200,'s']],
+    lamps:[[480,300],[480,640],[900,560],[1170,250],[1200,600]],
   },
   basement: {
     label:'Basement',
@@ -1757,7 +1850,7 @@ const FLOORS = {
       { t:'furnace', r:Rc(300,150,90,90), block:true }, { t:'heater', r:Rc(420,162,60,60), block:true }, { t:'shelf', r:Rc(270,400,30,90), v:true, block:true },
       { t:'boxes', r:Rc(700,150,140,64), block:true }, { t:'workbench', r:Rc(300,740,210,50), block:true }, { t:'boxes', r:Rc(1180,740,120,60), block:true },
       { t:'couch', r:Rc(1030,180,160,60), block:true },
-      { t:'stairsUp', r:Rc(1200,390,134,160), block:true },
+      { t:'stairsUp', r:Rc(846,136,108,196), block:true },
       { t:'sink', r:Rc(672,750,60,50), block:true }, { t:'washer', r:Rc(790,748,78,58), block:true }, { t:'dryer', r:Rc(890,748,78,58), block:true },
     ],
     windows:[],
@@ -1766,15 +1859,15 @@ const FLOORS = {
 };
 /* glowing spots: the door, the stairs, and the three DIY spots */
 const go = (name, x, y, dir) => () => travel(name, x, y, dir);
+const STAIRS = Rc(846,136,108,196);   /* one staircase, the same place on every floor: down runs under up */
 const SPOTS = {
   yard:     [{ k:'door', r:Rc(668,326,44,62), label:'Go inside', act:go('ground', 900, 770, 'back') }],
   ground:   [{ k:'door', r:Rc(850,800,100,24), label:'Go outside', act:go('yard', 690, 440, 'front') },
-             { k:'stairs', r:Rc(846,136,108,196), label:'Upstairs', act:go('upper', 900, 372, 'front') },
-             { k:'stairs', r:Rc(1200,390,134,170), label:'Down to the basement', act:go('basement', 1150, 472, 'left') },
-             { k:'diy', r:Rc(266,394,434,14), label:'DIY potential', project:'wall' }],
-  upper:    [{ k:'stairs', r:Rc(846,136,108,196), label:'Downstairs', act:go('ground', 900, 372, 'front') },
-             { k:'diy', r:Rc(1220,136,114,100), label:'DIY potential', project:'bath' }],
-  basement: [{ k:'stairs', r:Rc(1200,390,134,160), label:'Up to the ground floor', act:go('ground', 1150, 472, 'left') },
+             { k:'stairs', r:STAIRS, label:'Stairs', act:() => askFloor() },
+             { k:'diy', r:Rc(530,394,170,14), label:'DIY potential', project:'wall' }],
+  upper:    [{ k:'stairs', r:STAIRS, label:'Stairs', act:() => askFloor() },
+             { k:'diy', r:Rc(1140,136,70,80), label:'DIY potential', project:'bath' }],
+  basement: [{ k:'stairs', r:STAIRS, label:'Stairs', act:() => askFloor() },
              { k:'diy', r:Rc(890,748,78,58), label:'DIY potential', project:'dryer' }],
 };
 const YARD_BLOCKS = [Rc(455,95,470,291), Rc(930,110,40,266), Rc(220,300,140,112), Rc(1010,140,184,104), Rc(1000,300,156,64),
@@ -1790,10 +1883,10 @@ function paintFloor(name) {
   F.rooms.forEach(rm => { if (rm.underWall && !F.walls.find(w => w.id === 'diyWall').off) return; floorFill(P, px(rm.r), rm.f, rm.c); });
   F.items.forEach(it => drawItem(P, it, px(it.r), lit, lamps));
   F.walls.filter(w => !w.off && !w.hidden).forEach(w => drawWall(P, px(w)));
-  F.windows.forEach(([wx, side]) => { const x = S(wx), y = side === 'n' ? hy : hy + hh - S(16); P.rect(x, y + 2, 26, S(16) - 4, '#9fd0e6'); P.rect(x, y + 2, 26, 1, '#e3f4fb'); P.rect(x + 12, y + 2, 2, S(16) - 4, '#6b4423'); });
+  F.windows.forEach(([wx, side, len]) => { if (side === 'w') { const y = S(wx), L = S(len || 40); P.rect(hx + 2, y, S(16) - 4, L, '#9fd0e6'); P.rect(hx + 2, y, 1, L, '#e3f4fb'); P.rect(hx + 2, y + (L >> 1), S(16) - 4, 2, '#6b4423'); return; } const x = S(wx), y = side === 'n' ? hy : hy + hh - S(16); P.rect(x, y + 2, 26, S(16) - 4, '#9fd0e6'); P.rect(x, y + 2, 26, 1, '#e3f4fb'); P.rect(x + 12, y + 2, 2, S(16) - 4, '#6b4423'); });
   if (name === 'ground') { const x = S(850), y = hy + hh - S(16); P.rect(x, y, S(100), S(16), (i, j) => (i - x) % 8 === 0 ? '#7d4f2a' : '#a8703f'); }
   F.lamps.forEach(([x, y]) => lamps.push([S(x), S(y), 80, 1]));
-  return { day:P.img, night:nightOf(P, lit, lamps, [.4, .42, .56, 8, 10, 26]) };
+  return { day:P.img, night:nightOf(P, lit, lamps, [.4, .42, .56, 8, 10, 26]), lit:warmOf(P.img) };
 }
 function floorFill(P, [x, y, w, h], f, pal) {
   P.rect(x, y, w, h, (i, j) => {
@@ -1835,20 +1928,30 @@ function drawItem(P, it, [x, y, w, h], lit, lamps) {
     for (let i = x + 7 + Math.round((w - 14) / 3); i < x + w - 8; i += Math.round((w - 14) / 3)) Rr(i, y + 9, 1, h - 9, shadeHex(c, -.25)); Rr(x + 7, y + 9, w - 14, 1, shadeHex(c, .15)); return; }
   if (t === 'coffee') { B(x, y, w, h, '#8a5a30'); Rr(x, y, w, 2, '#b37a45'); B(x + 10, y + 8, 12, 9, '#f2efe6'); return; }
   if (t === 'plant') { B(x + 6, y + 10, w - 12, h - 10, '#b0603a'); P.oval(x + w / 2, y + 8, w / 2, 10, (i, j) => j < y + 6 ? '#7fc04e' : '#4f8f33', '#1f3d18'); return; }
-  if (t === 'stairsUp' || t === 'stairsDown') {
-    const up = t === 'stairsUp', n = Math.floor(h / 7);
+  if (t === 'stairsUp' || t === 'stairsDown' || t === 'stairsBoth') {
+    const up = t !== 'stairsDown', n = Math.floor(h / 7);
     B(x, y, w, h, '#a6743f');
     for (let k = 0; k < n; k++) { const f = up ? k / n : 1 - k / n; const c = up ? ['#7b5230','#8f5f36','#a6743f','#bd8650','#d39b60'][Math.min(4, Math.floor((1 - f) * 5))] : ['#d39b60','#a6743f','#7b5230','#4e321c','#2a1a10'][Math.min(4, Math.floor((1 - f) * 5))];
       Rr(x + 4, y + k * 7, w - 8, 6, c); Rr(x + 4, y + k * 7 + 6, w - 8, 1, '#3a2414'); }
     Rr(x, y, 4, h, '#5a3a20'); Rr(x + w - 4, y, 4, h, '#5a3a20');
     const cx = x + Math.round(w / 2), cy = y + Math.round(h / 2);
     for (let k = 0; k < 8; k++) { const yy = up ? cy - 6 + k : cy + 6 - k; P.rect(cx - k, yy, 1, 2, '#fff3d6'); P.rect(cx + k, yy, 1, 2, '#fff3d6'); }
+    if (t === 'stairsBoth') for (let k = 0; k < 8; k++) { const yy = cy + 40 - k; P.rect(cx - k, yy, 1, 2, '#2a1a10'); P.rect(cx + k, yy, 1, 2, '#2a1a10'); }   /* and down, underneath */
     return; }
   if (t === 'shower') { B(x, y, w, h, '#dfe9ee'); Rr(x, y, w, h, (i, j) => ((i - x) % 6 === 0 || (j - y) % 6 === 0) ? '#b9cbd3' : '#e8f1f4'); Rr(x, y + h - 3, w, 3, '#9fd0e6'); P.oval(x + w / 2, y + h / 2, 3, 3, '#7d8a93'); return; }
   if (t === 'tub') { B(x, y, w, h, '#f4f4f0'); P.oval(x + w / 2, y + h / 2, w / 2 - 6, h / 2 - 6, '#dbeef6', '#bcc8cc'); P.set(x + 10, y + h / 2, '#9aa6ad'); return; }
   if (t === 'toilet') { B(x + 4, y, w - 8, 12, '#f4f4f0'); Rr(x + 4, y, w - 8, 2, '#ffffff'); P.oval(x + w / 2, y + 26, w / 2 - 6, 13, (i, j) => j < y + 20 ? '#ffffff' : '#e6e8e4', '#2b1a12'); P.oval(x + w / 2, y + 27, w / 2 - 12, 8, '#cfe3ea'); return; }
   if (t === 'vanity') { B(x, y, w, h, '#9a6236'); Rr(x, y, w, 2, '#c58a4c'); P.oval(x + w / 2, y + h / 2, w / 2 - 8, h / 2 - 7, '#f4f4f0', '#8f8f8a'); return; }
   if (t === 'sideboard' || t === 'dresser') { B(x, y, w, h, '#8f5a31'); Rr(x, y, w, 2, '#b67a45'); if (w > h) for (let i = x + 10; i < x + w; i += 22) Rr(i, y + h - 6, 6, 1, '#e2c27a'); else for (let j = y + 10; j < y + h; j += 22) Rr(x + w - 5, j, 1, 6, '#e2c27a'); return; }
+  if (t === 'wardrobe') { B(x, y, w, h, '#7a4a24'); Rr(x, y, w, 2, '#a8703f');
+    if (h > w) { const s = Math.round(h / 3); for (let j = y + s; j < y + h - 4; j += s) Rr(x, j, w, 1, '#4e2e15'); for (let j = y + (s >> 1); j < y + h; j += s) Rr(x + 3, j - 3, 2, 6, '#e2c27a'); }
+    else { const s = Math.round(w / 4); for (let i = x + s; i < x + w - 4; i += s) Rr(i, y, 1, h, '#4e2e15'); for (let i = x + (s >> 1); i < x + w; i += s) Rr(i - 3, y + h - 6, 6, 2, '#e2c27a'); }
+    return; }
+  if (t === 'bedS' || t === 'bedE') { const c = it.c; B(x, y, w, h, '#8a5a30'); Rr(x + 4, y + 4, w - 8, h - 8, '#f3efe6');
+    const quilt = (qx, qy, qw, qh) => Rr(qx, qy, qw, qh, (i, j) => ((i - x) % 14 === 0 || (j - y) % 14 === 0) ? shadeHex(c, -.2) : ((Math.floor((i - x) / 14) + Math.floor((j - y) / 14)) % 2 ? c : shadeHex(c, .12)));
+    if (t === 'bedS') { const pw = Math.round(w / 2) - 16; B(x + 10, y + h - 28, pw, 18, '#ffffff'); B(x + Math.round(w / 2) + 6, y + h - 28, pw, 18, '#ffffff'); quilt(x + 4, y + 4, w - 8, h - 44); Rr(x + 4, y + h - 42, w - 8, 2, shadeHex(c, .3)); }
+    else { const ph = Math.round(h / 2) - 14; B(x + w - 28, y + 10, 18, ph, '#ffffff'); B(x + w - 28, y + Math.round(h / 2) + 4, 18, ph, '#ffffff'); quilt(x + 4, y + 4, w - 44, h - 8); Rr(x + w - 42, y + 4, 2, h - 8, shadeHex(c, .3)); }
+    return; }
   if (t === 'bed') { const c = it.c; B(x, y, w, h, '#8a5a30'); Rr(x + 4, y + 4, w - 8, h - 8, '#f3efe6'); B(x + 10, y + 10, Math.round(w / 2) - 16, 18, '#ffffff'); B(x + Math.round(w / 2) + 6, y + 10, Math.round(w / 2) - 16, 18, '#ffffff');
     Rr(x + 4, y + 40, w - 8, h - 44, (i, j) => ((i - x) % 14 === 0 || (j - y) % 14 === 0) ? shadeHex(c, -.2) : ((Math.floor((i - x) / 14) + Math.floor((j - y) / 14)) % 2 ? c : shadeHex(c, .12))); Rr(x + 4, y + 40, w - 8, 2, shadeHex(c, .3)); return; }
   if (t === 'nightstand') { B(x, y, w, h, '#8f5a31'); P.oval(x + w / 2, y + h / 2, 7, 7, '#ffe7a3', '#6b4423'); lit.push([x + w / 2 | 0, y + h / 2 | 0]); lamps.push([x + w / 2 | 0, y + h / 2 | 0, 40, .9]); return; }
@@ -1895,6 +1998,7 @@ function layoutHots() {
   });
 }
 function updateHotspots(ch) {
+  if (scene !== 'yard') { const r = roomRect(ch.x, ch.y - 6); if (r && (!litRoom || r.join() !== litRoom.join())) { litRoom = r; showYard(); } }
   nearSpot = null; let best = 1e9;
   hotEls.forEach(([sp, el]) => {
     const dx = Math.max(sp.r.x - ch.x, 0, ch.x - (sp.r.x + sp.r.w)), dy = Math.max(sp.r.y - ch.y, 0, (ch.y - FOOT_H) - (sp.r.y + sp.r.h));
@@ -1906,7 +2010,21 @@ function updateHotspots(ch) {
 function useSpot(sp) { if (frozen) return; if (sp.project && LIVE) return; /* INTEGRATION: the backend game has its own job */ if (sp.project) askProject(sp.project); else sp.act(); }
 addEventListener('keydown', e => { if ((e.code === 'KeyE' || e.code === 'Enter') && nearSpot && !frozen && !e.repeat) { e.preventDefault(); useSpot(nearSpot); } });
 const baseFit = fit;
-fit = () => { baseFit(); layoutHots(); if (typeof fitDiy === 'function') fitDiy(); };   /* the spots and the DIY view follow the screen scale */
+function freeBox() {
+  const n = document.querySelector('.notes').getBoundingClientRect(), p = phone.getBoundingClientRect();
+  const left = n.right + 18, right = (p.left > left + 200 ? p.left : innerWidth) - 18, top = 62, bottom = innerHeight - 14;
+  return { x:left, y:top, w:Math.max(200, right - left), h:Math.max(160, bottom - top) };
+}
+fit = () => {
+  baseFit();
+  if (scene !== 'yard') {   /* inside: the house, and the player with it, shrink to fit between the post-its and the phone */
+    const b = freeBox(), k = Math.min(b.w / HOUSE.w, b.h / HOUSE.h);
+    view = { k, ox:b.x + (b.w - HOUSE.w*k) / 2 - HOUSE.x*k, oy:b.y + (b.h - HOUSE.h*k) / 2 - HOUSE.y*k };
+    bgCanvas.style.width = VW*k + 'px'; bgCanvas.style.height = VH*k + 'px'; bgCanvas.style.transform = `translate(${view.ox}px,${view.oy}px)`;
+    yard.style.setProperty('--s', SIZE*k + 'px'); Object.values(chars).forEach(place);
+  }
+  layoutHots(); if (typeof fitDiy === 'function') fitDiy();
+};
 
 /* ---------- moving between scenes ---------- */
 function showCast() {
@@ -1918,13 +2036,41 @@ function travel(name, x, y, dir) {
   setTimeout(() => {
     const ch = chars[selected];
     if (scene === 'yard') yardSpot = { x:ch.x, y:ch.y };
-    scene = name; sceneImg = SCENES[name].img; showYard();
-    ch.x = x; ch.y = y; turn(ch, dir); place(ch);
-    showCast(); buildHots();
+    scene = name; sceneImg = SCENES[name].img; litRoom = null;
+    document.body.classList.toggle('inside', name !== 'yard');
+    ch.x = x; ch.y = y; turn(ch, dir);
+    fit(); showCast(); buildHots(); showYard();
     floorTag.textContent = FLOORS[name] ? FLOORS[name].label : ''; floorTag.classList.toggle('show', !!FLOORS[name]);
     fadeEl.classList.remove('on'); frozen = false; updateHotspots(ch);
   }, 320);
 }
+/* one staircase: ask which floor */
+const floorAsk = $('#floorAsk');
+function askFloor() {
+  frozen = true; held.length = 0; syncPad();
+  floorAsk.querySelectorAll('button[data-f]').forEach(b => {
+    const here = b.dataset.f === scene; b.disabled = here; b.classList.toggle('here', here);
+    b.onclick = e => { e.stopPropagation(); floorAsk.classList.remove('open'); frozen = false; travel(b.dataset.f, 900, 372, 'front'); };
+  });
+  floorAsk.querySelector('.no').onclick = e => { e.stopPropagation(); floorAsk.classList.remove('open'); frozen = false; };
+  floorAsk.classList.add('open');
+}
+/* night: light the room the player is in */
+let litRoom = null;
+function roomRect(x, y) {
+  const F = FLOORS[scene]; if (!F) return null;
+  const rm = F.rooms.find(o => !o.underWall && x >= o.r.x && x <= o.r.x + o.r.w && y >= o.r.y && y <= o.r.y + o.r.h);
+  if (!rm) return litRoom;
+  const s = v => Math.round(v / U), pad = 8;
+  return [s(rm.r.x) - pad, s(rm.r.y) - pad, s(rm.r.w) + pad*2, s(rm.r.h) + pad*2];
+}
+const baseShow = showYard;
+showYard = () => {
+  if (scene === 'yard' || root.dataset.theme !== 'dark' || !litRoom || !sceneImg.lit) return baseShow();
+  bgCtx.putImageData(sceneImg.night, 0, 0);
+  const [x, y, w, hh] = litRoom; bgCtx.putImageData(sceneImg.lit, 0, 0, x, y, w, hh);
+};
+new MutationObserver(() => showYard()).observe(root, { attributes:true, attributeFilter:['data-theme'] });
 const baseSelect = select;
 select = n => {
   const prev = chars[selected]; baseSelect(n);
@@ -1939,7 +2085,7 @@ let phaseTimer = null;
 function setPhase(ph) {
   const wasNight = root.dataset.theme === 'dark';
   root.dataset.theme = ph === 'night' ? 'dark' : 'light';
-  if (ph === 'day' && wasNight && !LIVE) { S.time = (Math.floor(S.time * PLAN_DAYS + 1e-6) + 1) / PLAN_DAYS; render(); }   /* INTEGRATION: not with a backend game */   /* dawn: a new day */
+  if (ph === 'day' && wasNight && !LIVE) { S.time = (Math.floor(S.time * PLAN_DAYS + 1e-6) + 1) / PLAN_DAYS; render(); setTimeout(() => receive(oneOf(['parent', 'friend', 'neighbor'])), 5000); }   /* dawn: a new day, and someone texts (INTEGRATION: not with a backend game) */
   clearTimeout(phaseTimer);
   phaseTimer = setTimeout(() => setPhase(root.dataset.theme === 'dark' ? 'day' : 'night'), PHASE_MS);
 }
@@ -1968,10 +2114,10 @@ const PROJECTS = {
 const diyEl = $('#diy'), diyCv = $('#diyCanvas'), dg = diyCv.getContext('2d'), diySprite = $('#diySprite');
 const EW = 533, EH = 300, EU = VW / EW, FLOOR_Y = 250;   /* elevation: one pixel = 3 scene units */
 function fitDiy() {
-  const k = view.k;
-  Object.assign(diyCv.style, { width:VW*k + 'px', height:VH*k + 'px', transform:`translate(${view.ox}px,${view.oy}px)` });
-  const s = 240 * k;   /* the character, twice as close as in the yard */
-  Object.assign(diySprite.style, { width:s + 'px', height:s + 'px', left:(view.ox + 1340*k - s/2) + 'px', top:(view.oy + FLOOR_Y*EU*k - s*.95) + 'px' });
+  const k = Math.max(innerWidth / VW, innerHeight / VH), ox = (innerWidth - VW*k) / 2, oy = (innerHeight - VH*k) / 2;
+  Object.assign(diyCv.style, { width:VW*k + 'px', height:VH*k + 'px', transform:`translate(${ox}px,${oy}px)` });
+  const s = 240 * k;   /* the character, twice as close as in the yard, left of the phone */
+  Object.assign(diySprite.style, { width:s + 'px', height:s + 'px', left:(ox + 1090*k - s/2) + 'px', top:(oy + FLOOR_Y*EU*k - s*.95) + 'px' });
 }
 const toCanvas = img => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; c.getContext('2d').putImageData(img, 0, 0); return c; };
 const fr = (x, y, w, h, c) => { dg.fillStyle = c; dg.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
@@ -2077,6 +2223,87 @@ const DRAW = {
   },
 };
 
+
+/* ======================= PHONE APPS: YouTube and ChatGPT =======================
+   Preparing for a DIY job "derisks" it: on the job's event card, YouTube always points
+   at the good answer; ChatGPT only half the time, because it skips steps. YouTube takes
+   much longer, and the time spent in the apps comes off the calendar.                  */
+const PREP = { wall:{ yt:false, gpt:false }, bath:{ yt:false, gpt:false }, dryer:{ yt:false, gpt:false } };
+const appMin = { yt:0, gpt:0 };
+const fmtMin = m => m >= 60 ? Math.floor(m / 60) + ' h ' + (m % 60) + ' min' : m + ' min';
+function spend(app, minutes) { appMin[app] += minutes; S.time += minutes / 60 / 24 / PLAN_DAYS; render(); $('#' + app + 'Time').textContent = 'Time spent here: ' + fmtMin(appMin[app]); }
+function prepLine(id) {
+  const p = PREP[id];
+  if (p.yt) return 'Prepared: you watched a video on this.';
+  if (p.gpt) return 'Half prepared: ChatGPT gave you the short version.';
+  return 'Not prepared. Watch a video or ask ChatGPT on your phone first.';
+}
+const VIDEOS = [
+  { project:'wall',  title:'Removing a wall? Watch this first', ch:'This Old Cottage', len:'24:10', min:150, c:['#c97a5d','#ab6148'] },
+  { project:'bath',  title:'Replace a toilet the right way', ch:'Plumb Simple', len:'18:42', min:110, c:['#7fb3d0','#5a8fb0'] },
+  { project:'dryer', title:'Dryer vent cleaning, step by step', ch:'Fix It Friday', len:'12:05', min:80, c:['#b1ada4','#8e8a82'] },
+  { project:null,    title:'10 DIY fails that went viral', ch:'Oops TV', len:'11:58', min:45, c:['#f2c94c','#e0a040'] },
+  { project:null,    title:'Relaxing tile cutting, 1 hour', ch:'Calm Builds', len:'1:00:00', min:60, c:['#86b25c','#6f9a4a'] },
+];
+let playing = false;
+function renderYT() {
+  const box = $('#ytList');
+  box.innerHTML = VIDEOS.map((v, i) => `<button class="vid${v.watched ? ' watched' : ''}" data-i="${i}">
+      <span class="thumb" style="background:repeating-linear-gradient(135deg,${v.c[0]} 0 10px,${v.c[1]} 10px 20px)"><span class="play"></span><span class="state">${v.watched ? 'Watched' : 'Watching...'}</span><span class="len">${v.len}</span><span class="bar" style="width:${v.watched ? 100 : 0}%"></span></span>
+      <span class="vt">${v.title}</span><span class="vm">${v.ch} · ${v.project ? 'how-to' : 'just for fun'}</span></button>`).join('');
+  box.querySelectorAll('.vid').forEach(b => b.onclick = e => {
+    e.stopPropagation(); if (playing) return;
+    const v = VIDEOS[+b.dataset.i]; playing = true; b.classList.add('playing');
+    const bar = b.querySelector('.bar'); let t = 0;
+    const iv = setInterval(() => {
+      t += .02; bar.style.width = Math.min(100, t * 100) + '%';
+      if (t >= 1) { clearInterval(iv); playing = false; v.watched = true; if (v.project) PREP[v.project].yt = true; spend('yt', v.min); renderYT(); }
+    }, 100);
+  });
+}
+renderYT();
+const GPT = {
+  wall:  { q:'How do I remove the wall between my kitchen and living room?',
+           a:"Great project! Here's how:\n1. Clear the room and lay down drop cloths.\n2. Cut the drywall and pull it off.\n3. Take out the studs.\n4. Patch the floor and ceiling, then paint.\nYou've got this!",
+           skip:'It skipped checking whether the wall is load bearing, and the header beam.' },
+  bath:  { q:'How do I replace a toilet?',
+           a:"Easy one! To replace a toilet:\n1. Lift off the old toilet.\n2. Set the new toilet in place.\n3. Tighten the bolts. Done!\nEnjoy your new throne.",
+           skip:'It skipped shutting off the water and fitting a new wax ring.' },
+  dryer: { q:'How do I fix my dryer vent?',
+           a:"Here's a quick guide:\n1. Pull the dryer away from the wall.\n2. Clean the lint out of the vent.\n3. Push it back. That's it!",
+           skip:'It skipped unplugging it (or shutting off the gas) and replacing the foil hose.' },
+};
+let typing = false;
+function renderChips() {
+  const box = $('#gptChips');
+  box.innerHTML = Object.entries(GPT).filter(([id]) => !PREP[id].gpt).map(([id, g]) => `<button data-id="${id}">${g.q}</button>`).join('');
+  box.querySelectorAll('button').forEach(b => b.onclick = e => { e.stopPropagation(); if (!typing) askGPT(b.dataset.id); });
+}
+function askGPT(id) {
+  const g = GPT[id], msgsBox = $('#gptMsgs'); typing = true;
+  const hello = msgsBox.querySelector('.gpt-hello'); if (hello) hello.remove();
+  msgsBox.insertAdjacentHTML('beforeend', `<div class="gu">${g.q}</div><div class="ga"><span class="dots"><i></i><i></i><i></i></span></div>`);
+  const out = msgsBox.lastElementChild; msgsBox.scrollTop = 1e6;
+  setTimeout(() => {
+    out.textContent = ''; let i = 0;
+    const iv = setInterval(() => {
+      i += 3; out.textContent = g.a.slice(0, i); msgsBox.scrollTop = 1e6;
+      if (i >= g.a.length) { clearInterval(iv); out.insertAdjacentHTML('beforeend', `<span class="skip">${g.skip}</span>`); typing = false; PREP[id].gpt = true; spend('gpt', 20); renderChips(); msgsBox.scrollTop = 1e6; }
+    }, 30);
+  }, 900);
+}
+renderChips();
+/* the home screen clock and date */
+setInterval(() => { $('#homeTime').textContent = $('#clock').textContent; $('#homeDate').textContent = 'Day ' + Math.floor(S.time * PLAN_DAYS) + (root.dataset.theme === 'dark' ? ' · night' : ' · day'); }, 1000);
+/* people text when something happens: over budget, behind schedule */
+const told = {};
+setInterval(() => {
+  if (LIVE) return;   /* INTEGRATION: the backend drives budget and time */
+  if (!told.budget && S.budget * PLAN_BUDGET > plan.budget) { told.budget = true; receive('partner'); }
+  if (!told.time && S.time * PLAN_DAYS > plan.days) { told.time = true; receive('contractor'); }
+}, 2000);
+/* =============================================================================== */
+
 /* ---------- running a project ---------- */
 let run = null;
 const askEl = $('#diyAsk'), evEl = $('#eventCard');
@@ -2086,6 +2313,7 @@ function askProject(id) {
   askEl.querySelector('h3').textContent = p.title;
   askEl.querySelector('p').textContent = p.blurb;
   askEl.querySelector('.est').textContent = `About ${money(p.cost)} and ${p.days} day${p.days > 1 ? 's' : ''} if nothing goes wrong.`;
+  askEl.querySelector('.prepline').textContent = prepLine(id);
   askEl.classList.add('open');
   askEl.querySelector('.yes').onclick = e => { e.stopPropagation(); askEl.classList.remove('open'); startProject(id); };
   askEl.querySelector('.no').onclick = e => { e.stopPropagation(); askEl.classList.remove('open'); frozen = false; };
@@ -2093,6 +2321,7 @@ function askProject(id) {
 function startProject(id) {
   const p = PROJECTS[id];
   run = { id, p, step:0, t:0, cost:p.cost, days:p.days, health:-.04, paused:false, last:performance.now() };
+  setTimeout(() => receive('contractor'), 2500);   /* word gets around */
   $('#diyTitle').textContent = p.title;
   $('#diySteps').innerHTML = p.steps.map(s => `<li>${s[0] === 'EVENT' ? 'Surprise!' : s[0]}</li>`).join('');
   diySprite.src = SPRITES[selected].left;
@@ -2131,7 +2360,12 @@ function showEvent() {
   evEl.querySelector('p').textContent = ev.description;
   const res = evEl.querySelector('.res'); res.textContent = ''; res.className = 'res';
   const opts = evEl.querySelector('.opts');
-  opts.innerHTML = ev.options.map((o, i) => `<button data-i="${i}">${o}</button>`).join('');
+  const prep = PREP[run.id] || {}, good = ev.keys.indexOf('good');
+  let hintAt = -1, note = '';
+  if (prep.yt) { hintAt = good; note = 'You watched a video on this. You know what to do.'; }
+  else if (prep.gpt) { if (Math.random() < .5) { hintAt = good; note = 'ChatGPT mentioned this one.'; } else note = 'ChatGPT skipped this part. You are on your own.'; }
+  evEl.querySelector('.prep').textContent = note;
+  opts.innerHTML = ev.options.map((o, i) => `<button data-i="${i}">${o}${i === hintAt ? `<span class="hint">${prep.yt ? 'Seen on YouTube' : 'ChatGPT said so'}</span>` : ''}</button>`).join('');
   opts.querySelectorAll('button').forEach(b => b.onclick = e => {
     e.stopPropagation();
     const key = ev.keys[+b.dataset.i] || 'ok', o = OUTCOME[key] || OUTCOME.ok;
@@ -2162,6 +2396,7 @@ function leaveProject(r, finished) {
       if (r.id === 'wall') { FLOORS.ground.walls.find(w => w.id === 'diyWall').off = true; SCENES.ground.img = paintFloor('ground'); if (scene === 'ground') { sceneImg = SCENES.ground.img; showYard(); } }
       buildHots();
       setTimeout(() => pay(r.cost, r.p.title.toLowerCase()), 600);
+      setTimeout(() => receive('partner'), 6000); if (r.id === 'wall') setTimeout(() => receive('neighbor'), 9000);
       if (r.cost >= 300 && Math.random() < .1) setTimeout(crackPhone, 1400);
     }
     frozen = false; fadeEl.classList.remove('on'); updateHotspots(chars[selected]);
@@ -2232,19 +2467,19 @@ picker.addEventListener('click', e => e.stopPropagation());
 $('#shuffleBtn').onclick = e => { e.stopPropagation(); recast(); };
 renderOwner(); refreshYard(); select(owner);
 
-document.addEventListener('click', () => { if (isOpen) closePhone(); closePicker(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closePhone(); closePicker(); } });
+document.addEventListener('click', () => closePicker());
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePicker(); });
 
 /* ---------------- demo loop ---------------- */
 function tick() {
   if (document.hidden) return;
   /* time runs with the day and night cycle (6 minutes a day); the date only turns over at dawn */
   S.time = Math.min(S.time + .9 / 360 / PLAN_DAYS, (Math.floor(S.time * PLAN_DAYS + 1e-6) + .999) / PLAN_DAYS);
-  S.budget += .0012 + (Math.random() < .04 ? .02 : 0);
-  S.health = clamp(S.health - .0012, .05, 1);
+  S.budget += .00004;   /* small running costs; real spending goes through pay() */
+  S.health = clamp(S.health - .0003, .05, 1);
   const a = tasks.find(t => !t.done);
   if (a) {
-    a.prog = Math.min(1, a.prog + .015 + Math.random()*.03);
+    a.prog = Math.min(1, a.prog + .004 + Math.random()*.008);
     const el = taskEl(a); if (el) el.querySelector('.prog i').style.width = Math.round(a.prog*100) + '%';
     if (a.prog >= 1) completeTask(a);
   }
@@ -2265,7 +2500,7 @@ if (!LIVE) { tasks.forEach(t => taskList.appendChild(makeTask(t))); markActive()
 clock();
 if (!LIVE) setInterval(tick, 900);   /* INTEGRATION: the demo loop is off with a backend game */
 setInterval(clock, 15000);
-if (!LIVE) setTimeout(() => { notify(); setInterval(notify, 16000); }, 3500);
+if (!LIVE) setTimeout(notify, 6000);   /* one hello; after that people text when something happens (INTEGRATION: off with a backend game) */
 
 /* ===== INTEGRATION: hooks for game-link.js, which connects this page to the backend =====
    Nothing here changes how the page works on its own. game-link.js uses these to drive the bars,

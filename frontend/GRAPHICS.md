@@ -47,8 +47,8 @@ Keep the gameplay layer pure pixel art: no smooth gradients or anti-aliased shap
 
 | Area (screen) | Covered by |
 |---|---|
-| Top left, about 320 x 100 % of the height | The two post-its |
-| Bottom right, about 300 px wide | The phone's status bar (the whole phone when it is up) |
+| Left, about 320 px wide, full height | The two post-its (tasks at the top, time / budget / health at the bottom) |
+| Right, about 330 px wide | The phone, always on |
 | Bottom centre, 150 x 110 px | Arrow pad |
 | Top right corner | "You" chip and theme button |
 
@@ -258,7 +258,7 @@ Track `rgba(35,35,35,.11)`, time teal, budget `#eab308`, health from green to re
 
 ### Phone
 
-True iPhone proportions (9 : 19.5), no dynamic island, frame `#1a1b21`. Put away, only the status bar shows; it slides up and down only. Bank alerts use a pixel bank icon on `#1f6f5c`. The cracked screen is thin lines in the lower left corner, never over text.
+True iPhone proportions (9 : 19.5), no dynamic island, frame `#1a1b21`. Always on, on the right, starting below the top-right buttons. Home screen with app icons (Messages, YouTube, ChatGPT) on a blue-green wallpaper (deep blue at night). Bank alerts use a pixel bank icon on `#1f6f5c`. The cracked screen is thin lines in the lower left corner, never over text.
 
 ---
 
@@ -285,7 +285,7 @@ True iPhone proportions (9 : 19.5), no dynamic island, frame `#1a1b21`. Put away
 
 ## 11. Inside the house
 
-The cottage (Northeast style: 3 bedrooms, 2 bathrooms, two storeys and a basement) is drawn like the yard: one canvas per floor, 1066 x 600 pixels, the same pixel size and outline. The plan is seen from above with **low walls**, so the whole floor reads at once.
+The cottage (Northeast style: 3 bedrooms, 2 bathrooms, two storeys and a basement) is drawn like the yard: one canvas per floor, 1066 x 600 pixels, the same pixel size and outline. The plan is seen from above with **low walls**, so the whole floor reads at once. Inside, the view shrinks (house and player together) to fit between the post-its and the phone. At night the room the player is in is drawn from a warm, fully lit copy of the floor.
 
 ### The floors (scene units)
 
@@ -293,9 +293,11 @@ The house fills x 250 to 1350, y 120 to 820 on every floor, with 16-unit outer w
 
 | Floor | Rooms | DIY spot |
 |---|---|---|
-| Ground | Kitchen (top left), living room with fireplace (bottom left), hall with the stairs up and the front door (middle), bathroom (top right), dining room with the basement stairs (bottom right) | The wall between kitchen and living room (y 394) |
-| Upstairs | Two bedrooms on the left, hall with the stairs down, main bathroom (top right), third bedroom (bottom right) | The toilet in the main bathroom |
-| Basement | Utility room with furnace and water heater, storage, workshop, laundry in the bottom middle, rec area with the stairs up | The dryer |
+| Ground | Dining room and kitchen side by side (top left), living room with fireplace (bottom left), hall with the staircase and the front door (middle), bathroom (top right), den (bottom right) | The kitchen part of the wall to the living room (x 530 to 700, y 394) |
+| Upstairs | Bedroom 1 (top left: bed on the north wall, wardrobe on the hall wall), bedroom 2 (bottom left: bed on the south wall, wardrobe on the hall wall), both with windows on the west wall; hall with the staircase; main bathroom (top right); bedroom 3 (bottom right: wardrobe on the north wall, bed on the east wall, desk) | The toilet in the main bathroom |
+| Basement | Utility room with furnace and water heater, storage with the staircase, workshop, laundry in the bottom middle, rec area | The dryer |
+
+Both bathrooms have the same layout: vanity on the left, toilet in the middle of the north wall, shower along the east wall. The staircase is in the same place on every floor (x 846 to 954, y 136 to 332); clicking it asks which floor.
 
 The stairs are 108 units wide, so there is a 40-unit walkway on each side of them in the hall. A character's feet are 28 units wide: keep every doorway and passage at least 40 units.
 
@@ -318,7 +320,7 @@ When the character's feet come within 70 units of a spot, it glows and shows a l
 | Spot | Glow | Does |
 |---|---|---|
 | Front door (yard) and the door in the hall | Warm yellow | Go in or out |
-| Stairs | Teal | Change floor |
+| Stairs | Teal | Ask which floor, then go there |
 | DIY potential | Gold, with a gold label | Offer the project, then open the elevation view |
 
 ## 12. DIY elevation views
