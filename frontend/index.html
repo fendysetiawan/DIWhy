@@ -1172,6 +1172,7 @@ function pay(amount, what) {
 }
 function settle(ok) {
   const p = pending.shift(); if (!p) return;
+  if (window.DIWHY_HOOKS && window.DIWHY_HOOKS.onSettle) window.DIWHY_HOOKS.onSettle(ok, p);   /* INTEGRATION: the backend link hears the answer */
   if (ok) applyFx({ budget:p.amount / PLAN_BUDGET });
   render();
   setTimeout(() => deliver('bank', ok ? `Thanks. The payment of ${cents(p.amount)} is approved.` : `Done. The payment of ${cents(p.amount)} is blocked and your card is safe.`), 700);
@@ -1637,15 +1638,43 @@ function notify() {
 }
 function clock() { const d = new Date(); $('#clock').textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0'); }
 
+/* INTEGRATION: with ?game=<id> the backend runs the game (see game-link.js), so the demo loop and demo tasks stay off.
+   Without it, this page behaves exactly as before. */
+const LIVE = /[?&]game=/.test(location.search);
 render(); renderList();
-tasks.forEach(t => taskList.appendChild(makeTask(t))); markActive();
+if (!LIVE) { tasks.forEach(t => taskList.appendChild(makeTask(t))); markActive(); }
 clock();
-setInterval(tick, 900);
+if (!LIVE) setInterval(tick, 900);
 setInterval(clock, 15000);
-setTimeout(() => { notify(); setInterval(notify, 9500); }, 3500);
+if (!LIVE) setTimeout(() => { notify(); setInterval(notify, 9500); }, 3500);
+
+/* ===== INTEGRATION: hooks for game-link.js, which connects this page to the backend =====
+   Nothing here changes how the page works on its own. game-link.js uses these to drive the bars,
+   the cast, the phone, the payments and the tasks from the backend's game. Keep pay(), settle()
+   and crackPhone() as they are: the link relies on them. */
+window.DIWHY_HOOKS = {
+  S, plan, PLAN_DAYS, PLAN_BUDGET, C, byId, TEXTS, pool, msgs, unread, tasks, taskList, LIVE,
+  render, renderList, renderChat, renderQuote, renderReplies, deliver, pay, heldTotal, crackPhone,
+  openPhone, openChat, makeTask, markActive, shuffle, clamp, money,
+  onSettle: null,                                   /* set by game-link.js: (ok, payment) => void */
+  owner: () => owner,
+  current: () => current,
+  /* Cast the game: the owner and who plays each role, as first names ("Travis"). Same steps as recast(). */
+  setCast(ownerName, roleNames, partnerFocus) {
+    owner = ownerName;
+    C.forEach(c => { if (roleNames[c.id]) c.name = roleNames[c.id]; });
+    pool.partner = shuffle(partnerFocus === 'budget' ? TEXTS.partnerBudget : TEXTS.partnerTime);
+    C.filter(c => !c.bank).forEach(c => { msgs[c.id] = pool[c.id].slice(0, 2).map(t => ({ t, me:false })); unread[c.id] = 0; poolIx[c.id] = 2; });
+    unread.contractor = 0; unread.partner = 0;
+    renderOwner(); renderList(); refreshYard(); select(owner);
+    if (current) renderChat();
+  },
+};
 })();
 </script>
 
+<!-- INTEGRATION: connects this page to the backend when the URL has ?game=<id>. Does nothing otherwise. -->
+<script src="game-link.js"></script>
 
 </body>
 </html>

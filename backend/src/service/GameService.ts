@@ -397,6 +397,7 @@ export class GameService {
         decisions: rec.decisions,
         last: rec.last,
         adviceReliable: advice ? advice.reliable : null,
+        choiceQualities: event ? event.choices.map((c) => c.quality ?? null) : [],
       };
     }
     return view;

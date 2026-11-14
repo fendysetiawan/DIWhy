@@ -2,15 +2,16 @@
 // backend in-process so UI tests need no network.
 
 import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { buildProjects, type Project } from './content/projects';
 import { createApp, type App, type AppOptions } from './server/app';
 import type { Handler } from './server/http';
 
 /** The six real projects, built from the team's actual events/*.csv. */
 export function realProjects(): Project[] {
-  const dir = new URL('../../events/', import.meta.url);
+  const dir = join(process.cwd(), '..', 'events'); // tests run from backend/
   const files = Object.fromEntries(
-    readdirSync(dir).filter((f) => f.endsWith('.csv')).map((f) => [f, readFileSync(new URL(f, dir), 'utf8')]),
+    readdirSync(dir).filter((f) => f.endsWith('.csv')).map((f) => [f, readFileSync(join(dir, f), 'utf8')]),
   );
   return buildProjects(files);
 }

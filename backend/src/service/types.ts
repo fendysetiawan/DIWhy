@@ -142,6 +142,8 @@ export interface DebugView {
   last: LastDecision;
   /** Whether the current event's advice points at a sound answer. Players never see this. */
   adviceReliable: boolean | null;
+  /** How good each answer to the current event is (the team's answer_key). The demo uses this. */
+  choiceQualities: Array<'good' | 'ok' | 'wrong' | 'excessive' | null>;
 }
 
 /** The whole game as a front end needs to draw it. Every endpoint returns this. */

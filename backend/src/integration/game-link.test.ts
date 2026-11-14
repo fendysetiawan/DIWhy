@@ -1,0 +1,305 @@
+// @vitest-environment jsdom
+// frontend/game-link.js, the real file, against the real backend and the team's real events.
+// The page's own functions (the phone, the bars, pay()) are stood in for by recorders, so this
+// proves what the link DOES to the page. The page itself is checked in a real browser separately.
+
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createApp } from '../server/app';
+import { bridgeFetch, realProjects } from '../testing';
+
+const SCRIPT = readFileSync(join(process.cwd(), '..', 'frontend', 'game-link.js'), 'utf8'); // tests run from backend/
+const ROLES = ['partner', 'clerk', 'contractor', 'parent', 'neighbor', 'friend'];
+const lines = (n: string) => [1, 2, 3, 4, 5, 6, 7, 8].map((i) => `${n} line ${i}`);
+
+/** Stands in for the page's DIWHY_HOOKS. Records every call the link makes. */
+function makeHooks() {
+  const pending: Array<{ amount: number; what: string }> = [];
+  const hooks: any = {
+    S: { time: 0.6, budget: 0.68, health: 0.78 },
+    plan: { days: 30, budget: 24000 },
+    PLAN_DAYS: 30,
+    PLAN_BUDGET: 24000,
+    TEXTS: { contractorQuote: ['Revised: {days} days and {price}.'] },
+    pool: Object.fromEntries(ROLES.map((r) => [r, lines(r)])),
+    msgs: Object.fromEntries(ROLES.map((r) => [r, []])),
+    unread: Object.fromEntries(ROLES.map((r) => [r, 0])),
+    tasks: [] as any[],
+    taskList: document.createElement('div'),
+    LIVE: true,
+    delivered: [] as Array<[string, string]>,
+    paid: [] as Array<[number, string]>,
+    renders: 0,
+    cracked: 0,
+    opened: [] as string[],
+    cast: undefined as any,
+    render: () => hooks.renders++,
+    renderList: () => undefined,
+    renderChat: () => undefined,
+    renderQuote: () => undefined,
+    renderReplies: () => undefined,
+    deliver: (id: string, text: string) => hooks.delivered.push([id, text]),
+    pay: (amount: number, what: string) => {
+      pending.push({ amount, what });
+      hooks.paid.push([amount, what]);
+    },
+    heldTotal: () => pending.reduce((a, p) => a + p.amount, 0),
+    settleFirst: (ok: boolean) => {
+      const p = pending.shift()!;
+      hooks.onSettle?.(ok, p);
+    },
+    crackPhone: () => hooks.cracked++,
+    openPhone: () => undefined,
+    openChat: (id: string) => hooks.opened.push(id),
+    makeTask: (t: any) => {
+      const el = document.createElement('div');
+      el.className = 'task';
+      el.dataset.id = String(t.id);
+      el.innerHTML = `<div class="check"></div><span class="tt">${t.t}</span>`;
+      return el;
+    },
+    markActive: () => undefined,
+    shuffle: (a: unknown[]) => a,
+    clamp: (v: number, a: number, b: number) => Math.max(a, Math.min(b, v)),
+    money: (n: number) => '$' + Math.round(n).toLocaleString('en-US'),
+    onSettle: null,
+    owner: () => 'Travis',
+    current: () => null,
+    setCast: (owner: string, roles: Record<string, string>, focus: string) => (hooks.cast = { owner, roles, focus }),
+  };
+  document.body.append(hooks.taskList);
+  return hooks;
+}
+
+async function boot(opts: { gameId?: string; seed?: number; project?: string; fetch?: typeof fetch } = {}) {
+  const app = createApp({ projects: realProjects() });
+  const bridge = bridgeFetch(app.handler);
+  const created = await (await bridge('/api/games', {
+    method: 'POST',
+    body: JSON.stringify({ seed: opts.seed ?? 5, project: opts.project ?? 'wall-removal', owner: 'travis-potter' }),
+  })).json();
+  document.body.innerHTML = '<button id="quoteBtn"></button><b id="quoteVal"></b>';
+  const hooks = makeHooks();
+  (window as any).DIWHY_HOOKS = hooks;
+  (window as any).DIWHY_SPEED = 400; // type and wait 400 times faster than real time
+  vi.stubGlobal('fetch', opts.fetch ?? bridge);
+  history.replaceState(null, '', `/frontend/?game=${opts.gameId ?? created.id}`);
+  (0, eval)(SCRIPT);
+  await (window as any).DIWHY_LINK?.ready;
+  return { hooks, app, bridge, created, id: created.id as string };
+}
+
+const card = () => document.getElementById('dwCard')!;
+const options = () => [...document.querySelectorAll<HTMLButtonElement>('.dw-option')];
+const waitForOptions = () => vi.waitFor(() => expect(options().length).toBe(3), { timeout: 3000 });
+
+beforeEach(() => {
+  delete (window as any).DIWHY_LINK;
+  document.getElementById('dwStyle')?.remove();
+  document.head.querySelectorAll('link[href="/assets/style.css"]').forEach((l) => l.remove());
+});
+
+describe('game-link: starting up', () => {
+  it('does nothing without ?game, so the page keeps running its own demo', async () => {
+    document.body.innerHTML = '';
+    (window as any).DIWHY_HOOKS = makeHooks();
+    history.replaceState(null, '', '/frontend/');
+    (0, eval)(SCRIPT);
+    expect((window as any).DIWHY_LINK).toBeUndefined();
+    expect(document.getElementById('dwCard')).toBeNull();
+  });
+
+  it('casts the game with the backend\'s cast, as first names', async () => {
+    const { hooks, created } = await boot();
+    expect(hooks.cast.owner).toBe('Travis');
+    const expected = Object.fromEntries(Object.entries(created.cast.roles).map(([r, id]) => [r, (id as string).split('-')[0].replace(/^./, (c) => c.toUpperCase())]));
+    expect(hooks.cast.roles).toEqual(expected);
+    expect(hooks.cast.focus).toBe(created.cast.partnerFocus);
+  });
+
+  it('puts the contractor\'s quote in the contractor\'s chat, and the bars on the game\'s numbers', async () => {
+    const { hooks } = await boot();
+    expect(hooks.msgs.contractor[0].t).toContain('$10,000');
+    expect(hooks.msgs.contractor[0].t).toContain('14 days');
+    expect(hooks.plan).toEqual({ days: 14, budget: 10000 });
+    expect(hooks.S.time).toBe(0);
+    expect(hooks.S.budget).toBe(0);
+    expect(hooks.S.health).toBe(1);
+  });
+
+  it('turns the tasks post-it into the game\'s to-do list and ignores ticking by hand', async () => {
+    const { hooks } = await boot();
+    const titles = [...hooks.taskList.querySelectorAll('.tt')].map((e) => e.textContent);
+    expect(titles.at(-1)).toBe('Finish the wall removal');
+    expect(titles.length).toBe(2);
+    (hooks.taskList.querySelector('.check') as HTMLElement).click(); // does nothing
+    expect(hooks.tasks.every((t: any) => !t.done)).toBe(true);
+  });
+
+  it('loads the brand and locks the owner picker', async () => {
+    await boot();
+    expect(document.documentElement.classList.contains('dw-live')).toBe(true);
+    expect(document.head.querySelector('link[href="/assets/style.css"]')).not.toBeNull();
+  });
+});
+
+describe('game-link: the event card', () => {
+  it('types out the event and offers three options', async () => {
+    const { created } = await boot();
+    await waitForOptions();
+    expect(card().querySelector('.dw-title')!.textContent).toBe(created.event.title);
+    expect(card().querySelector('.dw-desc')!.textContent).toBe(created.event.description);
+    expect(options().map((b) => b.textContent!.replace(/^\d/, ''))).toEqual(created.event.choices.map((c: any) => c.label));
+  });
+
+  it('lets the keys 1 to 3 pick', async () => {
+    const { created } = await boot();
+    await waitForOptions();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: '2' })); // the second option
+    await vi.waitFor(() => expect(card().querySelector('.dw-title')!.textContent).not.toBe(created.event.title));
+  });
+
+  it('texts the advice from the right person and says so on the card', async () => {
+    // Find a seed whose first event comes with advice.
+    let found: any;
+    for (let seed = 0; seed < 40 && !found; seed++) {
+      const r = await boot({ seed });
+      if (r.created.event.advice) found = r;
+    }
+    expect(found).toBeDefined();
+    await waitForOptions();
+    const who = found.created.event.advice.from as string;
+    await vi.waitFor(() => expect(found.hooks.delivered.some(([id]: [string]) => id === who)).toBe(true));
+    const text = found.hooks.delivered.find(([id]: [string]) => id === who)[1] as string;
+    expect(text).toContain(found.created.event.choices[found.created.event.advice.pick].label);
+    const hint = card().querySelector<HTMLButtonElement>('.dw-hint')!;
+    expect(hint.textContent).toContain('texted you');
+    hint.click();
+    expect(found.hooks.opened).toContain(who);
+  });
+});
+
+describe('game-link: making choices', () => {
+  it('sends the choice, moves the bars, updates the tasks and shows the next event', async () => {
+    const { hooks, created } = await boot();
+    await waitForOptions();
+    options()[1].click();
+    await vi.waitFor(() => expect(card().querySelector('.dw-title')!.textContent).not.toBe(created.event.title));
+    await waitForOptions();
+    expect(hooks.S.time * 30 + hooks.S.budget).toBeGreaterThan(0);
+    expect(hooks.taskList.querySelectorAll('.task').length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('sends every purchase through pay(), holding it back from the budget until the bank is answered', async () => {
+    const { hooks } = await boot();
+    for (let i = 0; i < 6 && hooks.paid.length === 0; i++) {
+      await waitForOptions();
+      options()[1].click();
+      await vi.waitFor(() => expect(document.querySelectorAll('.dw-option[disabled]').length).toBe(0), { timeout: 3000 });
+    }
+    expect(hooks.paid.length).toBeGreaterThan(0);
+    const [amount] = hooks.paid.at(-1)!;
+    expect(amount).toBeGreaterThan(0);
+    // The page's budget bar shows only what the bank has confirmed: spent minus the amount on hold.
+    const spent = (hooks.S.budget * 24000) + hooks.heldTotal();
+    const view = await (await fetch(`/api/games/${(window as any).DIWHY_LINK.game().id}`)).json();
+    expect(Math.round(spent)).toBe(view.stats.spent);
+  });
+
+  it('tells the backend when the player confirms the bank, and when they block their own card', async () => {
+    const { hooks, id } = await boot();
+    for (let i = 0; i < 6 && hooks.paid.length === 0; i++) {
+      await waitForOptions();
+      options()[1].click();
+      await vi.waitFor(() => expect(document.querySelectorAll('.dw-option[disabled]').length).toBe(0), { timeout: 3000 });
+    }
+    const before = await (await fetch(`/api/games/${id}`)).json();
+    hooks.settleFirst(false); // "No, block it."
+    await vi.waitFor(async () => {
+      const after = await (await fetch(`/api/games/${id}`)).json();
+      expect(after.charge.status).toBe('blocked');
+      expect(after.stats.daysElapsed).toBe(before.stats.daysElapsed + 1);
+    });
+  });
+
+  it('has the cast react: the partner nags, the neighbor hears a blow-up, and so on', async () => {
+    const { hooks } = await boot({ seed: 9, project: 'carpet-replacement' });
+    for (let i = 0; i < 8; i++) {
+      await waitForOptions().catch(() => undefined);
+      if (!options().length) break;
+      options()[2].click(); // the "excessive" or "wrong" end of the options, to give them something to say
+      await vi.waitFor(() => expect(document.querySelectorAll('.dw-option[disabled]').length).toBe(0), { timeout: 3000 });
+      await new Promise((r) => setTimeout(r, 20));
+    }
+    await new Promise((r) => setTimeout(r, 50));
+    const who = new Set(hooks.delivered.map(([id]: [string]) => id));
+    expect(who.size).toBeGreaterThanOrEqual(2);
+    // Lines come from the page's own chatter pools, never invented here.
+    for (const [id, text] of hooks.delivered) {
+      const pool = hooks.pool[id] as string[];
+      const own = (text as string).startsWith(`${id} line`);
+      const advice = /"/.test(text as string);
+      expect(own || advice, `${id}: ${text}`).toBe(true);
+      if (own) expect(pool).toContain(text);
+    }
+  });
+});
+
+describe('game-link: the contractor and the end', () => {
+  it('asks the backend for a new quote and puts it on the post-it and in the chat', async () => {
+    const { hooks } = await boot();
+    for (let i = 0; i < 4; i++) {
+      await waitForOptions();
+      options()[0].click();
+      await vi.waitFor(() => expect(document.querySelectorAll('.dw-option[disabled]').length).toBe(0), { timeout: 3000 });
+    }
+    document.getElementById('quoteBtn')!.click();
+    await vi.waitFor(() => expect(hooks.msgs.contractor.length).toBe(2));
+    expect(hooks.msgs.contractor[1].t).toMatch(/^Revised: \d+ days and \$\d/);
+    expect(hooks.plan.budget).toBeGreaterThan(10000);
+    expect(hooks.plan.days).toBeGreaterThan(14);
+  });
+
+  it('plays to the end and shows the report against the contractor, with a way to play again', async () => {
+    await boot({ seed: 2, project: 'dryer-replacement' });
+    for (let i = 0; i < 14 && !document.querySelector('.dw-report'); i++) {
+      // Most events have three options. The last step has two.
+      await vi.waitFor(() => expect(options().length >= 2 || document.querySelector('.dw-report')).toBeTruthy(), { timeout: 3000 });
+      if (document.querySelector('.dw-report')) break;
+      options()[1].click();
+      await new Promise((r) => setTimeout(r, 30));
+    }
+    await vi.waitFor(() => expect(document.querySelector('.dw-report')).not.toBeNull(), { timeout: 4000 });
+    const text = document.querySelector('.dw-report')!.textContent!;
+    expect(text).toContain('Contractor quote');
+    expect(text).toContain('$1,800');
+    expect(text).toContain('Why did you do it yourself?');
+    expect(document.querySelector<HTMLAnchorElement>('#dwAgain')!.getAttribute('href')).toBe('/app/');
+    expect(document.getElementById('dwCard')!.hidden).toBe(true);
+  });
+});
+
+describe('game-link: when things go wrong', () => {
+  it('says the game is gone when the server no longer knows it, and offers a fresh start', async () => {
+    await boot({ gameId: 'does-not-exist' });
+    expect(card().textContent).toContain("isn't here any more");
+    expect(card().querySelector<HTMLAnchorElement>('a')!.getAttribute('href')).toBe('/app/');
+  });
+
+  it('says so when the server cannot be reached, and recovers on retry', async () => {
+    let up = false;
+    const app = createApp({ projects: realProjects() });
+    const good = bridgeFetch(app.handler);
+    const created = await (await good('/api/games', { method: 'POST', body: JSON.stringify({ seed: 5, project: 'wall-removal', owner: 'travis-potter' }) })).json();
+    const flaky = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (!up) throw new TypeError('fetch failed');
+      return good(input, init);
+    }) as typeof fetch;
+    await boot({ gameId: created.id, fetch: flaky });
+    expect(card().textContent).toContain("Can't reach the game server");
+    up = true;
+    card().querySelector<HTMLButtonElement>('#dwRetry')!.click();
+    await waitForOptions();
+  });
+});

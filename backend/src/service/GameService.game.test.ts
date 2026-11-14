@@ -168,6 +168,16 @@ describe('advice', () => {
     expect(adviceFor(wall.finale, 1)).toBeNull();
   });
 
+  it('lists each answer\'s quality in the debug view only', async () => {
+    const s = svc();
+    const g = await s.createGame({ seed: 4, project: 'wall-removal' }, { debug: true });
+    expect(g.debug!.choiceQualities).toHaveLength(3);
+    expect(g.debug!.choiceQualities).toContain('good');
+    const plain = await s.getGame(g.id);
+    expect(JSON.stringify(plain)).not.toContain('choiceQualities');
+    expect(JSON.stringify(plain)).not.toContain('"good"');
+  });
+
   it('shows the player who said what, but only the debug view says whether it was right', async () => {
     const s = svc();
     let found: GameView | undefined;

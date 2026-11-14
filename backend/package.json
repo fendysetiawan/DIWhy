@@ -9,7 +9,8 @@
     "api": "vite build --ssr src/server/index.ts --outDir dist-server && node dist-server/index.js",
     "build": "tsc && vite build",
     "typecheck": "tsc",
-    "test": "vitest run"
+    "test": "vitest run",
+    "e2e": "node e2e/demo.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

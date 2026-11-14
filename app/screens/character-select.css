@@ -1,0 +1,107 @@
+/* Screen 2: character select (screens/character-select.js) */
+
+.select { gap: clamp(20px, 5vh, 48px); }
+
+.select-title {
+  font-family: var(--font);
+  font-weight: 400;
+  font-size: clamp(24px, 3.4vw, 44px);
+  letter-spacing: 0.04em;
+}
+
+/* one line on wide screens, wraps on narrow ones */
+.cast {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(16px, 3vw, 48px);
+  max-width: 1400px;
+}
+
+.pick {
+  width: 124px;
+  padding: 8px 0 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 0;
+  color: var(--brand-cream);
+  font: 600 18px/1 var(--font);
+  cursor: pointer;
+}
+
+/* the sprite artwork is a 160px square with the character in the middle;
+   show it at 2x and crop to the character */
+.pick-sprite {
+  position: relative;
+  width: 120px;
+  height: 260px;
+  overflow: hidden;
+}
+.pick-sprite img {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  width: 320px;
+  height: 320px;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.pick:focus-visible { outline: none; }
+
+/* once you're pointing at or have picked someone, everyone else fades back */
+.pick { transition: opacity 0.2s ease; }
+.cast:has(.pick:hover, .pick:focus-visible, .pick[aria-checked="true"]) .pick:not(:hover):not(:focus-visible):not([aria-checked="true"]) {
+  opacity: 0.35;
+}
+
+/* "skip intro" in the bottom corner */
+.skip-intro {
+  position: absolute;
+  right: 20px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--brand-cream);
+  opacity: 0.6;
+  cursor: pointer;
+  user-select: none;
+}
+.skip-intro:hover { opacity: 1; }
+.skip-intro input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  border: 2px solid var(--brand-cream);
+  border-radius: 2px;
+  cursor: pointer;
+}
+.skip-intro input:checked { background: var(--brand-cream); box-shadow: inset 0 0 0 2px var(--brand-navy); }
+
+/* small screens: smaller sprites */
+@media (max-width: 600px) {
+  .pick { width: 92px; font-size: 15px; }
+  .pick-sprite { width: 90px; height: 195px; }
+  .pick-sprite img { width: 240px; height: 240px; }
+}
+
+/* Start button (new) and the demo link */
+.select-start { margin-top: clamp(0px, 2vh, 16px); }
+.watch-demo {
+  position: absolute;
+  left: 20px;
+  bottom: 16px;
+  color: var(--brand-sky);
+  font-size: 13px;
+  text-decoration: underline;
+  opacity: 0.8;
+}
+.watch-demo:hover { opacity: 1; }
