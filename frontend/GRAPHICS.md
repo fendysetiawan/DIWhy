@@ -23,12 +23,15 @@ Keep the gameplay layer pure pixel art: no smooth gradients or anti-aliased shap
 
 | z | What |
 |---|---|
-| 0 | Yard canvas (`.pix`) |
+| 0 | Scene canvas (`.pix`): the yard or a floor of the house |
 | 1 | Characters (`.yard`), sorted among themselves by their feet (lower on screen = in front) |
-| 5 | Post-its, theme button |
+| 2 | Glowing spots (`.hots`): door, stairs, DIY potential |
+| 4 | DIY elevation view (`.diy`) |
+| 5 | Post-its, theme button, floor name |
 | 6 | Arrow pad, "You" chip |
+| 7 | Fade between scenes |
 | 8 | Phone |
-| 9 | Home owner picker |
+| 9 | Home owner picker, DIY and event cards |
 
 ---
 
@@ -272,3 +275,53 @@ True iPhone proportions (9 : 19.5), no dynamic island, frame `#1a1b21`. Put away
 - [ ] Light sources marked for the night version
 - [ ] Not under the post-its, the phone or the arrow pad
 - [ ] Checked in day and night, at 1280 x 720 and phone size
+
+---
+
+## 11. Inside the house
+
+The cottage (Northeast style: 3 bedrooms, 2 bathrooms, two storeys and a basement) is drawn like the yard: one canvas per floor, 1066 x 600 pixels, the same pixel size and outline. The plan is seen from above with **low walls**, so the whole floor reads at once.
+
+### The floors (scene units)
+
+The house fills x 250 to 1350, y 120 to 820 on every floor, with 16-unit outer walls and 12-unit inner walls.
+
+| Floor | Rooms | DIY spot |
+|---|---|---|
+| Ground | Kitchen (top left), living room with fireplace (bottom left), hall with the stairs up and the front door (middle), bathroom (top right), dining room with the basement stairs (bottom right) | The wall between kitchen and living room (y 394) |
+| Upstairs | Two bedrooms on the left, hall with the stairs down, main bathroom (top right), third bedroom (bottom right) | The toilet in the main bathroom |
+| Basement | Utility room with furnace and water heater, storage, workshop, laundry in the bottom middle, rec area with the stairs up | The dryer |
+
+The stairs are 108 units wide, so there is a 40-unit walkway on each side of them in the hall. A character's feet are 28 units wide: keep every doorway and passage at least 40 units.
+
+### Drawing rules for interiors
+
+- **Floors:** wood planks `#c99158` `#bd8650` `#b07a46` (seams `#7d4f2a`), kitchen tile `#efe9dd` `#d9d0c0` (grout `#a89e8c`), bathroom tile `#e8f1f4` `#d3e4ea` (grout `#9fb3bd`), carpet per bedroom (blue `#9db4c8`, rose `#d2aeae`, green `#b4c79d` families), basement concrete `#a8a49b` with cracks, laundry vinyl `#d8d2c4` `#c9c2b2`.
+- **Walls:** a top face `#efe5d3` with a light edge `#fffaf0` and a 1 px outline. Horizontal walls also get a short front face below them (`#cbbb9e`, 5 px): that is the "low wall" seen in three-quarter view.
+- **Furniture:** outlined, lit from the top left, with a drop shadow, like objects in the yard. Big pieces (beds, counters, sofa, tub, washer, dryer, stairs) are colliders.
+- **Outside the house:** dark brown `#231912` / `#281d15`, so the plan floats.
+- **Night:** the same tint as the yard but lighter (rooms have their lights on), plus a warm glow per room and around lamps, the fireplace and nightstands.
+
+### Colliders
+
+Walls and the big furniture block the character (`blocked()` in the code): it slides along them and can never stand on a wall. In the yard the house, shed, dumpster, lumber, scaffold, beds and fence are colliders, with the gate left open.
+
+### Glowing spots
+
+When the character's feet come within 70 units of a spot, it glows and shows a label; click it (or press **E** or **Enter**) to use it.
+
+| Spot | Glow | Does |
+|---|---|---|
+| Front door (yard) and the door in the hall | Warm yellow | Go in or out |
+| Stairs | Teal | Change floor |
+| DIY potential | Gold, with a gold label | Offer the project, then open the elevation view |
+
+## 12. DIY elevation views
+
+A DIY project opens a **side view (elevation)** of the spot, on its own canvas of 533 x 300 pixels: **one pixel = 3 scene units**, twice as close as the plan, and the character is drawn twice as large (240 units), standing on the floor line at y 250.
+
+- **Layout:** ceiling band (y 0 to 40), crown line, wall (y 45 to 242), baseboard (to 250), floor (250 to 300). Keep the action between x 150 and 400: the post-its cover the left, the character stands on the right.
+- **Static parts** are painted once with the pixel painter (textures, outlines). **Moving parts** are drawn every frame with whole-pixel rectangles (`fr`, `fb`, `fo` in the code), so they stay crisp.
+- **Steps:** each project is a list of steps with a duration; one of them is an **event card** from `events/` (the wall uses `wall_removal_events.csv`, the toilet `toilet_replace_events.csv`; the dryer has draft events in `frontend/dryer_vent_events.csv`). The answer (good, ok, wrong, excessive) changes the cost, the days and health.
+- **Current animations:** the wall (scanner finds studs, cut lines, drywall falls in pieces, header beam, studs come out, trim and paint), the toilet (valve, old toilet lifted out, wax ring, new toilet set, flush), the dryer (pulled out, old foil hose comes off with a lint cloud, duct brushed, new metal duct, pushed back with clothes tumbling).
+- **Adding a project:** add an entry to `PROJECTS` (title, cost, days, steps, event file), a `DRAW` function, a background in `buildElevations()`, and a DIY spot on the right floor.
