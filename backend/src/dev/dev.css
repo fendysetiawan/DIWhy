@@ -1,0 +1,44 @@
+/* Dev tools only. Loaded when dev mode is switched on. */
+
+/* game on the left, dev panel on the right */
+.layout.with-dev { display: grid; grid-template-columns: minmax(0, 760px) 380px; gap: 1rem; justify-content: center; align-items: start; padding: 0 1rem; }
+.layout.with-dev main { max-width: none; margin: 0; padding: 1rem 0; }
+
+.dev {
+  position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow-y: auto;
+  margin: 1rem 0; padding: 1rem; border-radius: 14px;
+  background: #1e1e24; color: #e6e6ea; font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.dev h3 { margin: 0 0 .4rem; font-size: 14px; color: #ffd8a8; }
+.dev h4 { margin: .9rem 0 .3rem; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #9a9aa6; }
+.dev .muted { color: #8a8a96; }
+.dev .warn { color: #ffa8a8; }
+.dev table { width: 100%; border-collapse: collapse; margin: 0; }
+.dev td, .dev th { padding: 2px 0; border: 0; text-align: left; font-weight: 400; }
+.dev td:last-child, .dev th:last-child { text-align: right; font-weight: 400; }
+.dev table.pool td:nth-child(2), .dev table.pool th:nth-child(2) { text-align: right; }
+.dev th { color: #9a9aa6; }
+.dev tr.changed td { animation: devflash 1.2s ease-out; }
+.dev tr.picked td { color: #8ce99a; font-weight: 700; }
+.chip { display: inline-block; margin: 0 4px 4px 0; padding: 1px 8px; border-radius: 999px; background: #343440; color: #ffd8a8; }
+.dev-history { margin: 0; padding-left: 1.4rem; }
+.dev ol { list-style: decimal; }
+.dev details { margin-top: .9rem; }
+.dev details details { margin: .3rem 0 .3rem .6rem; }
+.dev summary { cursor: pointer; color: #9a9aa6; padding: 2px 0; }
+.dev pre { margin: .4rem 0 0; padding: .5rem; background: #14141a; border-radius: 6px; overflow-x: auto; }
+.dev pre.wrap { white-space: pre-wrap; word-break: break-word; max-height: 16rem; overflow-y: auto; }
+.dev a.dl { color: #74c0fc; }
+
+/* director switch */
+.director-switch { margin: .4rem 0 .6rem; }
+.seg { margin: 0 4px 0 0; padding: 3px 12px; font: inherit; color: #e6e6ea; background: #343440; border: 1px solid #4a4a58; border-radius: 999px; cursor: pointer; }
+.seg.active { background: #e8590c; border-color: #e8590c; color: #fff; font-weight: 600; }
+
+@keyframes devflash { from { background: #5c4a14; } to { background: transparent; } }
+
+@media (max-width: 1180px) {
+  .layout.with-dev { grid-template-columns: minmax(0, 1fr); }
+  .layout.with-dev main { padding: 1rem 0 0; }
+  .dev { position: static; max-height: none; margin-top: 0; }
+}
