@@ -138,10 +138,10 @@ All colours are hex, in light (day) mode. Night mode is derived from these autom
 
 ### What to deliver
 
-In the repo the team's sprites live in **`assets/app/assets/sprites/team/<first-last>/`** (for example `aidan-newsome/`), one folder per person:
+In the repo the team's sprites live in **`assets/characters/<first-last>/`** (for example `aidan-newsome/`), one folder per person:
 
 ```
-assets/app/assets/sprites/team/aidan-newsome/
+assets/characters/aidan-newsome/
   front.svg        facing the camera (moving down), animated
   back.svg         facing away (moving up), animated
   left.svg         facing left, animated
@@ -150,7 +150,7 @@ assets/app/assets/sprites/team/aidan-newsome/
   standing.svg     400 x 400 on a cream background (character select)
 ```
 
-Current team folders: `aidan-newsome`, `christian-huber`, `fendy-seitiawan`, `gigi-singh`, `rachel-katz`, `ramy-maher`, `travis-potter`. Small portraits are in `assets/app/assets/sprites/people/`. See `assets/README.md`.
+Current team folders: `aidan-newsome`, `christian-huber`, `fendy-seitiawan`, `gigi-singh`, `rachel-katz`, `ramy-maher`, `travis-potter`. See `assets/README.md`.
 
 `frontend/index.html` carries its own embedded copy of the four direction files per person (from "DIWhy Four-Direction Animated SVGs"). When a sprite changes in `assets/`, the embedded copy has to be refreshed too, until the two front ends are merged.
 
@@ -224,7 +224,7 @@ When you add something that gives light (a lamp, a window, a fire pit), mark its
 
 ## 9. UI style (the non-pixel layer)
 
-> **Two sources, not yet aligned.** The team's brand is in `assets/app/brand.css` (see `assets/README.md`): mustard `#eeb155`, navy `#0c1450`, forest `#29372d`, cream `#f7e8d1`, and the fonts Caveat Brush (titles), Amatic SC (taglines), Nunito (reading), Fredoka (buttons, labels), Press Start 2P (retro game text, HUD, scores) and Space Mono (numbers, prices). `frontend/index.html` currently uses the system font and the calm style described below. **For new UI work, use `brand.css`**; the frontend will be moved over to it when the two front ends are merged.
+> **Two sources, not yet aligned.** The team's brand is in `assets/style.css` (see `assets/README.md`): blues like an old Final Fantasy menu, navy `#0c1450` (background), blue `#2a44c0` (windows), sky `#9cc3ff` (highlights) and cream `#f7e8d1` (text), and one font, Press Start 2P, for everything (32px titles, 16px the rest). `frontend/index.html` currently uses the system font and the calm style described below. **For new UI work, use `assets/style.css`**; the frontend will be moved over to it when the two front ends are merged.
 
 What `frontend/index.html` uses today: one system font, dark grey ink on white (light grey on near-black in dark mode), three accent colours used sparingly, round buttons, pill-shaped chips, soft shadows, and every larger movement on the same easing curve.
 
