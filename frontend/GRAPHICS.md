@@ -242,7 +242,7 @@ What `frontend/index.html` uses today: one system font, dark grey ink on white (
 | Labels on the post-its and names in the phone | 14.5 px, weight 650, ink `rgb(35,35,35)` |
 | Small labels | 11 to 12 px, weight 650, uppercase, letter-spacing .04 to .06 em |
 | Ink | `rgb(35,35,35)`, secondary `rgba(35,35,35,.7)`, hints `rgba(35,35,35,.48)`; dark mode `#f5f5f7`, `#86868b` |
-| Accent | teal `rgb(34,195,160)`, gold `#facc15`, red `#ef4444` (over budget, "Give up.", fraud) |
+| Accent | teal `rgb(34,195,160)`, gold `#facc15`, red `#ef4444` (over budget, "Give up.") |
 | Round buttons | 40 to 46 px circles, white (dark `#1c1d24`), hairline border, soft shadow |
 | Pills | radius 999 px |
 | Easing | large moves `cubic-bezier(.65,0,.25,1)`, button press `cubic-bezier(.3,1.6,.5,1)`, settle `cubic-bezier(.2,.8,.2,1)` |
@@ -293,7 +293,7 @@ The house fills x 250 to 1350, y 120 to 820 on every floor, with 16-unit outer w
 
 | Floor | Rooms | DIY spot |
 |---|---|---|
-| Ground | Dining room and kitchen side by side (top left), living room with fireplace (bottom left), hall with the staircase and the front door (middle), bathroom (top right), den (bottom right) | The kitchen part of the wall to the living room (x 530 to 700, y 394) |
+| Ground | Dining room and kitchen side by side (top left), living room with fireplace (bottom left), hall with the staircase and the front door (middle), bathroom (top right), office with a desk and two visitor chairs (bottom right); the dining room has a window on the west wall | The kitchen part of the wall to the living room (x 530 to 700, y 394) |
 | Upstairs | Bedroom 1 (top left: bed on the north wall, wardrobe on the hall wall), bedroom 2 (bottom left: bed on the south wall, wardrobe on the hall wall), both with windows on the west wall; hall with the staircase; main bathroom (top right); bedroom 3 (bottom right: wardrobe on the north wall, bed on the east wall, desk) | The toilet in the main bathroom |
 | Basement | Utility room with furnace and water heater, storage with the staircase, workshop, laundry in the bottom middle, rec area | The dryer |
 
@@ -315,7 +315,7 @@ Walls and the big furniture block the character (`blocked()` in the code): it sl
 
 ### Glowing spots
 
-When the character's feet come within 70 units of a spot, it glows and shows a label; click it (or press **E** or **Enter**) to use it.
+A DIY spot glows softly as soon as the character enters its room. When the character's feet come within 70 units of any spot, it glows fully and shows a label; click it (or press **Space** or **Enter**) to use it.
 
 | Spot | Glow | Does |
 |---|---|---|
@@ -331,4 +331,6 @@ A DIY project opens a **side view (elevation)** of the spot, on its own canvas o
 - **Static parts** are painted once with the pixel painter (textures, outlines). **Moving parts** are drawn every frame with whole-pixel rectangles (`fr`, `fb`, `fo` in the code), so they stay crisp.
 - **Steps:** each project is a list of steps with a duration; one of them is an **event card** from `events/` (the wall uses `wall_removal_events.csv`, the toilet `toilet_replace_events.csv`; the dryer has draft events in `frontend/dryer_vent_events.csv`). The answer (good, ok, wrong, excessive) changes the cost, the days and health.
 - **Current animations:** the wall (scanner finds studs, cut lines, drywall falls in pieces, header beam, studs come out, trim and paint), the toilet (valve, old toilet lifted out, wax ring, new toilet set, flush), the dryer (pulled out, old foil hose comes off with a lint cloud, duct brushed, new metal duct, pushed back with clothes tumbling).
+- **The player in the scene:** walks in from the right (walk cycle) to the spot for each step (`WORK_X`), then turns their **back to the camera** and works; a small pixel tool for the step (`STEP_TOOL`, `TOOL_SVG`, 16 x 16) swings in their hand.
+- **The store** is a static elevation in the same scale: shelves of products and a pegboard of tools on a cream wall, a navy counter at waist height on its own transparent layer, the clerk (front sprite) behind it and the player (back sprite, larger, closer) in front.
 - **Adding a project:** add an entry to `PROJECTS` (title, cost, days, steps, event file), a `DRAW` function, a background in `buildElevations()`, and a DIY spot on the right floor.

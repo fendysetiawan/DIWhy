@@ -14,13 +14,34 @@ The game's user interface as a single self-contained page. Open `index.html` in 
 
 ## The house
 
-- **Going in:** walk up to the front door; it glows. Click it (or press **E** or **Enter**) and the scene changes to the inside of the house.
+- **Going in:** walk up to the front door; it glows. Click it (or press **Space** or **Enter**) and the scene changes to the inside of the house.
 - **The cottage:** a Northeast-style cottage with 3 bedrooms, 2 bathrooms, two storeys and a basement. Each floor is a plan seen from above with low walls. Walls and big furniture are colliders: you walk around them, never over them.
 - **Stairs:** one staircase, in the hall on every floor (the way down runs under the way up). Walk up to it; it glows. Click it and choose the floor.
 - **Fits the screen:** inside, the house and the player shrink so the plan fits between the post-its and the phone. At night the room you are in is lit.
-- **DIY potential:** three spots glow gold when you come close: the **wall between kitchen and living room** (ground floor; the dining room sits next to the kitchen), the **toilet** in the upstairs bathroom and the **dryer** (basement). Click one to see the cost and time, then **Take it on**.
+- **DIY potential:** walk into a room with something to fix and it glows softly; come close and it glows fully with a label. Three spots: the **wall between kitchen and living room** (ground floor; the dining room sits next to the kitchen), the **toilet** in the upstairs bathroom and the **dryer** (basement). Click one to see the cost and time, then **Take it on**.
 - **DIY projects:** the scene changes to a side view (elevation) where the job is animated step by step. Halfway through, an event card from `events/` asks how you handle a surprise; the answer changes the cost, the days and your health. At the end the payment goes through the bank's fraud check, the days are added, and some projects change the house (the kitchen wall really disappears from the plan).
 - **Day and night:** the game switches between day and night every 3 minutes; one full cycle is one day, and the date turns over at dawn. The theme button skips to the next day or night.
+
+## People in the world
+
+- **Partner:** lives on the ground floor and roams the living room, dining room and kitchen. Never outside.
+- **Neighbor:** stands outside the bottom fence, watching. Every few minutes walks in (through the gate, the front door, or up the stairs) to the player, says something snarky in a speech bubble, and leaves.
+- **Friend and parent:** not around. Each minute there is a 10% chance one of them pops by for about 30 seconds: walks to the player, comments, leaves.
+- **Contractor:** only appears in person when the player answers "Give up." in the contractor's chat.
+- **Store clerk:** only appears behind the counter in the store.
+- Only the home owner is played; clicking the others does nothing.
+
+## Tools and the store
+
+- Each DIY job needs a couple of tools (`TOOLS_NEEDED` in `index.html`; the event files don't list tools yet). The player starts with a hammer, a screwdriver and a tape measure.
+- When a step needs a tool the player doesn't have, the job stops: **"Go buy it"**. The player walks out through the gate and appears in the store, in front of the counter, with the clerk behind it.
+- Each tool comes in three versions (cheap, right, fancy). Next to them: **the clerk recommends** the fancy one, **YouTube recommends** the right one (if the player watched that job's video), **ChatGPT recommends** whatever it read first (if asked; sometimes wrong). The cheap one costs a little health. Every purchase goes through `pay()`.
+- **Back to the job** jumps straight back into the fixing scene, which carries on.
+
+## In a DIY scene
+
+- The phone and the post-its step aside.
+- The player walks to each work spot, turns their back to the camera and works with the tool for that step (stud finder, saw, pry bar, hammer, wrench, brush and so on).
 
 ## Characters
 
@@ -39,7 +60,7 @@ All texts are in `character-texts.txt`: 40 per character, plus 40 overconfident 
 
 ## Keep these when the code is combined
 
-- **Payments: `pay(amount, what)`** is the one entry point for spending money. The payment goes on hold ("on hold" under Budget), the **Bank** texts a potential fraud alert, the **Store Clerk** says the card is not going through, and only "Yes, it was me." in the bank chat takes the money from the budget ("No, block it." cancels it). Look for the block marked `PAYMENTS: keep this when the game code is combined`.
+- **Payments: `pay(amount, what)`** is the one entry point for spending money. The money leaves the budget at once and the **Bank** texts how much was charged (no fraud check, no confirmation). In backend mode the page answers the backend's charge with "yes" straight away; `settle()` and `heldTotal()` stay for the link.
 - **Cracked phone: `crackPhone()`.** After a big fix (a task of $300 or more, or an urgent one) there is a 1 in 10 chance the phone screen cracks in the lower left corner. The text stays readable.
 
 ## Demo and test switches
