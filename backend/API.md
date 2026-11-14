@@ -1,45 +1,52 @@
 # DIWhy backend API
 
-A JSON API over HTTP. It runs the whole game: rules, events, dice and the end report. A front end only has to draw what it receives and send back the player's choices.
+A JSON API over HTTP. It runs the whole game: the projects, the events, the dice, the cast, the contractor's quote, the bank and the end report. A front end only has to draw what it receives and send back the player's choices.
 
 - **Contract:** [`src/service/types.ts`](src/service/types.ts) holds every request and response shape. Copy it or import it as types only.
 - **Typed client:** [`src/client/GameClient.ts`](src/client/GameClient.ts) is a small wrapper over these endpoints. Use it, or treat it as a worked example.
-- **Reference front end:** the page in `src/ui` is a front end built on this contract alone. It imports no game code, and a test enforces that.
+- **Working front ends:** [`../frontend/game-link.js`](../frontend/game-link.js) connects the team's gameplay page to this API, and [`../app/`](../app/) is the front door. Both are plain JavaScript and show the calls in use.
 
 ## Running it
 
 | Command | What you get |
 |---|---|
-| `npm run dev` | The reference page and the API on one port (5173), with live reload. No CORS to think about. |
+| `npm run play` | **The whole game** on one address: `http://127.0.0.1:3001` (front door, gameplay page, art, demo) plus the API at `/api`. No CORS to think about. |
 | `npm run api` | The API alone, on `http://127.0.0.1:3001/api`. Use this when your front end runs somewhere else. |
+| `npm run dev` | A developer console (the reference page with dev mode) and the API, with live reload. |
 
-Settings for `npm run api` (environment variables):
+Settings (environment variables):
 
 | Variable | Default | Meaning |
 |---|---|---|
 | `PORT` | `3001` | Port to listen on. |
 | `HOST` | `127.0.0.1` | Interface to bind. `0.0.0.0` accepts other machines. |
 | `CORS_ORIGIN` | unset (no CORS headers) | Allowed origin for browsers on another origin, such as `http://localhost:3000`, or `*`. |
+| `EVENTS_DIR` | `../events` | Where the team's event CSVs are. |
 | `JEV_URL` | `http://127.0.0.1:8009/v1/systemone` | Where the Jev model server is. Set it to an empty string to turn the `jev` director off. |
+
+**The event files are read live.** Edit a CSV in `events/` and the next *new* game uses it, with no restart. A game already in progress keeps its events (unless one it needs was removed, then it answers `project_changed`). If an edit breaks a file, the server keeps the last good version and logs why.
 
 The API has no authentication. Keep it on localhost or behind something that adds access control before exposing it.
 
 ## Playing a game
 
-1. `POST /api/games` starts a game and returns the first event.
-2. Show `event` and its `choices`. When the player picks one, `POST /api/games/:id/choices`.
-3. The response is the next state. Repeat until `status` is no longer `"playing"`.
-4. When the game is over, `report` holds the end-of-game summary.
+1. `GET /api/projects` lists the jobs. The player picks one (and a character).
+2. `POST /api/games` starts a game on it and returns the first event.
+3. Show `event` and its `choices`. When the player picks one, `POST /api/games/:id/choices`.
+4. The response is the next state. If `charge` is new, the bank is asking about it: show that, and `POST /api/games/:id/payments` with the answer.
+5. Repeat until `status` is no longer `"playing"`. Then `report` holds the end-of-game summary.
 
 ```js
 const api = 'http://127.0.0.1:3001/api';
-const post = (path, body) =>
-  fetch(api + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then((r) => r.json());
+const call = (path, body) =>
+  fetch(api + path, { method: body ? 'POST' : 'GET', headers: { 'Content-Type': 'application/json' }, body: body && JSON.stringify(body) }).then((r) => r.json());
 
-let game = await post('/games', { seed: 42 });
+const { projects } = await call('/projects');
+let game = await call('/games', { project: projects[2].id, owner: 'gigi-singh', seed: 42 });
 while (game.status === 'playing') {
   const pick = game.event.choices[0]; // ask the player here
-  game = await post(`/games/${game.id}/choices`, { choice: pick.index, eventId: game.event.id });
+  game = await call(`/games/${game.id}/choices`, { choice: pick.index, eventId: game.event.id });
+  if (game.charge?.status === 'pending') game = await call(`/games/${game.id}/payments`, { chargeId: game.charge.id, confirm: true });
 }
 console.log(game.report.achievement.title);
 ```
@@ -49,44 +56,61 @@ console.log(game.report.achievement.title);
 | Method and path | Body | Success | Notes |
 |---|---|---|---|
 | `GET /api/health` | none | `200` `{ status, directors }` | Which directors this server can use. |
-| `POST /api/games` | `{ seed?, director? }` | `201` GameView, `Location` header | Body may be empty. |
+| `GET /api/projects` | none | `200` `{ projects }` | Every job a player can take on, with the contractor's quote. |
+| `POST /api/games` | `{ seed?, project?, owner?, director? }` | `201` GameView, `Location` header | Body may be empty. |
 | `GET /api/games/:id` | none | `200` GameView | Safe to call any time, for example to resume after a reload. |
 | `POST /api/games/:id/choices` | `{ choice, eventId? }` | `200` GameView | Applies the choice, then picks the next event. |
+| `POST /api/games/:id/quote` | none | `200` GameView | The contractor re-quotes. Only ever goes up. |
+| `POST /api/games/:id/payments` | `{ chargeId, confirm }` | `200` GameView | Answer the bank about the latest charge. |
 | `DELETE /api/games/:id` | none | `204` | Throws the game away. |
 
 Add `?debug=1` to any game request to include the `debug` payload (see below).
 
 ### Request fields
 
-- **`seed`:** integer from 0 to 4294967295. Leave it out for a random one. The same seed with the same choices always gives the same game under the `random` director.
+- **`project`:** a project `id` from `GET /api/projects`. Omit to let the seed pick one.
+- **`owner`:** who the player is, by folder name in `assets/characters` (`travis-potter`, `aidan-newsome`, `rachel-katz`, `christian-huber`, `ramy-maher`, `gigi-singh`, `fendy-seitiawan`). Omit for a random one.
+- **`seed`:** integer from 0 to 4294967295. Omit for a random one. The same seed, project, owner and choices always give the same game under the `random` director.
 - **`director`:** `"random"` (default) or `"jev"`, a local decision model that picks which event happens next. If the model server is down, the game carries on with random picks.
 - **`choice`:** the `index` of one of the current event's `choices`.
-- **`eventId`:** optional but recommended. It's the `id` of the event the player was looking at. If the game has moved on (a double click, a second tab), the server answers `409 stale_event` and changes nothing.
+- **`eventId`:** optional but recommended. The `id` of the event the player was looking at. If the game has moved on (a double click, a second tab), the server answers `409 stale_event` and changes nothing.
 
 ## The GameView
 
-Every endpoint that returns a game returns this shape. This is a real response, trimmed.
+Every endpoint that returns a game returns this shape. Trimmed:
 
 ```json
 {
   "id": "76fc453c-0fe2-4594-a5cd-2715b795861d",
-  "seed": 42,
+  "seed": 0,
   "director": "random",
+  "project": { "id": "dryer-replacement", "title": "Replace the smoking dryer", "job": "dryer replacement" },
+  "cast": {
+    "owner": "gigi-singh",
+    "roles": { "partner": "ramy-maher", "clerk": "aidan-newsome", "contractor": "christian-huber", "parent": "fendy-seitiawan", "neighbor": "rachel-katz", "friend": "travis-potter" },
+    "partnerFocus": "budget"
+  },
+  "quote": { "original": { "budget": 1800, "days": 3 }, "current": { "budget": 1800, "days": 3 } },
   "status": "playing",
   "failure": null,
-  "stats": { "budget": 5000, "spent": 0, "daysElapsed": 0, "maxDays": 30, "stress": 0, "riskDebt": 0, "problems": 0 },
+  "stats": { "budget": 4500, "spent": 0, "daysElapsed": 0, "maxDays": 9, "stress": 0, "riskDebt": 0, "problems": 0 },
+  "tasks": [ { "id": "dryer_smokes", "title": "Dryer starts smoking", "priority": "high", "done": false }, { "id": "finale", "title": "Finish the dryer replacement", "priority": "normal", "done": false } ],
+  "charge": null,
+  "outcome": null,
   "ledger": [],
   "log": [],
   "event": {
-    "id": "valve-stuck",
+    "id": "dryer_smokes",
     "kind": "problem",
-    "title": "The shutoff valve won't close",
-    "description": "You watched a six-minute video called \"Faucet swap: so easy!\" ...",
+    "title": "Dryer starts smoking",
+    "description": "Oh no! The old dryer is smoking. Not metaphorically.",
+    "category": "mechanical",
     "choices": [
-      { "index": 0, "label": "Force it", "cost": 0, "days": 0 },
-      { "index": 1, "label": "Replace the valve", "cost": 180, "days": 1 },
-      { "index": 2, "label": "Call a plumber", "cost": 450, "days": 2 }
-    ]
+      { "index": 0, "label": "Keep running it with the door open", "cost": null, "days": null },
+      { "index": 1, "label": "Unplug it and start the replacement", "cost": null, "days": null },
+      { "index": 2, "label": "Gut the laundry room and start over", "cost": null, "days": null }
+    ],
+    "advice": { "from": "neighbor", "pick": 1 }
   },
   "report": null
 }
@@ -94,14 +118,35 @@ Every endpoint that returns a game returns this shape. This is a real response, 
 
 | Field | Meaning |
 |---|---|
-| `status` | `"playing"`, `"complete"` (the faucet got installed) or `"failed"`. |
-| `failure` | When `status` is `"failed"`: `"budget"`, `"time"` or `"stress"`. Otherwise `null`. |
-| `stats` | The numbers to show the player. `riskDebt` is shown in the reference page, so hide it if you want the risk to stay secret. |
-| `ledger` | Every cost so far, as `{ label, cost }`. Negative means a refund. |
+| `project` | The job being played. |
+| `cast` | Who the player is and who plays each role. The six roles are `partner`, `clerk`, `contractor`, `parent`, `neighbor`, `friend`. Dealt from the seed, so a replay has the same cast. |
+| `quote` | `original` is the contractor's quote and the baseline the player is judged against, always. `current` is what the contractor last said; `POST /quote` can raise it as problems turn up. |
+| `status` | `"playing"`, `"complete"` (the job got finished) or `"failed"`. |
+| `failure` | When `"failed"`: `"budget"`, `"time"` or `"stress"`. The game ends at 2.5 times the quote's money, 3 times its days, or stress 100 (`stats.budget` and `stats.maxDays` are those limits). |
+| `stats` | The numbers to show. `riskDebt` is the hidden cost of shortcuts; hide it if you want the risk to stay secret. |
+| `tasks` | The to-do list: what has come up, what is on the table now, and the last step. `priority` is `urgent`, `high` or `normal`. |
+| `charge` | The latest purchase, waiting for the bank: `{ id, amount, what, status }`. `status` is `pending`, `confirmed` or `blocked`. |
+| `outcome` | What the last choice did: its `quality`, what it cost, whether it `blewUp`, and whether the partner nagged. Use it to have the cast react. `null` at the start. |
+| `ledger` | Every cost so far, as `{ label, cost }`. |
 | `log` | Flavor text from recent choices, newest first. |
 | `event` | What to decide now. `null` once the game is over. `kind` is `problem`, `temptation`, `humor` or `finale`. |
-| `choices[].cost`, `days` | What the player is told up front. Hidden consequences and dice rolls are never sent. |
-| `report` | `null` while playing. When over: estimate, actual cost, overrun percentage, days, problems, stress, a one-line outcome, a closing "why" line and an achievement. |
+| `event.choices[].cost`, `days` | Always `null`: nobody tells you what a DIY fix will cost. The fields exist so a price tag can come back later. |
+| `event.advice` | Someone's opinion, about two events in three: `{ from, pick }`. They might be wrong (see below). |
+| `report` | `null` while playing. When over: the contractor's quote against what happened, overrun percentage, days, problems ("times you asked why"), stress, a one-line outcome, a closing "why" line and an achievement. |
+
+## The cast, advice and the partner
+
+- **Advice** comes from the neighbor, parent, friend or clerk, and points at one option. They are not equally trustworthy: the neighbor is a coin flip, the parent is mostly wrong, the friend usually picks the exciting option, and the clerk always points at the priciest. The player is never told whether they are right (`debug.adviceReliable` says, for tools).
+- **The partner** nags about money or time (`cast.partnerFocus`). While that thing is over the contractor's quote, every choice adds stress and `outcome.partnerNagged` is `true`.
+- **How good an answer is** comes from the `answer_key` in the team's event files (`good`, `ok`, `wrong`, `excessive`). Good answers cost a fair price and lower risk. Wrong ones are cheap now, raise risk, and may blow up. Excessive ones cost far more than needed. For temptations, "good" means saying no, which is free.
+
+## Money and the bank
+
+Every choice that costs money becomes a `charge` with `status: "pending"`. A front end shows the bank's fraud alert and asks the player.
+
+- `confirm: true` (**"Yes, it was me"**): nothing changes.
+- `confirm: false` (**"No, block it"**): the player blocked their own card. It costs a **day** and some stress, and the charge **still stands**. Answering the same charge twice does nothing more.
+- Only the latest charge can be answered. An older one is rejected with `stale_charge`.
 
 ## Errors
 
@@ -118,12 +163,17 @@ Every error has the same shape, and `code` is stable, so match on it and not on 
 | 400 | `invalid_seed` | Seed isn't an integer in range. |
 | 400 | `invalid_director` | Director isn't `random` or `jev`. |
 | 400 | `director_unavailable` | `jev` requested but this server has no model configured. |
+| 400 | `invalid_project` | No such project. |
+| 400 | `invalid_owner` | Not one of the seven characters. |
 | 400 | `invalid_choice` | `choice` isn't a valid index for the current event. |
+| 400 | `invalid_payment` | `confirm` isn't `true` or `false`. |
 | 404 | `game_not_found` | Unknown id, or the game expired. |
 | 404 | `not_found` | No such route. |
 | 405 | `method_not_allowed` | Wrong HTTP method. The `Allow` header lists the right ones. |
 | 409 | `game_over` | The game has already ended. |
 | 409 | `stale_event` | `eventId` doesn't match the current event. Re-fetch the game and redraw. |
+| 409 | `stale_charge` | That charge isn't the latest one. |
+| 409 | `project_changed` | The event files were edited and an event this game needs is gone. Start a new game. |
 | 500 | `internal_error` | A bug. Details go to the server log, not the response. |
 
 ## Things worth knowing
@@ -143,12 +193,15 @@ Every error has the same shape, and `code` is stable, so match on it and not on 
   "debug": {
     "state": { "...": "the full internal game state, including flags and house condition" },
     "maxEvents": 8,
-    "decisions": [ { "step": 2, "pickedId": "while-were-at-it", "pool": [], "info": { "trace": {} } } ],
-    "last": { "pool": [ { "id": "corroded-pipes", "weight": 14.2, "pct": 12.5, "picked": false } ], "forced": false }
+    "adviceReliable": true,
+    "choiceQualities": ["wrong", "good", "excessive"],
+    "decisions": [ { "step": 2, "pickedId": "scorched_wall", "pool": [], "info": { "trace": {} } } ],
+    "last": { "pool": [ { "id": "lint_everywhere", "weight": 16, "pct": 25, "picked": false } ], "forced": false }
   }
 }
 ```
 
+- `choiceQualities` is how good each answer to the current event is. The hands-free demo uses it.
 - `last.pool` lists the events the director chose from, with the weights and chances under the random rules and, for the `jev` director, the model's own chances (`jevPct`).
 - `decisions` holds every model call this game: the exact text the model was sent, its raw response, the seeded roll, and the latency. It's empty under the `random` director.
 

@@ -298,6 +298,70 @@ html[data-theme="dark"] .ch img{filter:brightness(.8) saturate(.9)}
 .ch.owner .tag i{color:#0f8a70}
 .ch.sel .tag{opacity:1}
 
+/* ---------- glowing spots: door, stairs, DIY potential ---------- */
+.hots{position:fixed;inset:0;z-index:2;pointer-events:none}
+.hot{position:absolute;border-radius:6px;background:transparent;border:0;padding:0;opacity:0;pointer-events:none;transition:opacity .25s}
+.hot.lit{opacity:1;pointer-events:auto;cursor:pointer;animation:hotPulse 1.5s ease-in-out infinite}
+.hot.door{box-shadow:0 0 0 2px #fff4b8,0 0 18px 5px rgba(255,226,120,.85),inset 0 0 14px rgba(255,226,120,.6)}
+.hot.stairs{box-shadow:0 0 0 2px #c9fff1,0 0 18px 5px rgba(34,195,160,.8),inset 0 0 18px rgba(34,195,160,.35)}
+.hot.fix{box-shadow:0 0 0 2px #ffd166,0 0 22px 7px rgba(250,204,21,.9),inset 0 0 16px rgba(250,204,21,.45)}
+@keyframes hotPulse{50%{filter:brightness(1.4)}}
+.hot .lab{position:absolute;left:50%;bottom:100%;margin-bottom:10px;transform:translateX(-50%);white-space:nowrap;padding:4px 11px;border-radius:999px;font-size:12.5px;font-weight:650;
+  background:var(--glass);border:1px solid var(--btn-border);box-shadow:var(--shadow);color:var(--ink)}
+.hot.fix .lab{background:#facc15;color:#2b1a12;border-color:transparent}
+.hot .lab small{margin-left:7px;padding:0 5px;border-radius:4px;border:1px solid currentColor;font-size:10px;font-weight:750;opacity:.65}
+.floor-tag{position:fixed;top:16px;left:50%;z-index:5;transform:translate(-50%,-8px);opacity:0;padding:8px 16px;border-radius:999px;background:var(--glass);border:1px solid var(--btn-border);box-shadow:var(--shadow);font-size:13.3px;font-weight:750;pointer-events:none;transition:opacity .3s,transform .4s var(--ease)}
+.floor-tag.show{opacity:1;transform:translate(-50%,0)}
+body.in-diy .floor-tag,body.in-diy .dpad,body.in-diy .yard,body.in-diy .hots{display:none}
+.fade{position:fixed;inset:0;z-index:7;background:#0d0e12;opacity:0;pointer-events:none;transition:opacity .3s var(--ease)}
+.fade.on{opacity:1}
+
+/* ---------- DIY elevation view ---------- */
+.diy{position:fixed;inset:0;z-index:4;background:#1a1410;opacity:0;pointer-events:none;transition:opacity .35s}
+.diy.open{opacity:1;pointer-events:auto}
+.diy canvas{position:absolute;left:0;top:0;transform-origin:0 0;image-rendering:pixelated;image-rendering:crisp-edges}
+.diy-sprite{position:absolute;image-rendering:pixelated;pointer-events:none}
+html[data-theme="dark"] .diy-sprite,html[data-theme="dark"] .diy canvas{filter:brightness(.82)}
+.diy-sprite.work{animation:work .4s ease-in-out infinite alternate}
+@keyframes work{to{transform:translateY(-2.5%) rotate(-2deg)}}
+.diy-card{position:absolute;top:16px;left:50%;transform:translateX(-50%);width:min(380px,calc(100vw - 32px));padding:16px 18px 14px;border-radius:22px;
+  background:var(--glass);border:1px solid var(--btn-border);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);color:var(--ink)}
+.eyebrow{font-size:11px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.diy-card h3,.modal h3{margin:2px 0 8px;font-size:19px;font-weight:650;letter-spacing:-.02em}
+.diy-card ol{margin:0 0 10px;padding:0;list-style:none;font-size:13px;display:grid;gap:3px}
+.diy-card li{color:var(--ink-3);padding-left:20px;position:relative}
+.diy-card li::before{content:"";position:absolute;left:2px;top:4px;width:10px;height:10px;border-radius:50%;border:1.6px solid currentColor}
+.diy-card li.now{color:var(--ink);font-weight:650}
+.diy-card li.now::before{border-color:#facc15;background:#facc15}
+.diy-card li.done{color:var(--ink-2)}
+.diy-card li.done::before{border-color:var(--teal);background:var(--teal)}
+.dbar{height:6px;border-radius:999px;background:var(--trough);overflow:hidden}
+.dbar i{display:block;height:100%;width:0;background:#facc15;transition:width .2s linear}
+.diy-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:12.5px;font-weight:650;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.diy-foot button,.modal .row button,.diy-done button,.res .cont{padding:7px 14px;border-radius:999px;font-size:13px;font-weight:650;background:var(--soft);border:1px solid var(--line);color:var(--ink);transition:transform .35s var(--pop),background .2s}
+.diy-foot button:hover,.modal .row button:hover{background:var(--btn-hover)}
+.diy-done{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.diy-done button{background:var(--teal);color:#fff;border-color:transparent;margin-left:auto}
+.modal{position:fixed;left:50%;top:50%;z-index:9;width:min(420px,calc(100vw - 32px));padding:20px;border-radius:24px;transform:translate(-50%,-46%) scale(.97);opacity:0;pointer-events:none;
+  background:var(--glass);border:1px solid var(--btn-border);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);color:var(--ink);transition:opacity .25s,transform .4s var(--settle)}
+.modal.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
+.modal p{margin:0 0 12px;font-size:14px;line-height:1.45;color:var(--ink-2)}
+.modal .est{font-size:13px;font-weight:650;margin-bottom:14px}
+.modal .row{display:flex;gap:8px}
+.modal .row .yes{background:#facc15;color:#2b1a12;border-color:transparent}
+#diyAsk .eyebrow{color:#ca8a04}
+#eventCard{top:64%}
+#eventCard.open{transform:translate(-50%,-50%)}
+.opts{display:grid;gap:6px}
+.opts button{text-align:left;padding:10px 14px;border-radius:14px;font-size:13.5px;background:var(--soft);border:1px solid var(--line);color:var(--ink);transition:background .2s,transform .3s var(--pop)}
+.opts button:hover:not(:disabled){background:var(--btn-hover)}
+.opts button:disabled{opacity:.5;cursor:default}
+.opts button.picked{opacity:1;border-color:var(--ink-3)}
+.res{font-size:13.5px;font-weight:650;margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.res:empty{display:none}
+.res.good{color:#0f8a70}.res.ok{color:#a16207}.res.wrong{color:#dc2626}.res.excessive{color:#c2410c}
+.res .cont{margin-left:auto;background:var(--teal);color:#fff;border-color:transparent}
+
 /* ---------- arrow pad (bottom centre) ---------- */
 .dpad{position:fixed;left:50%;bottom:18px;z-index:6;transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(2,46px);gap:6px}
 .dpad button{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--btn-bg);border:1px solid var(--btn-border);box-shadow:var(--shadow);touch-action:none;transition:background .2s,transform .3s var(--pop)}
@@ -529,6 +593,24 @@ html[data-theme="dark"] .ch img{filter:brightness(.8) saturate(.9)}
 
 <!-- ============ the seven characters, and the arrow pad that moves the selected one ============ -->
 <div class="yard" id="yard"></div>
+<div class="hots" id="hots"></div>
+<div class="floor-tag" id="floorTag"></div>
+
+<!-- ============ DIY project in elevation view ============ -->
+<div class="diy" id="diy">
+  <canvas id="diyCanvas" width="533" height="300"></canvas>
+  <img id="diySprite" class="diy-sprite" alt="">
+  <div class="diy-card" id="diyCard">
+    <div class="eyebrow">DIY project</div>
+    <h3 id="diyTitle"></h3>
+    <ol id="diySteps"></ol>
+    <div class="dbar"><i id="diyProg"></i></div>
+    <div class="diy-foot"><span id="diyCost"></span><button id="diyLeave">Leave</button></div>
+  </div>
+  <div class="modal" id="eventCard"><div class="eyebrow"></div><h3></h3><p></p><div class="opts"></div><div class="res"></div></div>
+</div>
+<div class="modal" id="diyAsk"><div class="eyebrow"></div><h3></h3><p></p><div class="est"></div><div class="row"><button class="yes">Take it on</button><button class="no">Not now</button></div></div>
+<div class="fade" id="fade"></div>
 <div class="dpad" id="dpad" aria-label="Move">
   <button class="up" data-dir="back" aria-label="Up"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>
   <button class="left" data-dir="left" aria-label="Left"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
@@ -591,6 +673,8 @@ window.SPRITES = {"Aidan": {"front": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0i
 (() => {
 const $ = s => document.querySelector(s);
 const root = document.documentElement;
+/* INTEGRATION: with ?game=<id> the backend runs the game (see game-link.js). Without it, this page runs on its own. */
+const LIVE = /[?&]game=/.test(location.search);
 
 /* ---------------- theme ---------------- */
 let stored = null;
@@ -1082,7 +1166,7 @@ function renderReplies() {
 function openPhone(peek) {
   if (!isOpen) { isOpen = true; phone.classList.add('open'); phone.setAttribute('aria-expanded','true'); }
   clearTimeout(peekTimer);
-  if (peek && !sticky) peekTimer = setTimeout(closePhone, 7000);
+  if (peek && !sticky) peekTimer = setTimeout(closePhone, 5000);
   if (!peek) sticky = true;
 }
 function closePhone() {
@@ -1127,6 +1211,7 @@ function deliver(id, text) {
   }
   unread[id]++; renderList();
   const row = $(`.contact[data-id="${id}"]`); row && row.classList.add('flash');
+  if (document.body.classList.contains('in-diy')) return;   /* during a DIY project: just the unread count */
   openPhone(true);
   showBanner(id, text);
 }
@@ -1260,7 +1345,8 @@ bgCanvas.width = PW; bgCanvas.height = PH; bgCanvas.className = 'pix'; bgCanvas.
 document.body.prepend(bgCanvas);
 const bgCtx = bgCanvas.getContext('2d');
 const yardImg = paintYard();
-function showYard() { bgCtx.putImageData(root.dataset.theme === 'dark' ? yardImg.night : yardImg.day, 0, 0); }
+let sceneImg = yardImg;   /* the yard, or a floor of the house */
+function showYard() { bgCtx.putImageData(root.dataset.theme === 'dark' ? sceneImg.night : sceneImg.day, 0, 0); }
 new MutationObserver(showYard).observe(root, { attributes:true, attributeFilter:['data-theme'] });
 showYard();
 
@@ -1535,7 +1621,7 @@ NAMES.forEach((n, i) => {
   const el = document.createElement('div'); el.className = 'ch';
   el.innerHTML = '<span class="shadow"></span><img alt="" draggable="false"><span class="tag"></span>';
   yard.appendChild(el);
-  const ch = { name:n, el, img:el.querySelector('img'), x:530 + i*90, y:712, dir:null };
+  const ch = { name:n, el, img:el.querySelector('img'), x:470 + i*85, y:712, dir:null };
   chars[n] = ch; turn(ch, 'front'); place(ch);
   el.addEventListener('click', e => { e.stopPropagation(); select(n); });
 });
@@ -1551,6 +1637,535 @@ function select(n) {
   selected = n;
   Object.values(chars).forEach(ch => ch.el.classList.toggle('sel', ch.name === n));
 }
+/* =====================================================================================
+   THE HOUSE: scenes (yard, ground floor, upstairs, basement), colliders, glowing spots,
+   the day and night cycle, and the DIY projects in elevation view.
+   Positions are in scene units (1600 x 900); one art pixel = 1.5 units, like the sprites.
+   ===================================================================================== */
+let scene = 'yard', frozen = false, yardSpot = null;
+const Rc = (x, y, w, h, extra) => Object.assign({ x, y, w, h }, extra || {});
+const FOOT = 14, FOOT_H = 12;   /* half the feet width, and the feet depth */
+const hits = (a, px, py) => px + FOOT > a.x && px - FOOT < a.x + a.w && py > a.y && py - FOOT_H < a.y + a.h;
+function blocked(x, y) { return SCENES[scene].colliders.some(c => !c.off && hits(c, x, y)); }
+
+/* ---------- a small pixel painter, shared by the interiors and the DIY scenes ---------- */
+function makePainter(W, H) {
+  const img = new ImageData(W, H), D = img.data, hc = {};
+  const col = h => hc[h] || (hc[h] = [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)]);
+  const hash = (x, y, s) => { let n = (Math.imul(x|0, 374761393) + Math.imul(y|0, 668265263) + Math.imul(s|0, 1442695041)) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); n ^= n >>> 16; return (n >>> 0) / 4294967296; };
+  const set = (x, y, c) => { x |= 0; y |= 0; if (x < 0 || y < 0 || x >= W || y >= H) return; const i = (y*W + x)*4, k = col(c); D[i] = k[0]; D[i+1] = k[1]; D[i+2] = k[2]; D[i+3] = 255; };
+  const shade = (x, y, a) => { x |= 0; y |= 0; if (x < 0 || y < 0 || x >= W || y >= H) return; const i = (y*W + x)*4; D[i] *= 1-a; D[i+1] *= 1-a; D[i+2] *= 1-a*.75; };
+  const rect = (x, y, w, h, c) => { for (let j = y; j < y+h; j++) for (let i = x; i < x+w; i++) set(i, j, typeof c === 'function' ? c(i, j) : c); };
+  const box = (x, y, w, h, c) => { rect(x-1, y-1, w+2, h+2, '#2b1a12'); rect(x, y, w, h, c); };
+  const shadow = (x, y, w, h, a) => { for (let j = y; j < y+h; j++) for (let i = x; i < x+w; i++) shade(i, j, a); };
+  const line = (x0, y0, x1, y1, c, w) => { const n = Math.ceil(Math.max(Math.abs(x1-x0), Math.abs(y1-y0))) || 1; for (let i = 0; i <= n; i++) { const x = Math.round(x0 + (x1-x0)*i/n), y = Math.round(y0 + (y1-y0)*i/n); for (let a = 0; a < (w||1); a++) for (let b = 0; b < (w||1); b++) set(x+a, y+b, c); } };
+  const oval = (cx, cy, rx, ry, c, out) => {
+    const inside = (x, y) => ((x-cx)/rx)**2 + ((y-cy)/ry)**2 <= 1;
+    for (let y = Math.floor(cy-ry-1); y <= cy+ry+1; y++) for (let x = Math.floor(cx-rx-1); x <= cx+rx+1; x++) {
+      if (inside(x, y)) set(x, y, typeof c === 'function' ? c(x, y) : c);
+      else if (out && (inside(x+1,y) || inside(x-1,y) || inside(x,y+1) || inside(x,y-1))) set(x, y, out);
+    }
+  };
+  return { img, W, H, hash, set, shade, rect, box, shadow, line, oval };
+}
+/* night: tint, then warm lit pixels and stepped, dithered lamp glows */
+function nightOf(P, lit, lamps, k) {
+  const N = new ImageData(new Uint8ClampedArray(P.img.data), P.W, P.H), d = N.data;
+  for (let i = 0; i < d.length; i += 4) { d[i] = d[i]*k[0] + k[3]; d[i+1] = d[i+1]*k[1] + k[4]; d[i+2] = d[i+2]*k[2] + k[5]; }
+  lit.forEach(([x, y]) => { if (x < 0 || y < 0 || x >= P.W || y >= P.H) return; const i = (y*P.W + x)*4; d[i] = 255; d[i+1] = 196; d[i+2] = 96; });
+  lamps.forEach(([lx, ly, LR, s]) => {
+    for (let y = ly - LR; y <= ly + LR; y++) for (let x = lx - LR; x <= lx + LR; x++) {
+      if (x < 0 || y < 0 || x >= P.W || y >= P.H) continue;
+      const q = Math.hypot(x-lx, y-ly) / LR; if (q >= 1) continue;
+      const f = Math.floor(((1-q)**1.4)*4 + P.hash(x, y, 41)*.9) / 4 * (s || 1);
+      const i = (y*P.W + x)*4; d[i] += 120*f; d[i+1] += 86*f; d[i+2] += 34*f;
+    }
+  });
+  return N;
+}
+
+/* ---------- the cottage: three floors ---------- */
+const HOUSE = Rc(250, 120, 1100, 700);
+const outerWalls = withDoor => {
+  const { x, y, w, h } = HOUSE, t = 16;
+  const a = [Rc(x, y, w, t), Rc(x, y, t, h), Rc(x + w - t, y, t, h)];
+  if (withDoor) a.push(Rc(x, y + h - t, 600, t), Rc(950, y + h - t, 400, t), Rc(850, y + h - 4, 100, 30, { hidden:true }));
+  else a.push(Rc(x, y + h - t, w, t));
+  return a;
+};
+const FLOORS = {
+  ground: {
+    label:'Ground floor',
+    rooms:[
+      { r:Rc(266,136,528,258), f:'tile' }, { r:Rc(266,406,528,400), f:'wood' }, { r:Rc(806,136,188,670), f:'wood' },
+      { r:Rc(1006,136,328,238), f:'bath' }, { r:Rc(1006,386,328,420), f:'wood' },
+      { r:Rc(266,388,528,18), f:'wood', underWall:true },
+    ],
+    walls:[...outerWalls(true),
+      Rc(794,120,12,80), Rc(794,290,12,310), Rc(794,700,12,120),
+      Rc(994,120,12,100), Rc(994,300,12,260), Rc(994,680,12,140),
+      Rc(266,394,434,12, { id:'diyWall' }), Rc(1006,374,328,12)],
+    items:[
+      { t:'counter', r:Rc(280,140,300,44), block:true }, { t:'fridge', r:Rc(600,140,56,60), block:true },
+      { t:'table', r:Rc(440,262,130,72), block:true },
+      { t:'rug', r:Rc(330,560,260,200), c:['#8c3b3b','#c9a15a','#6b2e2e'] },
+      { t:'fireplace', r:Rc(270,520,28,130), block:true }, { t:'sofa', r:Rc(330,724,230,62), c:'#5b7fa6', block:true },
+      { t:'coffee', r:Rc(390,612,110,48), block:true }, { t:'armchair', r:Rc(622,624,70,70), c:'#a0614a', block:true },
+      { t:'plant', r:Rc(736,756,40,40), block:true },
+      { t:'stairsUp', r:Rc(846,136,108,196), block:true }, { t:'runner', r:Rc(862,420,76,300) },
+      { t:'shower', r:Rc(1010,140,110,110), block:true }, { t:'vanity', r:Rc(1140,140,80,48), block:true }, { t:'toilet', r:Rc(1250,140,50,62), block:true },
+      { t:'table', r:Rc(1070,600,190,96), block:true }, { t:'sideboard', r:Rc(1012,700,40,100), block:true },
+      { t:'stairsDown', r:Rc(1200,390,134,170), block:true },
+    ],
+    windows:[[330,'n'],[520,'n'],[1100,'n'],[330,'s'],[560,'s'],[1150,'s'],[1250,'s']],
+    lamps:[[530,265],[530,600],[900,300],[900,640],[1170,250],[1170,600]],
+  },
+  upper: {
+    label:'Upstairs',
+    rooms:[
+      { r:Rc(266,136,528,318), f:'carpet', c:['#9db4c8','#93abc0','#a7bccf'] }, { r:Rc(266,466,528,340), f:'carpet', c:['#d2aeae','#c8a3a3','#dab8b6'] },
+      { r:Rc(806,136,188,670), f:'wood' }, { r:Rc(1006,136,328,258), f:'bath' },
+      { r:Rc(1006,406,328,400), f:'carpet', c:['#b4c79d','#a9bd92','#bed0a8'] },
+    ],
+    walls:[...outerWalls(false),
+      Rc(794,120,12,180), Rc(794,390,12,210), Rc(794,690,12,130), Rc(266,454,528,12),
+      Rc(994,120,12,100), Rc(994,300,12,260), Rc(994,650,12,170), Rc(1006,394,328,12)],
+    items:[
+      { t:'bed', r:Rc(300,170,170,210), c:'#4f7fb0', block:true }, { t:'nightstand', r:Rc(480,174,40,40), block:true }, { t:'dresser', r:Rc(600,140,140,44), block:true },
+      { t:'bed', r:Rc(300,520,150,200), c:'#c4626a', block:true }, { t:'nightstand', r:Rc(460,524,40,40), block:true }, { t:'desk', r:Rc(600,756,130,44), block:true },
+      { t:'stairsDown', r:Rc(846,136,108,196), block:true }, { t:'runner', r:Rc(862,420,76,300) },
+      { t:'tub', r:Rc(1010,140,190,80), block:true }, { t:'toilet', r:Rc(1250,140,50,62), block:true }, { t:'vanity', r:Rc(1250,300,80,48), block:true },
+      { t:'bed', r:Rc(1170,580,150,200), c:'#6f9a4a', block:true }, { t:'shelf', r:Rc(1012,758,140,40), block:true },
+    ],
+    windows:[[330,'n'],[560,'n'],[1100,'n'],[360,'s'],[600,'s'],[1200,'s']],
+    lamps:[[530,300],[530,640],[900,560],[1170,260],[1170,600]],
+  },
+  basement: {
+    label:'Basement',
+    rooms:[
+      { r:Rc(266,136,1068,670), f:'concrete' }, { r:Rc(656,506,338,300), f:'vinyl' },
+    ],
+    walls:[...outerWalls(false),
+      Rc(644,120,12,260), Rc(644,470,12,130), Rc(644,690,12,130),
+      Rc(266,494,154,12), Rc(510,494,134,12), Rc(656,494,164,12), Rc(910,494,84,12),
+      Rc(994,494,12,106), Rc(994,690,12,130)],
+    items:[
+      { t:'furnace', r:Rc(300,150,90,90), block:true }, { t:'heater', r:Rc(420,162,60,60), block:true }, { t:'shelf', r:Rc(270,400,30,90), v:true, block:true },
+      { t:'boxes', r:Rc(700,150,140,64), block:true }, { t:'workbench', r:Rc(300,740,210,50), block:true }, { t:'boxes', r:Rc(1180,740,120,60), block:true },
+      { t:'couch', r:Rc(1030,180,160,60), block:true },
+      { t:'stairsUp', r:Rc(1200,390,134,160), block:true },
+      { t:'sink', r:Rc(672,750,60,50), block:true }, { t:'washer', r:Rc(790,748,78,58), block:true }, { t:'dryer', r:Rc(890,748,78,58), block:true },
+    ],
+    windows:[],
+    lamps:[[460,300],[820,300],[460,650],[825,650],[1170,320],[1170,690]],
+  },
+};
+/* glowing spots: the door, the stairs, and the three DIY spots */
+const go = (name, x, y, dir) => () => travel(name, x, y, dir);
+const SPOTS = {
+  yard:     [{ k:'door', r:Rc(668,326,44,62), label:'Go inside', act:go('ground', 900, 770, 'back') }],
+  ground:   [{ k:'door', r:Rc(850,800,100,24), label:'Go outside', act:go('yard', 690, 440, 'front') },
+             { k:'stairs', r:Rc(846,136,108,196), label:'Upstairs', act:go('upper', 900, 372, 'front') },
+             { k:'stairs', r:Rc(1200,390,134,170), label:'Down to the basement', act:go('basement', 1150, 472, 'left') },
+             { k:'diy', r:Rc(266,394,434,14), label:'DIY potential', project:'wall' }],
+  upper:    [{ k:'stairs', r:Rc(846,136,108,196), label:'Downstairs', act:go('ground', 900, 372, 'front') },
+             { k:'diy', r:Rc(1220,136,114,100), label:'DIY potential', project:'bath' }],
+  basement: [{ k:'stairs', r:Rc(1200,390,134,160), label:'Up to the ground floor', act:go('ground', 1150, 472, 'left') },
+             { k:'diy', r:Rc(890,748,78,58), label:'DIY potential', project:'dryer' }],
+};
+const YARD_BLOCKS = [Rc(455,95,470,291), Rc(930,110,40,266), Rc(220,300,140,112), Rc(1010,140,184,104), Rc(1000,300,156,64),
+  ...[[1040,440],[1180,440],[1040,560],[1180,560],[1040,680],[1180,680]].map(([x, y]) => Rc(x, y, 120, 92)),
+  Rc(362,40,1060,30), Rc(362,40,32,820), Rc(1390,40,32,820), Rc(362,826,408,30), Rc(852,826,570,30)];
+
+/* ---------- painting a floor ---------- */
+function paintFloor(name) {
+  const F = FLOORS[name], P = makePainter(PW, PH), lit = [], lamps = [];
+  const S = v => Math.round(v / U), px = r => [S(r.x), S(r.y), S(r.x + r.w) - S(r.x), S(r.y + r.h) - S(r.y)];
+  for (let y = 0; y < PH; y++) for (let x = 0; x < PW; x++) P.set(x, y, P.hash(x >> 2, y >> 2, 1) < .5 ? '#231912' : '#281d15');
+  const [hx, hy, hw, hh] = px(HOUSE); P.shadow(hx + 6, hy + 8, hw, hh, .5);
+  F.rooms.forEach(rm => { if (rm.underWall && !F.walls.find(w => w.id === 'diyWall').off) return; floorFill(P, px(rm.r), rm.f, rm.c); });
+  F.items.forEach(it => drawItem(P, it, px(it.r), lit, lamps));
+  F.walls.filter(w => !w.off && !w.hidden).forEach(w => drawWall(P, px(w)));
+  F.windows.forEach(([wx, side]) => { const x = S(wx), y = side === 'n' ? hy : hy + hh - S(16); P.rect(x, y + 2, 26, S(16) - 4, '#9fd0e6'); P.rect(x, y + 2, 26, 1, '#e3f4fb'); P.rect(x + 12, y + 2, 2, S(16) - 4, '#6b4423'); });
+  if (name === 'ground') { const x = S(850), y = hy + hh - S(16); P.rect(x, y, S(100), S(16), (i, j) => (i - x) % 8 === 0 ? '#7d4f2a' : '#a8703f'); }
+  F.lamps.forEach(([x, y]) => lamps.push([S(x), S(y), 80, 1]));
+  return { day:P.img, night:nightOf(P, lit, lamps, [.4, .42, .56, 8, 10, 26]) };
+}
+function floorFill(P, [x, y, w, h], f, pal) {
+  P.rect(x, y, w, h, (i, j) => {
+    const lx = i - x, ly = j - y, hsh = P.hash;
+    if (f === 'wood') { const row = Math.floor(ly / 6), o = (row * 13) % 24, k = (lx + o) % 24; if (ly % 6 === 5 || k === 0) return '#7d4f2a'; if (hsh(i, j, 4) < .004) return '#8a5a30'; return ['#c99158','#bd8650','#b07a46'][Math.floor(hsh(Math.floor((lx + o) / 24), row, 3) * 3)]; }
+    if (f === 'tile') { const a = lx % 10, b = ly % 10; if (a === 0 || b === 0) return '#a89e8c'; if (a === 1 || b === 1) return '#f8f4ec'; return (Math.floor(lx / 10) + Math.floor(ly / 10)) % 2 ? '#efe9dd' : '#d9d0c0'; }
+    if (f === 'bath') { const a = lx % 6, b = ly % 6; if (a === 0 || b === 0) return '#9fb3bd'; return (Math.floor(lx / 6) + Math.floor(ly / 6)) % 2 ? '#e8f1f4' : '#d3e4ea'; }
+    if (f === 'carpet') return pal[Math.min(2, Math.floor((hsh(i >> 1, j >> 1, 5) * .6 + hsh(i, j, 6) * .4) * 3))];
+    if (f === 'vinyl') { const a = lx % 12, b = ly % 12; if (a === 0 || b === 0) return '#b4ad9d'; return (Math.floor(lx / 12) + Math.floor(ly / 12)) % 2 ? '#d8d2c4' : '#c9c2b2'; }
+    const n = hsh(i >> 2, j >> 2, 7) * .5 + hsh(i, j, 8) * .5;   /* concrete */
+    return hsh(i, j, 9) < .01 ? '#8e8a82' : n < .33 ? '#9f9b92' : n < .66 ? '#a8a49b' : '#b1ada4';
+  });
+  if (f === 'concrete') for (let c = 0; c < 6; c++) { let cx = x + P.hash(c, 1, 10) * w, cy = y + P.hash(c, 2, 10) * h; for (let s = 0; s < 18; s++) { const nx = cx + (P.hash(c, s, 11) - .5) * 8, ny = cy + (P.hash(c, s, 12) - .2) * 6; P.line(cx, cy, nx, ny, '#86827a'); cx = nx; cy = ny; } }
+}
+function drawWall(P, [x, y, w, h]) {
+  P.rect(x - 1, y - 1, w + 2, h + 2, '#2b1a12');
+  P.rect(x, y, w, h, '#efe5d3'); P.rect(x, y, w, 1, '#fffaf0');
+  if (w >= h) { P.rect(x - 1, y + h, w + 2, 6, '#2b1a12'); P.rect(x, y + h, w, 5, '#cbbb9e'); P.rect(x, y + h + 4, w, 1, '#b3a284'); }
+  else P.rect(x + w - 1, y, 1, h, '#d6c8ad');
+}
+function drawItem(P, it, [x, y, w, h], lit, lamps) {
+  const t = it.t, sh = () => P.shadow(x + 3, y + 4, w, h, .32), B = P.box, Rr = P.rect;
+  if (t === 'rug' || t === 'runner') {
+    const c = it.c || ['#3f6d8e','#d9c08a','#2e5370'];
+    Rr(x, y, w, h, (i, j) => { const e = Math.min(i - x, j - y, x + w - 1 - i, y + h - 1 - j); if (e < 2) return c[2]; if (e < 5) return c[1]; return ((i + j) >> 2) % 3 === 0 ? c[1] : c[0]; });
+    return;
+  }
+  sh();
+  if (t === 'counter') { B(x, y, w, h, '#e4d8bf'); Rr(x, y, w, 2, '#f6eedc'); Rr(x, y + h - 9, w, 9, (i) => (i - x) % 16 === 0 ? '#6e4423' : '#9a6236'); for (let i = x + 8; i < x + w; i += 16) Rr(i, y + h - 6, 2, 1, '#e2c27a');
+    B(x + 22, y + 6, 22, 14, '#c9d2d8'); Rr(x + 25, y + 9, 16, 8, '#7d8a93');
+    B(x + 80, y + 4, 30, 20, '#3a3f45'); [[86,9],[100,9],[86,18],[100,18]].forEach(([a, b]) => P.oval(x + a, y + b, 3, 3, '#8a8f96')); return; }
+  if (t === 'fridge') { B(x, y, w, h, '#eef2f3'); Rr(x + w - 4, y, 4, h, '#c7d0d4'); Rr(x, y, w, 2, '#ffffff'); Rr(x + 4, y + 10, 2, 14, '#9aa6ad'); return; }
+  if (t === 'table') { const chairs = [[x + w*.25, y - 6], [x + w*.65, y - 6], [x + w*.25, y + h], [x + w*.65, y + h]]; chairs.forEach(([a, b]) => B(Math.round(a), Math.round(b), 10, 6, '#8a5a30'));
+    B(x, y, w, h, '#b9773e'); Rr(x, y, w, 2, '#d89a5c'); Rr(x, y, w, h, (i, j) => P.hash(i >> 3, j, 13) < .2 ? '#a3652f' : j === y ? '#d89a5c' : '#b9773e'); return; }
+  if (t === 'fireplace') { B(x, y, w, h, '#a3533b'); Rr(x, y, w, h, (i, j) => ((j - y) % 5 === 0 || (i - x + (Math.floor((j - y) / 5) % 2) * 4) % 8 === 0) ? '#d6c1a5' : '#a3533b'); Rr(x + 4, y + 20, w - 8, h - 40, '#2a1a12');
+    for (let j = y + 30; j < y + h - 30; j++) for (let i = x + 6; i < x + w - 6; i++) if (P.hash(i, j, 14) < .35) { P.set(i, j, P.hash(i, j, 15) < .5 ? '#f08a24' : '#ffd166'); lit.push([i, j]); }
+    lamps.push([x + w, y + h / 2, 60, .8]); return; }
+  if (t === 'sofa' || t === 'armchair' || t === 'couch') { const c = it.c || '#8a6d4f'; B(x, y, w, h, c); Rr(x, y, w, 9, shadeHex(c, -.18)); Rr(x, y, 7, h, shadeHex(c, -.1)); Rr(x + w - 7, y, 7, h, shadeHex(c, -.1));
+    for (let i = x + 7 + Math.round((w - 14) / 3); i < x + w - 8; i += Math.round((w - 14) / 3)) Rr(i, y + 9, 1, h - 9, shadeHex(c, -.25)); Rr(x + 7, y + 9, w - 14, 1, shadeHex(c, .15)); return; }
+  if (t === 'coffee') { B(x, y, w, h, '#8a5a30'); Rr(x, y, w, 2, '#b37a45'); B(x + 10, y + 8, 12, 9, '#f2efe6'); return; }
+  if (t === 'plant') { B(x + 6, y + 10, w - 12, h - 10, '#b0603a'); P.oval(x + w / 2, y + 8, w / 2, 10, (i, j) => j < y + 6 ? '#7fc04e' : '#4f8f33', '#1f3d18'); return; }
+  if (t === 'stairsUp' || t === 'stairsDown') {
+    const up = t === 'stairsUp', n = Math.floor(h / 7);
+    B(x, y, w, h, '#a6743f');
+    for (let k = 0; k < n; k++) { const f = up ? k / n : 1 - k / n; const c = up ? ['#7b5230','#8f5f36','#a6743f','#bd8650','#d39b60'][Math.min(4, Math.floor((1 - f) * 5))] : ['#d39b60','#a6743f','#7b5230','#4e321c','#2a1a10'][Math.min(4, Math.floor((1 - f) * 5))];
+      Rr(x + 4, y + k * 7, w - 8, 6, c); Rr(x + 4, y + k * 7 + 6, w - 8, 1, '#3a2414'); }
+    Rr(x, y, 4, h, '#5a3a20'); Rr(x + w - 4, y, 4, h, '#5a3a20');
+    const cx = x + Math.round(w / 2), cy = y + Math.round(h / 2);
+    for (let k = 0; k < 8; k++) { const yy = up ? cy - 6 + k : cy + 6 - k; P.rect(cx - k, yy, 1, 2, '#fff3d6'); P.rect(cx + k, yy, 1, 2, '#fff3d6'); }
+    return; }
+  if (t === 'shower') { B(x, y, w, h, '#dfe9ee'); Rr(x, y, w, h, (i, j) => ((i - x) % 6 === 0 || (j - y) % 6 === 0) ? '#b9cbd3' : '#e8f1f4'); Rr(x, y + h - 3, w, 3, '#9fd0e6'); P.oval(x + w / 2, y + h / 2, 3, 3, '#7d8a93'); return; }
+  if (t === 'tub') { B(x, y, w, h, '#f4f4f0'); P.oval(x + w / 2, y + h / 2, w / 2 - 6, h / 2 - 6, '#dbeef6', '#bcc8cc'); P.set(x + 10, y + h / 2, '#9aa6ad'); return; }
+  if (t === 'toilet') { B(x + 4, y, w - 8, 12, '#f4f4f0'); Rr(x + 4, y, w - 8, 2, '#ffffff'); P.oval(x + w / 2, y + 26, w / 2 - 6, 13, (i, j) => j < y + 20 ? '#ffffff' : '#e6e8e4', '#2b1a12'); P.oval(x + w / 2, y + 27, w / 2 - 12, 8, '#cfe3ea'); return; }
+  if (t === 'vanity') { B(x, y, w, h, '#9a6236'); Rr(x, y, w, 2, '#c58a4c'); P.oval(x + w / 2, y + h / 2, w / 2 - 8, h / 2 - 7, '#f4f4f0', '#8f8f8a'); return; }
+  if (t === 'sideboard' || t === 'dresser') { B(x, y, w, h, '#8f5a31'); Rr(x, y, w, 2, '#b67a45'); if (w > h) for (let i = x + 10; i < x + w; i += 22) Rr(i, y + h - 6, 6, 1, '#e2c27a'); else for (let j = y + 10; j < y + h; j += 22) Rr(x + w - 5, j, 1, 6, '#e2c27a'); return; }
+  if (t === 'bed') { const c = it.c; B(x, y, w, h, '#8a5a30'); Rr(x + 4, y + 4, w - 8, h - 8, '#f3efe6'); B(x + 10, y + 10, Math.round(w / 2) - 16, 18, '#ffffff'); B(x + Math.round(w / 2) + 6, y + 10, Math.round(w / 2) - 16, 18, '#ffffff');
+    Rr(x + 4, y + 40, w - 8, h - 44, (i, j) => ((i - x) % 14 === 0 || (j - y) % 14 === 0) ? shadeHex(c, -.2) : ((Math.floor((i - x) / 14) + Math.floor((j - y) / 14)) % 2 ? c : shadeHex(c, .12))); Rr(x + 4, y + 40, w - 8, 2, shadeHex(c, .3)); return; }
+  if (t === 'nightstand') { B(x, y, w, h, '#8f5a31'); P.oval(x + w / 2, y + h / 2, 7, 7, '#ffe7a3', '#6b4423'); lit.push([x + w / 2 | 0, y + h / 2 | 0]); lamps.push([x + w / 2 | 0, y + h / 2 | 0, 40, .9]); return; }
+  if (t === 'desk') { B(x, y, w, h, '#a8703f'); B(x + 20, y + 8, 30, 18, '#3d434a'); Rr(x + 22, y + 10, 26, 12, '#7fb3d0'); B(x + w - 34, y + h + 2, 20, 12, '#3a3f45'); return; }
+  if (t === 'shelf') { B(x, y, w, h, '#8a5a30'); const vert = it.v; const books = ['#c8382c','#3b6688','#e0a040','#5a9a38','#7b4fa0','#f2efe6'];
+    if (vert) { for (let j = y + 3; j < y + h - 3; j += 5) Rr(x + 3, j, w - 6, 4, books[Math.floor(P.hash(x, j, 16) * 6)]); } else { for (let i = x + 3; i < x + w - 3; i += 5) Rr(i, y + 3, 4, h - 6, books[Math.floor(P.hash(i, y, 16) * 6)]); } return; }
+  if (t === 'furnace') { B(x, y, w, h, '#8c99a3'); Rr(x, y, w, 3, '#c4d0d6'); for (let j = y + 10; j < y + h - 10; j += 5) Rr(x + 8, j, w - 16, 2, '#5e6a72'); B(x + w / 2 - 4, y + h - 14, 8, 6, '#2a1a12'); P.set(x + w / 2, y + h - 11, '#ff9a3c'); lit.push([x + w / 2 | 0, y + h - 11]); return; }
+  if (t === 'heater') { P.oval(x + w / 2, y + h / 2, w / 2, h / 2, (i, j) => i < x + w / 2 ? '#c4d0d6' : '#9aa6ad', '#2b1a12'); P.oval(x + w / 2, y + h / 2, 5, 5, '#5e6a72'); return; }
+  if (t === 'boxes') { for (let k = 0; k < Math.floor(w / 30); k++) { const bx = x + k * 30, by = y + (k % 2) * 6; B(bx, by, 26, h - 8, '#c8a165'); Rr(bx, by, 26, 2, '#e1c18a'); Rr(bx + 12, by, 2, h - 8, '#9c7a45'); } return; }
+  if (t === 'workbench') { B(x, y, w, h, '#a8703f'); Rr(x, y, w, 2, '#d39b60'); B(x + 20, y + 10, 26, 5, '#8c99a3'); B(x + 20, y + 7, 6, 11, '#8a5a30'); B(x + 70, y + 12, 40, 6, '#c4d0d6'); B(x + 130, y + 8, 14, 14, '#c8382c'); return; }
+  if (t === 'sink') { B(x, y, w, h, '#c9d2d8'); Rr(x + 6, y + 6, w - 12, h - 14, '#8d9aa3'); return; }
+  if (t === 'washer' || t === 'dryer') { B(x, y, w, h, '#f2f4f5'); Rr(x, y, w, 2, '#ffffff'); Rr(x, y + 12, w, 1, '#c7d0d4'); Rr(x + 6, y + 4, 14, 4, t === 'dryer' ? '#ff9a3c' : '#7fb3d0');
+    P.oval(x + w / 2, y + h / 2 + 6, 13, 13, t === 'dryer' ? '#3d434a' : '#5e7f96', '#9aa6ad'); P.oval(x + w / 2 - 4, y + h / 2 + 2, 3, 3, '#cfe3ea'); return; }
+}
+function shadeHex(h, f) { const c = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)); return '#' + c.map(v => Math.max(0, Math.min(255, Math.round(f < 0 ? v * (1 + f) : v + (255 - v) * f)))).map(v => v.toString(16).padStart(2, '0')).join(''); }
+
+/* ---------- scenes ---------- */
+const SCENES = {
+  yard:     { img:yardImg, colliders:YARD_BLOCKS },
+  ground:   { img:paintFloor('ground'), colliders:[...FLOORS.ground.walls, ...FLOORS.ground.items.filter(i => i.block).map(i => i.r)] },
+  upper:    { img:paintFloor('upper'), colliders:[...FLOORS.upper.walls, ...FLOORS.upper.items.filter(i => i.block).map(i => i.r)] },
+  basement: { img:paintFloor('basement'), colliders:[...FLOORS.basement.walls, ...FLOORS.basement.items.filter(i => i.block).map(i => i.r)] },
+};
+const doneProjects = {};
+
+/* ---------- glowing spots on screen ---------- */
+const hotLayer = $('#hots'), fadeEl = $('#fade'), floorTag = $('#floorTag');
+let hotEls = [], nearSpot = null;
+function buildHots() {
+  hotLayer.innerHTML = ''; hotEls = [];
+  (SPOTS[scene] || []).forEach(sp => {
+    if (sp.project && doneProjects[sp.project]) return;
+    const el = document.createElement('button'); el.className = 'hot ' + (sp.k === 'diy' ? 'fix' : sp.k);   /* not 'diy': that class is the DIY overlay */ el.type = 'button';
+    el.innerHTML = `<span class="lab">${sp.label}${sp.project ? ': ' + PROJECTS[sp.project].short : ''}<small>E</small></span>`;
+    el.addEventListener('click', e => { e.stopPropagation(); if (el.classList.contains('lit')) useSpot(sp); });
+    hotLayer.appendChild(el); hotEls.push([sp, el]);
+  });
+  layoutHots();
+}
+function layoutHots() {
+  hotEls.forEach(([sp, el]) => {
+    const pad = 4, k = view.k;
+    Object.assign(el.style, { left:(view.ox + (sp.r.x - pad)*k) + 'px', top:(view.oy + (sp.r.y - pad)*k) + 'px', width:((sp.r.w + pad*2)*k) + 'px', height:((sp.r.h + pad*2)*k) + 'px' });
+  });
+}
+function updateHotspots(ch) {
+  nearSpot = null; let best = 1e9;
+  hotEls.forEach(([sp, el]) => {
+    const dx = Math.max(sp.r.x - ch.x, 0, ch.x - (sp.r.x + sp.r.w)), dy = Math.max(sp.r.y - ch.y, 0, (ch.y - FOOT_H) - (sp.r.y + sp.r.h));
+    const d = Math.hypot(dx, dy), on = d < 70 && !frozen;
+    el.classList.toggle('lit', on);
+    if (on && d < best) { best = d; nearSpot = sp; }
+  });
+}
+function useSpot(sp) { if (frozen) return; if (sp.project && LIVE) return; /* INTEGRATION: the backend game has its own job */ if (sp.project) askProject(sp.project); else sp.act(); }
+addEventListener('keydown', e => { if ((e.code === 'KeyE' || e.code === 'Enter') && nearSpot && !frozen && !e.repeat) { e.preventDefault(); useSpot(nearSpot); } });
+const baseFit = fit;
+fit = () => { baseFit(); layoutHots(); if (typeof fitDiy === 'function') fitDiy(); };   /* the spots and the DIY view follow the screen scale */
+
+/* ---------- moving between scenes ---------- */
+function showCast() {
+  Object.values(chars).forEach(c => { c.el.style.display = (scene === 'yard' || c.name === selected) ? '' : 'none'; });
+}
+function travel(name, x, y, dir) {
+  if (frozen) return;
+  frozen = true; held.length = 0; syncPad(); fadeEl.classList.add('on');
+  setTimeout(() => {
+    const ch = chars[selected];
+    if (scene === 'yard') yardSpot = { x:ch.x, y:ch.y };
+    scene = name; sceneImg = SCENES[name].img; showYard();
+    ch.x = x; ch.y = y; turn(ch, dir); place(ch);
+    showCast(); buildHots();
+    floorTag.textContent = FLOORS[name] ? FLOORS[name].label : ''; floorTag.classList.toggle('show', !!FLOORS[name]);
+    fadeEl.classList.remove('on'); frozen = false; updateHotspots(ch);
+  }, 320);
+}
+const baseSelect = select;
+select = n => {
+  const prev = chars[selected]; baseSelect(n);
+  if (scene !== 'yard' && prev && chars[n] !== prev) { const c = chars[n]; c.x = prev.x; c.y = prev.y; turn(c, prev.dir); place(c); }
+  showCast();
+};
+buildHots();
+
+/* ---------- day and night: each lasts 3 minutes, one full cycle is one day ---------- */
+const PHASE_MS = 3 * 60 * 1000;
+let phaseTimer = null;
+function setPhase(ph) {
+  const wasNight = root.dataset.theme === 'dark';
+  root.dataset.theme = ph === 'night' ? 'dark' : 'light';
+  if (ph === 'day' && wasNight && !LIVE) { S.time = (Math.floor(S.time * PLAN_DAYS + 1e-6) + 1) / PLAN_DAYS; render(); }   /* INTEGRATION: not with a backend game */   /* dawn: a new day */
+  clearTimeout(phaseTimer);
+  phaseTimer = setTimeout(() => setPhase(root.dataset.theme === 'dark' ? 'day' : 'night'), PHASE_MS);
+}
+$('#themeBtn').onclick = e => { e.stopPropagation(); setPhase(root.dataset.theme === 'dark' ? 'day' : 'night'); };
+setPhase(root.dataset.theme === 'dark' ? 'night' : 'day');
+
+/* ======================= DIY PROJECTS, in elevation view ======================= */
+const DIY_EVENTS = {"wall": [{"event": "Wall turns out load-bearing", "description": "Uh oh. The joists above sit right on top of this wall. It's holding up the second floor.", "options": ["Knock it out and add a few 2x4s later", "Rebuild the entire second-floor framing", "Hire an engineer to design a beam"], "keys": ["wrong", "excessive", "good"]}, {"event": "Footing is too weak", "description": "The new post lands on a slab that's barely 4 inches thick. That's not a footing, that's a sidewalk.", "options": ["Set the post on a stack of pavers", "Replace the whole foundation", "Pour a new footing under the post"], "keys": ["wrong", "excessive", "good"]}, {"event": "Wires appear in wall", "description": "Surprise! Three circuits run through this wall, including the one for the fridge.", "options": ["Have an electrician reroute the circuits", "Tape the wire ends and leave them hanging", "Rewire the whole house"], "keys": ["good", "wrong", "excessive"]}, {"event": "Electrical panel is full", "description": "The electrician frowns at your panel. It's full, and it might be older than you.", "options": ["Double up wires on one breaker", "Go solar with battery backup", "Upgrade the electrical panel"], "keys": ["wrong", "excessive", "good"]}, {"event": "Vent stack blocks removal", "description": "Bad news. A big vent pipe runs right up the middle of the wall.", "options": ["Box it into a decorative column", "Redo all the upstairs bathroom plumbing", "Reroute the vent to a nearby wall"], "keys": ["ok", "excessive", "good"]}, {"event": "Asbestos shows up", "description": "The test kit is back. The old joint compound has asbestos. Fun!", "options": ["Hire a licensed abatement crew", "Sell the house", "Wear a dust mask and keep swinging"], "keys": ["good", "excessive", "wrong"]}, {"event": "Floors don't match", "description": "With the wall gone, oak meets laminate in a very straight, very obvious line.", "options": ["Cover the seam with a big rug", "Replace the floors in both rooms", "Install a transition strip"], "keys": ["ok", "excessive", "good"]}, {"event": "Ceiling texture clashes", "description": "Your ceiling patch is smooth. The rest of the ceiling is popcorn. Everyone will notice.", "options": ["Spray matching texture on the patch", "Scrape and retexture the whole ceiling", "Leave it, nobody looks up"], "keys": ["good", "excessive", "wrong"]}, {"event": "Beam won't fit flush", "description": "The engineer's beam is deeper than your ceiling joists. It's not going to hide up there.", "options": ["Use a dropped beam below the ceiling", "Notch the beam so it fits", "Raise the second floor"], "keys": ["good", "wrong", "excessive"]}, {"event": "Duct runs through wall", "description": "There's an HVAC duct inside the wall feeding the upstairs bedroom. It was not on the plans.", "options": ["Replace the whole HVAC system", "Reroute the duct through the ceiling", "Cut the duct and cap both ends"], "keys": ["excessive", "good", "wrong"]}, {"event": "Vent route hits a joist", "description": "The new vent path runs straight into a floor joist. Naturally.", "options": ["Cut through the joist", "Route around the joist with fittings", "Move the upstairs bathroom"], "keys": ["wrong", "good", "excessive"]}, {"event": "Abatement crew is booked", "description": "The abatement crew can't come for three weeks, and the wall is half open.", "options": ["Clean it up yourself with a shop vac", "Seal off the area with plastic and wait", "Pay triple for a rush crew"], "keys": ["wrong", "good", "excessive"]}, {"event": "Floor gap appears", "description": "Where the wall stood, a 5-inch strip of bare subfloor stares back at you.", "options": ["Fill it with wood filler", "Replace the floors in both rooms", "Weave in boards salvaged from a closet"], "keys": ["wrong", "excessive", "good"]}, {"event": "Flooring is discontinued", "description": "You finally find your exact flooring online. Discontinued in 2014.", "options": ["Patch with a close-enough board", "Refloor the entire house", "Hunt for leftover boxes on resale sites"], "keys": ["ok", "excessive", "good"]}, {"event": "Ceiling gap appears", "description": "The top plate is gone, leaving a long, ragged slot across the ceiling.", "options": ["Cover it with a strip of trim", "Add blocking and patch with drywall", "Leave it open as a design feature"], "keys": ["ok", "good", "wrong"]}, {"event": "Popcorn ceiling tests positive", "description": "You sent a popcorn sample to the lab just in case. It came back with asbestos.", "options": ["Have it abated before any scraping", "Drywall over every ceiling in the house", "Scrape it wet and hope for the best"], "keys": ["good", "excessive", "wrong"]}], "toilet": [{"event": "Closet bolts rust solid", "description": "The toilet bolts are rusted into one solid lump of sadness.", "options": ["Twist until something gives", "Replace the whole bathroom floor", "Cut them with a mini hacksaw"], "keys": ["wrong", "excessive", "good"]}, {"event": "Flange breaks", "description": "The flange crumbles like a stale cookie when you lift the toilet.", "options": ["Replace the drain line under the floor", "Install a flange repair ring", "Stack two wax rings"], "keys": ["excessive", "good", "wrong"]}, {"event": "Subfloor is rotten", "description": "Around the drain, the subfloor is spongy. The old toilet has been leaking quietly for years.", "options": ["Cut out and replace the rotten section", "Set the toilet on a plywood shim", "Replace the whole bathroom subfloor"], "keys": ["good", "wrong", "excessive"]}, {"event": "Joist rot appears", "description": "From below, the joist under the toilet is dark and soft.", "options": ["Sister the joist", "Soak it in wood hardener", "Reframe the bathroom floor"], "keys": ["good", "ok", "excessive"]}, {"event": "Rough-in is odd", "description": "The drain is 10 inches from the wall. Your new toilet needs 12.", "options": ["Return it for a 10-inch rough-in toilet", "Use an offset flange", "Move the drain"], "keys": ["good", "ok", "excessive"]}, {"event": "Shutoff starts dripping", "description": "You turn the toilet shutoff, and now it drips from the stem.", "options": ["Repipe the bathroom", "Tighten the packing nut", "Replace the shutoff valve"], "keys": ["excessive", "ok", "good"]}, {"event": "Wax ring leaks", "description": "First flush. A little puddle forms around the base. Not ideal.", "options": ["Pull the toilet and reset with a new ring", "Buy a different toilet", "Caulk around the base to hold it in"], "keys": ["good", "excessive", "wrong"]}, {"event": "Toilet rocks", "description": "The new toilet rocks side to side like a boat. The floor isn't level.", "options": ["Level the whole bathroom floor", "Shim it with plastic shims and caulk", "Crank the bolts until it stops"], "keys": ["excessive", "good", "wrong"]}, {"event": "Floor tiles crack", "description": "Removing the old toilet cracked two tiles, and the new base is smaller.", "options": ["Retile the whole bathroom", "Replace the cracked tiles", "Pick a toilet with a bigger footprint"], "keys": ["excessive", "good", "ok"]}, {"event": "Sewer smell lingers", "description": "A faint sewer smell hangs around after the install. Something isn't sealed.", "options": ["Light a candle and move on", "Replace the main stack", "Check the seal and the vent"], "keys": ["wrong", "excessive", "good"]}, {"event": "Ceiling below stains", "description": "Downstairs, there's a brown ring on the ceiling right under the toilet.", "options": ["Open a small section, dry it, and patch", "Paint over the stain", "Replace the whole ceiling"], "keys": ["good", "wrong", "excessive"]}, {"event": "Tank bolt snaps", "description": "One tank bolt snaps while you're tightening it. Porcelain is not forgiving.", "options": ["Buy a new toilet", "Glue the tank to the bowl", "Install a new tank bolt kit"], "keys": ["excessive", "wrong", "good"]}], "dryer": [{"event": "Vent packed with lint", "description": "The vent is so full of lint it could knit a sweater. Also: fire hazard.", "options": ["Vacuum it and keep the old foil hose", "Replace it with rigid metal duct", "Buy a brand new dryer"], "keys": ["ok", "good", "excessive"]}, {"event": "A bird moved in", "description": "Something is chirping inside the outside vent cap. You have tenants.", "options": ["Poke them out with a broom handle", "Wait until they leave, then fit a vent guard", "Hire wildlife removal and redo the siding"], "keys": ["wrong", "good", "excessive"]}, {"event": "It's a gas dryer", "description": "Behind the dryer is a yellow gas line, not just a plug.", "options": ["Yank it out of the way", "Shut off the gas valve and move it gently", "Convert the whole house to electric"], "keys": ["wrong", "good", "excessive"]}, {"event": "Vent run is a maze", "description": "The duct snakes 40 feet with six bends. Your dryer is blowing into a labyrinth.", "options": ["Reroute it on a shorter path outside", "Add a booster fan", "Move the laundry room upstairs"], "keys": ["good", "ok", "excessive"]}, {"event": "Duct tape everywhere", "description": "The old joints are held together with duct tape. Ironically, duct tape is not for ducts.", "options": ["Add more duct tape", "Use foil tape and clamps", "Replace every duct in the basement"], "keys": ["wrong", "good", "excessive"]}]};
+const OUTCOME = {
+  good:      { text:'Good call. That is exactly what a pro would do.', cost:.1,  days:0, health:0 },
+  ok:        { text:'That works. Mostly. Probably.',                   cost:.25, days:0, health:-.03 },
+  wrong:     { text:'That will come back to bite you. Hard.',          cost:.15, days:1, health:-.09 },
+  excessive: { text:'Well, that escalated. Your budget felt that one.', cost:1.2, days:2, health:-.02 },
+};
+const PROJECTS = {
+  wall:  { short:'kitchen wall', title:'Open up the kitchen wall', where:'Ground floor', cost:2400, days:3, events:'wall',
+           blurb:'Take out the wall between the kitchen and the living room for an open plan.',
+           steps:[['Find the studs and wires', 3.2], ['Cut the drywall', 3], ['Pull the drywall off', 3.2], ['EVENT'], ['Put in a header beam', 3.4], ['Take out the studs', 3], ['Patch, trim and paint', 3]] },
+  bath:  { short:'bathroom', title:'Replace the upstairs toilet', where:'Upstairs bathroom', cost:450, days:1, events:'toilet',
+           blurb:'The old toilet runs all night. Time for a new one.',
+           steps:[['Shut off the water', 2.6], ['Unbolt and lift out the old toilet', 3.4], ['EVENT'], ['Fit a new wax ring', 2.6], ['Set the new toilet', 3], ['Reconnect and test the flush', 3]] },
+  dryer: { short:'dryer', title:'Fix the dryer vent', where:'Basement laundry', cost:140, days:1, events:'dryer',
+           blurb:'The clothes come out damp and the laundry smells hot. The vent is clogged.',
+           steps:[['Unplug and pull the dryer out', 2.8], ['Take off the old vent', 3], ['EVENT'], ['Clean out the duct', 3.2], ['Fit a new metal vent', 3], ['Push it back and test', 3.4]] },
+};
+const diyEl = $('#diy'), diyCv = $('#diyCanvas'), dg = diyCv.getContext('2d'), diySprite = $('#diySprite');
+const EW = 533, EH = 300, EU = VW / EW, FLOOR_Y = 250;   /* elevation: one pixel = 3 scene units */
+function fitDiy() {
+  const k = view.k;
+  Object.assign(diyCv.style, { width:VW*k + 'px', height:VH*k + 'px', transform:`translate(${view.ox}px,${view.oy}px)` });
+  const s = 240 * k;   /* the character, twice as close as in the yard */
+  Object.assign(diySprite.style, { width:s + 'px', height:s + 'px', left:(view.ox + 1340*k - s/2) + 'px', top:(view.oy + FLOOR_Y*EU*k - s*.95) + 'px' });
+}
+const toCanvas = img => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; c.getContext('2d').putImageData(img, 0, 0); return c; };
+const fr = (x, y, w, h, c) => { dg.fillStyle = c; dg.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+const fb = (x, y, w, h, c) => { fr(x - 1, y - 1, w + 2, h + 2, '#2b1a12'); fr(x, y, w, h, c); };
+const fo = (cx, cy, rx, ry, c) => { for (let y = -ry; y <= ry; y++) { const half = Math.round(rx * Math.sqrt(Math.max(0, 1 - (y / ry) ** 2))); fr(cx - half, cy + y, half * 2 + 1, 1, c); } };
+const sparkle = (x0, y0, w, h, t, n) => { for (let i = 0; i < n; i++) { const a = (t * 3 + i * .37) % 1, x = x0 + ((i * 97) % w), y = y0 + ((i * 53) % h); if (a < .5) { fr(x, y - 2, 1, 5, '#fff7c2'); fr(x - 2, y, 5, 1, '#fff7c2'); } } };
+
+/* elevation backgrounds (drawn once, with the same pixel painter) */
+const EBG = {};
+function elevBase(P, wallFn, floorFn) {
+  P.rect(0, 0, EW, 40, (i, j) => P.hash(i >> 1, j >> 1, 2) < .5 ? '#e8e2d6' : '#e1dacd');
+  P.rect(0, 40, EW, 4, '#f6f1e6'); P.rect(0, 44, EW, 1, '#2b1a12');
+  P.rect(0, 45, EW, FLOOR_Y - 45, wallFn);
+  P.rect(0, FLOOR_Y - 8, EW, 8, '#f4efe4'); P.rect(0, FLOOR_Y - 8, EW, 1, '#2b1a12');
+  P.rect(0, FLOOR_Y, EW, EH - FLOOR_Y, floorFn); P.rect(0, FLOOR_Y, EW, 1, '#2b1a12');
+}
+const woodFloor = P => (i, j) => { const row = Math.floor((j - FLOOR_Y) / 7), o = (row * 17) % 40; if ((j - FLOOR_Y) % 7 === 6 || (i + o) % 40 === 0) return '#7d4f2a'; return ['#c99158','#bd8650','#b07a46'][Math.floor(P.hash(Math.floor((i + o) / 40), row, 3) * 3)]; };
+function buildElevations() {
+  /* wall: the living-room side (front) and the kitchen behind it */
+  let P = makePainter(EW, EH);
+  elevBase(P, (i, j) => P.hash(i >> 1, j >> 1, 4) < .5 ? '#cfd9c8' : '#c6d1bf', woodFloor(P));
+  P.box(108, 220, 12, 16, '#f4efe4'); P.rect(111, 224, 2, 4, '#2b1a12'); P.rect(115, 224, 2, 4, '#2b1a12');
+  P.box(402, 96, 56, 42, '#8a5a30'); P.rect(406, 100, 48, 34, (i, j) => j < 116 ? '#9fd0e6' : '#7fb04e'); P.oval(440, 108, 5, 5, '#ffe07a');
+  EBG.wallFront = toCanvas(P.img);
+  P = makePainter(EW, EH);
+  elevBase(P, (i, j) => (j > 168 && j < 196) ? (((i % 8) === 0 || (j - 168) % 7 === 0) ? '#b9b0a0' : '#f2ede2') : (P.hash(i >> 1, j >> 1, 5) < .5 ? '#efe2c4' : '#e7d9ba'), woodFloor(P));
+  P.box(150, 90, 70, 50, '#9a6236'); P.box(300, 90, 60, 50, '#9a6236'); P.rect(184, 90, 2, 50, '#6e4423'); P.rect(329, 90, 2, 50, '#6e4423');
+  P.box(232, 92, 56, 44, '#6b4423'); P.rect(235, 95, 50, 38, (i, j) => j < 112 ? '#bfe3f2' : '#9fd0e6'); P.rect(259, 95, 2, 38, '#6b4423');
+  P.box(140, 196, 240, 8, '#e4d8bf'); P.rect(140, 204, 240, 38, (i) => (i - 140) % 30 === 0 ? '#6e4423' : '#9a6236');
+  P.box(388, 100, 46, 142, '#eef2f3'); P.rect(430, 100, 4, 142, '#c7d0d4'); P.rect(392, 150, 42, 1, '#9aa6ad');
+  EBG.wallBehind = toCanvas(P.img);
+  /* bathroom */
+  P = makePainter(EW, EH);
+  elevBase(P, (i, j) => { const row = Math.floor((j - 45) / 9), o = (row % 2) * 9; return ((i + o) % 18 === 0 || (j - 45) % 9 === 0) ? '#b8c8cf' : (P.hash(Math.floor((i + o) / 18), row, 6) < .2 ? '#e3eef2' : '#f2f7f8'); },
+    (i, j) => (((i % 12) === 0 || ((j - FLOOR_Y) % 12) === 0) ? '#8fa3ad' : ((Math.floor(i / 12) + Math.floor((j - FLOOR_Y) / 12)) % 2 ? '#c9d6dc' : '#b7c7ce')));
+  P.box(20, 168, 130, 74, '#f4f4f0'); P.rect(20, 168, 130, 4, '#ffffff'); P.rect(20, 236, 130, 6, '#d6d9d4'); P.box(30, 150, 6, 18, '#b9c2c8');
+  P.box(392, 176, 96, 66, '#9a6236'); P.rect(392, 176, 96, 6, '#e4d8bf'); P.rect(440, 186, 2, 56, '#6e4423');
+  P.box(404, 80, 72, 70, '#c9d2d8'); P.rect(408, 84, 64, 62, (i, j) => (i + j) % 23 < 3 ? '#e6f4fa' : '#b4d4e2');
+  EBG.bath = toCanvas(P.img);
+  /* laundry */
+  P = makePainter(EW, EH);
+  elevBase(P, (i, j) => { const row = Math.floor((j - 45) / 12), o = (row % 2) * 12; return ((i + o) % 24 === 0 || (j - 45) % 12 === 0) ? '#8e8a82' : (P.hash(Math.floor((i + o) / 24), row, 7) < .3 ? '#b1ada4' : '#a8a49b'); },
+    (i, j) => { const n = P.hash(i >> 2, j >> 2, 8); return n < .3 ? '#9f9b92' : n < .7 ? '#a8a49b' : '#b1ada4'; });
+  P.box(110, 160, 84, 82, '#f2f4f5'); P.rect(110, 160, 84, 14, '#e4e8ea'); P.oval(152, 206, 22, 22, '#5e7f96', '#9aa6ad'); P.oval(146, 200, 5, 5, '#cfe3ea');
+  P.box(100, 120, 110, 6, '#8a5a30'); P.box(120, 100, 18, 20, '#3b6688'); P.box(144, 106, 14, 14, '#e0a040');
+  P.box(432, 92, 30, 26, '#5e6a72'); P.rect(436, 96, 22, 18, '#2a1a12');
+  EBG.dryer = toCanvas(P.img);
+}
+buildElevations();
+
+/* animation of each project: d(step, t) draws the frame; step indexes include the EVENT */
+const DRAW = {
+  wall(step, t) {
+    const OX = 160, OY = 70, OW = 220, OH = FLOOR_Y - 8 - OY;
+    dg.drawImage(EBG.wallBehind, 0, 0);
+    const opened = step >= 2;
+    if (!opened) dg.drawImage(EBG.wallFront, 0, 0);
+    else { /* everything around the opening */
+      dg.drawImage(EBG.wallFront, 0, 0, OX, EH, 0, 0, OX, EH);
+      dg.drawImage(EBG.wallFront, OX + OW, 0, EW - OX - OW, EH, OX + OW, 0, EW - OX - OW, EH);
+      dg.drawImage(EBG.wallFront, OX, 0, OW, OY, OX, 0, OW, OY);
+      dg.drawImage(EBG.wallFront, OX, OY + OH, OW, EH - OY - OH, OX, OY + OH, OW, EH - OY - OH);
+    }
+    const studs = step < 5 ? 7 : step === 5 ? Math.max(0, 7 - Math.floor(t * 8)) : 0;
+    if (opened) {
+      for (let k = 0; k < 7; k++) if (k < studs) fb(OX + 4 + k * 35, OY, 7, OH, '#c8945a');
+      if (step < 4) { fr(OX, 150, OW, 2, '#d13a2a'); fr(OX, 158, OW, 2, '#f2c94c'); }
+    }
+    if (step === 0) { for (let k = 0; k < 7; k++) { const sx = OX + 7 + k * 35; if (120 + t * 300 > sx) fr(sx, 142, 1, 6, '#2b1a12'); } const x = 120 + t * 300; fb(x - 8, 146, 16, 12, '#8c99a3'); fr(x - 5, 149, 10, 4, (t * 20 | 0) % 2 ? '#7ed957' : '#3f8f3f'); }
+    if (step === 1) { const per = 2 * (OW + OH), n = Math.floor(t * per); for (let i = 0; i < n; i += 4) { const p = i < OW ? [OX + i, OY] : i < OW + OH ? [OX + OW, OY + i - OW] : i < 2 * OW + OH ? [OX + OW - (i - OW - OH), OY + OH] : [OX, OY + OH - (i - 2 * OW - OH)]; fr(p[0], p[1], 2, 2, '#2b1a12'); } }
+    if (step === 2) { for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) { const i = r * 3 + c, d = i / 12 * .75, pw = OW / 3, ph = OH / 4; let dy = 0; if (t > d) dy = ((t - d) / .25) ** 2 * 200; if (dy > 260) continue;
+      dg.drawImage(EBG.wallFront, OX + c * pw, OY + r * ph, pw, ph, OX + c * pw, OY + r * ph + dy, pw, ph); } }
+    if (step >= 4) { const y = step === 4 ? -20 + t * (OY - 2 + 20) : OY - 2; fb(OX - 10, y, OW + 20, 12, '#8a5a30'); fr(OX - 10, y, OW + 20, 2, '#b37a45');
+      if (step > 4 || t > .6) { fb(OX - 10, OY + 10, 9, OH - 10, '#8a5a30'); fb(OX + OW + 1, OY + 10, 9, OH - 10, '#8a5a30'); } }
+    if (step === 6) { const w = 3 + Math.floor(t * 3); fr(OX - 12, OY - 4, OW + 24, w, '#f4efe4'); fr(OX - 12, OY - 4, w, OH + 4, '#f4efe4'); fr(OX + OW + 12 - w, OY - 4, w, OH + 4, '#f4efe4'); sparkle(OX, OY, OW, OH, t, 10); }
+  },
+  bath(step, t) {
+    dg.drawImage(EBG.bath, 0, 0);
+    const toilet = (x, y, c, d) => { fb(x + 8, y - 70, 40, 34, c); fr(x + 8, y - 70, 40, 4, '#ffffff'); fb(x, y - 36, 56, 14, c); fr(x, y - 36, 56, 3, '#ffffff'); fb(x + 14, y - 22, 28, 22, d); fr(x + 34, y - 64, 8, 3, '#b9c2c8'); };
+    const X = 238;
+    fb(220, 226, 10, 10, '#b9c2c8'); /* shutoff valve */
+    const wheel = step === 0 ? (t * 8 | 0) % 2 : 0; fr(221 + (wheel ? 3 : 0), 224, wheel ? 3 : 8, wheel ? 14 : 3, '#d13a2a');
+    if (step <= 1) { const lift = step === 1 ? t : 0; toilet(X - lift * 230, FLOOR_Y - lift * 50, '#ead9b0', '#d2bf92'); }
+    if (step >= 1 && step < 5) { fo(X + 28, FLOOR_Y - 1, 12, 3, '#3a3a3a'); fo(X + 28, FLOOR_Y - 1, 6, 1, '#151515'); }
+    if (step === 3) { const y = 190 + t * (FLOOR_Y - 4 - 190); fo(X + 28, y, 9, 3, '#e0a040'); fo(X + 28, y, 4, 1, '#b07a20'); }
+    if (step >= 4) { const y = step === 4 ? 40 + t * (FLOOR_Y - 40) : FLOOR_Y; toilet(X, y, '#f8f8f6', '#e4e6e2'); }
+    if (step === 5) { const a = t * 20; for (let i = 0; i < 8; i++) fr(X + 28 + Math.cos(a + i) * 14, FLOOR_Y - 30 + Math.sin(a + i) * 3, 2, 2, '#5aa9d6'); sparkle(X - 10, FLOOR_Y - 90, 80, 80, t, 7); }
+  },
+  dryer(step, t) {
+    dg.drawImage(EBG.dryer, 0, 0);
+    const slide = step === 0 ? t * 46 : step < 5 ? 46 : 46 * (1 - t), DX = 300 - slide;
+    if (step < 4 || (step === 4 && t < .02)) { /* old foil hose */
+      const detach = step === 1 ? t : step > 1 ? 1 : 0, ex = DX + 84, ey = 178, vx = 446, vy = 116;
+      for (let i = 0; i <= 14; i++) { const u = i / 14; const x = ex + (vx - ex) * u, y = ey + (vy - ey) * u - Math.sin(u * Math.PI) * 22 + detach * u * u * 70; if (detach > .2 && u > .9) continue; fb(x - 4, y - 4, 8, 8, i % 2 ? '#c8ccd0' : '#e2e5e8'); }
+      if (step === 1 || step === 3) { const n = step === 1 ? 14 : 8; for (let i = 0; i < n; i++) { const a = i * 2.4, r = (step === 1 ? t : .6) * (10 + (i % 4) * 6); fo(447 + Math.cos(a) * r, 106 + Math.sin(a) * r * .7, 4, 3, i % 2 ? '#d7d3cc' : '#bdb8b0'); } }
+    }
+    if (step === 3) { const x = 440 - Math.abs(Math.sin(t * 9)) * 40; fr(x - 60, 104, 60, 3, '#8a5a30'); fb(x, 100, 14, 12, '#3a3f45'); for (let i = 0; i < 6; i++) fr(440 + i * 3, 120 + ((t * 300 + i * 40) % 120), 2, 2, '#cfcac2'); }
+    if (step >= 4) { const grow = step === 4 ? t : 1, ex = 300 + 84, ey = 178; const pts = [[446, 116], [446, 150], [ex + 8, 150], [ex + 8, ey]]; let len = 0; const segs = []; for (let i = 1; i < pts.length; i++) { const l = Math.hypot(pts[i][0] - pts[i-1][0], pts[i][1] - pts[i-1][1]); segs.push([pts[i-1], pts[i], l]); len += l; }
+      let left = grow * len; segs.forEach(([a, b, l]) => { if (left <= 0) return; const u = Math.min(1, left / l); left -= l; const x0 = Math.min(a[0], a[0] + (b[0] - a[0]) * u), y0 = Math.min(a[1], a[1] + (b[1] - a[1]) * u); const w = Math.abs((b[0] - a[0]) * u) + 9, h = Math.abs((b[1] - a[1]) * u) + 9; fb(x0 - 4, y0 - 4, w, h, '#d9dee2'); fr(x0 - 4, y0 - 4, w, 2, '#f4f7f9'); }); }
+    fb(DX, 160, 84, 82, '#f2f4f5'); fr(DX, 160, 84, 14, '#e4e8ea'); fr(DX + 8, 164, 18, 5, '#ff9a3c');
+    fo(DX + 42, 206, 22, 22, '#9aa6ad'); fo(DX + 42, 206, 19, 19, '#3d434a');
+    if (step === 5 && t > .4) { const a = t * 30; [['#c8382c', 0], ['#3b6688', 2.1], ['#f2c94c', 4.2]].forEach(([c, o]) => fo(DX + 42 + Math.cos(a + o) * 9, 206 + Math.sin(a + o) * 9, 5, 4, c)); sparkle(DX, 150, 90, 90, t, 6); }
+  },
+};
+
+/* ---------- running a project ---------- */
+let run = null;
+const askEl = $('#diyAsk'), evEl = $('#eventCard');
+function askProject(id) {
+  const p = PROJECTS[id]; frozen = true; held.length = 0; syncPad();
+  askEl.querySelector('.eyebrow').textContent = 'DIY potential · ' + p.where;
+  askEl.querySelector('h3').textContent = p.title;
+  askEl.querySelector('p').textContent = p.blurb;
+  askEl.querySelector('.est').textContent = `About ${money(p.cost)} and ${p.days} day${p.days > 1 ? 's' : ''} if nothing goes wrong.`;
+  askEl.classList.add('open');
+  askEl.querySelector('.yes').onclick = e => { e.stopPropagation(); askEl.classList.remove('open'); startProject(id); };
+  askEl.querySelector('.no').onclick = e => { e.stopPropagation(); askEl.classList.remove('open'); frozen = false; };
+}
+function startProject(id) {
+  const p = PROJECTS[id];
+  run = { id, p, step:0, t:0, cost:p.cost, days:p.days, health:-.04, paused:false, last:performance.now() };
+  $('#diyTitle').textContent = p.title;
+  $('#diySteps').innerHTML = p.steps.map(s => `<li>${s[0] === 'EVENT' ? 'Surprise!' : s[0]}</li>`).join('');
+  diySprite.src = SPRITES[selected].left;
+  fadeEl.classList.add('on');
+  setTimeout(() => { document.body.classList.add('in-diy'); diyEl.classList.add('open'); fitDiy(); fadeEl.classList.remove('on'); diyTick(); }, 320);
+}
+function diyCard() {
+  const p = run.p;
+  $('#diySteps').querySelectorAll('li').forEach((li, i) => { li.className = i < run.step ? 'done' : i === run.step ? 'now' : ''; });
+  const total = p.steps.length; $('#diyProg').style.width = Math.min(100, (run.step + (p.steps[run.step] && p.steps[run.step][0] !== 'EVENT' ? run.t : 0)) / total * 100) + '%';
+  $('#diyCost').textContent = `${money(run.cost)} · ${run.days} day${run.days > 1 ? 's' : ''}`;
+}
+function diyTick() {
+  if (!run) return;
+  const now = performance.now(), dt = Math.min(.1, (now - run.last) / 1000); run.last = now;
+  const p = run.p, st = p.steps[run.step];
+  if (st && st[0] === 'EVENT') {
+    if (!run.paused) showEvent();
+  } else if (st) {
+    run.t += dt / st[1];
+    if (run.t >= 1) { run.t = 0; run.step++; }
+  }
+  const s2 = Math.min(run.step, p.steps.length - 1), drawStep = run.step >= p.steps.length ? p.steps.length - 1 : s2;
+  DRAW[run.id](drawStep, run.step >= p.steps.length ? 1 : run.t);
+  diySprite.classList.toggle('work', !run.paused && run.step < p.steps.length);
+  diyCard();
+  if (run.step >= p.steps.length) return finishProject();
+}
+setInterval(diyTick, 40);
+function showEvent() {
+  run.paused = true;
+  const list = DIY_EVENTS[run.p.events] || [], ev = list[Math.floor(Math.random() * list.length)];
+  if (!ev) { run.paused = false; run.step++; return; }
+  evEl.querySelector('.eyebrow').textContent = 'Surprise!';
+  evEl.querySelector('h3').textContent = ev.event;
+  evEl.querySelector('p').textContent = ev.description;
+  const res = evEl.querySelector('.res'); res.textContent = ''; res.className = 'res';
+  const opts = evEl.querySelector('.opts');
+  opts.innerHTML = ev.options.map((o, i) => `<button data-i="${i}">${o}</button>`).join('');
+  opts.querySelectorAll('button').forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const key = ev.keys[+b.dataset.i] || 'ok', o = OUTCOME[key] || OUTCOME.ok;
+    run.cost = Math.round(run.cost * (1 + o.cost) / 10) * 10; run.days += o.days; run.health += o.health;
+    opts.querySelectorAll('button').forEach(x => { x.disabled = true; x.classList.toggle('picked', x === b); });
+    res.textContent = o.text; res.className = 'res ' + key;
+    const go = document.createElement('button'); go.className = 'cont'; go.textContent = 'Keep going';
+    go.onclick = ev2 => { ev2.stopPropagation(); evEl.classList.remove('open'); run.paused = false; run.step++; run.t = 0; run.last = performance.now(); };
+    res.appendChild(go);
+  });
+  evEl.classList.add('open');
+}
+function finishProject() {
+  const r = run; run = null;
+  diySprite.classList.remove('work');
+  const card = $('#diyCard'), done = document.createElement('div'); done.className = 'diy-done';
+  done.innerHTML = `<b>Done!</b> ${money(r.cost)}, ${r.days} day${r.days > 1 ? 's' : ''}. The bank will want a word.<button>Back to the house</button>`;
+  card.appendChild(done);
+  done.querySelector('button').onclick = e => { e.stopPropagation(); done.remove(); leaveProject(r, true); };
+}
+function leaveProject(r, finished) {
+  fadeEl.classList.add('on');
+  setTimeout(() => {
+    diyEl.classList.remove('open'); document.body.classList.remove('in-diy'); evEl.classList.remove('open');
+    if (finished) {
+      doneProjects[r.id] = true;
+      S.time += r.days / PLAN_DAYS; applyFx({ health:r.health });
+      if (r.id === 'wall') { FLOORS.ground.walls.find(w => w.id === 'diyWall').off = true; SCENES.ground.img = paintFloor('ground'); if (scene === 'ground') { sceneImg = SCENES.ground.img; showYard(); } }
+      buildHots();
+      setTimeout(() => pay(r.cost, r.p.title.toLowerCase()), 600);
+      if (r.cost >= 300 && Math.random() < .1) setTimeout(crackPhone, 1400);
+    }
+    frozen = false; fadeEl.classList.remove('on'); updateHotspots(chars[selected]);
+  }, 320);
+}
+$('#diyLeave').onclick = e => { e.stopPropagation(); if (!run && !document.querySelector('.diy-done')) return; const r = run || { id:null }; run = null; const d = document.querySelector('.diy-done'); if (d) d.remove(); leaveProject(r, false); };
+/* ===================================================================================== */
+
 /* Arrow keys, WASD or the pad move the selected character (the home owner unless you click someone else) */
 const held = [];
 const KEYS = { ArrowUp:'back', KeyW:'back', ArrowDown:'front', KeyS:'front', ArrowLeft:'left', KeyA:'left', ArrowRight:'right', KeyD:'right' };
@@ -1573,12 +2188,14 @@ function walk(t) {
   const ch = chars[selected];
   let vx = 0, vy = 0; held.forEach(d => { vx += VEC[d][0]; vy += VEC[d][1]; });
   const moving = !!(vx || vy);
-  if (ch && moving) {
+  if (ch && moving && !frozen) {
     const len = Math.hypot(vx, vy);
-    ch.x = clamp(ch.x + vx/len*SPEED*dt, 40, VW - 40);
-    ch.y = clamp(ch.y + vy/len*SPEED*dt, 110, VH - 30);
+    const nx = clamp(ch.x + vx/len*SPEED*dt, 40, VW - 40), ny = clamp(ch.y + vy/len*SPEED*dt, 110, VH - 30);
+    if (!blocked(nx, ch.y)) ch.x = nx;   /* walls and furniture are colliders: slide along them */
+    if (!blocked(ch.x, ny)) ch.y = ny;
     turn(ch, held[held.length - 1]); place(ch);
   }
+  if (ch) updateHotspots(ch);
   Object.values(chars).forEach(c => c.el.classList.toggle('walking', c === ch && moving));
 }
 /* frames drive the walk; a timer takes over if frames stall (background tab, embedded previews) */
@@ -1617,7 +2234,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { closePhone
 /* ---------------- demo loop ---------------- */
 function tick() {
   if (document.hidden) return;
-  S.time += .0022;
+  /* time runs with the day and night cycle (6 minutes a day); the date only turns over at dawn */
+  S.time = Math.min(S.time + .9 / 360 / PLAN_DAYS, (Math.floor(S.time * PLAN_DAYS + 1e-6) + .999) / PLAN_DAYS);
   S.budget += .0012 + (Math.random() < .04 ? .02 : 0);
   S.health = clamp(S.health - .0012, .05, 1);
   const a = tasks.find(t => !t.done);
@@ -1638,15 +2256,12 @@ function notify() {
 }
 function clock() { const d = new Date(); $('#clock').textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0'); }
 
-/* INTEGRATION: with ?game=<id> the backend runs the game (see game-link.js), so the demo loop and demo tasks stay off.
-   Without it, this page behaves exactly as before. */
-const LIVE = /[?&]game=/.test(location.search);
 render(); renderList();
-if (!LIVE) { tasks.forEach(t => taskList.appendChild(makeTask(t))); markActive(); }
+if (!LIVE) { tasks.forEach(t => taskList.appendChild(makeTask(t))); markActive(); }   /* INTEGRATION: with ?game the backend supplies the tasks */
 clock();
-if (!LIVE) setInterval(tick, 900);
+if (!LIVE) setInterval(tick, 900);   /* INTEGRATION: the demo loop is off with a backend game */
 setInterval(clock, 15000);
-if (!LIVE) setTimeout(() => { notify(); setInterval(notify, 9500); }, 3500);
+if (!LIVE) setTimeout(() => { notify(); setInterval(notify, 16000); }, 3500);
 
 /* ===== INTEGRATION: hooks for game-link.js, which connects this page to the backend =====
    Nothing here changes how the page works on its own. game-link.js uses these to drive the bars,

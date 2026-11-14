@@ -11,6 +11,15 @@ The game's user interface as a single self-contained page. Open `index.html` in 
 - **You (top right).** Shows your home owner. Click it to pick one; the other six are dealt out to the roles at random. Without a pick, the home owner is random too.
 - **Theme button (top right).** Light or dark.
 
+## The house
+
+- **Going in:** walk up to the front door; it glows. Click it (or press **E** or **Enter**) and the scene changes to the inside of the house.
+- **The cottage:** a Northeast-style cottage with 3 bedrooms, 2 bathrooms, two storeys and a basement. Each floor is a plan seen from above with low walls. Walls and big furniture are colliders: you walk around them, never over them.
+- **Stairs:** walk up to them; they glow. Click to go to the other floor. The ground floor has stairs up (hall) and down to the basement (dining room).
+- **DIY potential:** three spots glow gold when you come close: the **wall between kitchen and living room** (ground floor), the **bathroom** (upstairs) and the **dryer** (basement). Click one to see the cost and time, then **Take it on**.
+- **DIY projects:** the scene changes to a side view (elevation) where the job is animated step by step. Halfway through, an event card from `events/` asks how you handle a surprise; the answer changes the cost, the days and your health. At the end the payment goes through the bank's fraud check, the days are added, and some projects change the house (the kitchen wall really disappears from the plan).
+- **Day and night:** the game switches between day and night every 3 minutes; one full cycle is one day, and the date turns over at dawn. The theme button skips to the next day or night.
+
 ## Characters
 
 Every game the seven sprites are shuffled. One is the home owner (the player), the rest are dealt out to:
@@ -43,3 +52,9 @@ The page runs a demo loop: messages arrive every ~10 seconds, time and budget cr
 **Working on the graphics? Read [GRAPHICS.md](GRAPHICS.md) first:** pixel scale, palette, drawing rules, sprite format and a checklist.
 
 The interface uses the system font, dark grey ink with few colours (teal, gold and red as accents), round buttons and pill-shaped chips with soft shadows, light and dark themes that follow the computer's setting, and one easing curve, `cubic-bezier(.65,0,.25,1)`, for every larger movement. With `prefers-reduced-motion` all motion is off.
+
+## Playing with the backend
+
+Open the page as `/frontend/?game=<id>` and the backend runs the game: `game-link.js` casts the characters from the backend, drives the Time, Budget and Health bars and the tasks post-it, shows each event as a card (with advice texts from the cast), sends every purchase through `pay()`, and shows the end report. The glowing DIY spots and the demo loop are switched off in that mode, because the backend game has its own job. **Without `?game` the page runs on its own, exactly as described above.** Start a backend game from the front door at `/app/`, or see [`../INTEGRATION.md`](../INTEGRATION.md).
+
+The few lines in `index.html` that make this work are marked `INTEGRATION`.

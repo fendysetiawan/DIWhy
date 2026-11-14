@@ -31,14 +31,14 @@
 /* the cat walks in from the right, then sits (plan scene 2) */
 .cat {
   position: absolute;
-  bottom: 17%;
+  bottom: 24%;
   left: 108%;
   width: 14%;
   image-rendering: pixelated;
 }
 .cat.walking { animation: cat-walk 3.2s ease-out forwards; }
-.cat.seated { left: 6%; animation: none; }
-@keyframes cat-walk { to { left: 6%; } }
+.cat.seated { left: 24%; animation: none; }
+@keyframes cat-walk { to { left: 24%; } }
 
 /* ---------- narration ---------- */
 .caption {
@@ -67,7 +67,7 @@
 
 .caption.choosing { pointer-events: auto; max-height: calc(100vh - 24px); overflow: auto; }
 .caption.choosing .caption-next { display: none; }
-.choices { display: grid; gap: 10px; margin-top: 16px; }
+.choices { display: grid; gap: 10px; margin-top: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); }
 .choice { display: flex; align-items: center; gap: 14px; text-align: left; line-height: 1.5; font-size: 14px; padding: 10px 14px; }
 .choice-n { color: var(--brand-sky); }
 .choice:hover .choice-n, .choice:focus-visible .choice-n { color: var(--brand-navy); }
@@ -191,7 +191,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .house-on .camera { animation: none; }
-  .cat.walking { animation: none; left: 6%; }
+  .cat.walking { animation: none; left: 24%; }
   .owner { transform: none; }
   .deed { transition: opacity 0.2s ease; transform: rotate(-1deg); }
 }

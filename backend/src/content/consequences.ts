@@ -23,6 +23,7 @@ export interface CategoryBase {
 
 export const CATEGORY: Record<string, CategoryBase> = {
   structural: { cost: 1200, days: 4, severity: 3 },
+  permitting: { cost: 400, days: 2, severity: 2 }, // the paperwork kind of trouble
   environmental: { cost: 1000, days: 4, severity: 3 },
   electrical: { cost: 600, days: 2, severity: 2 },
   mechanical: { cost: 500, days: 2, severity: 2 },
@@ -65,6 +66,8 @@ export function consequence(
   const base = baseFor(category);
   const money = (m: number) => Math.round((base.cost * m * scale.cost) / 10) * 10;
   const days = (m: number) => Math.round(base.days * m * scale.days);
+  // A mishap costs a day on a big job, but not on a two-day job, where it would end the game.
+  const bump = scale.days >= 0.3 ? 1 : 0;
 
   let effects: Effects;
   let gamble: Gamble | undefined;
@@ -82,14 +85,14 @@ export function consequence(
       chance: (s) => cap(0.28 + s.riskDebt / 220 + 0.04 * base.severity, 0.85),
       effects: {
         cost: money(2.3),
-        days: days(1) + 1,
+        days: days(1) + bump,
         stress: 8 + 3 * base.severity,
         waterDamage: category === 'plumbing' || category === 'envelope' ? true : undefined,
         addFlags: [`trouble-${category}`],
       },
     };
   } else {
-    effects = { cost: money(2.4), days: days(2) + 1, stress: 3, risk: -18, addFlags: ['scope-creep'] };
+    effects = { cost: money(2.4), days: days(2) + bump, stress: 3, risk: -18, addFlags: ['scope-creep'] };
   }
 
   if (override.cost !== undefined) effects = { ...effects, cost: override.cost };

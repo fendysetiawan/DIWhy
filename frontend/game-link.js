@@ -169,6 +169,7 @@
       .dw-card, .dw-report-backdrop { --font: "Press Start 2P", ui-monospace, monospace; }
       .dw-live #ownerBtn { pointer-events: none; }
       .dw-live #shuffleBtn { display: none; }
+      .dw-live .hot.fix { display: none !important; } /* this page's own DIY spots: the backend game has its own job */
       .dw-card { position: fixed; left: 50%; top: 46%; transform: translate(-50%, -50%); z-index: 7;
         width: min(640px, calc(100vw - 24px)); max-height: calc(100vh - 24px); overflow: auto;
         display: grid; gap: 16px; animation: dw-in .35s cubic-bezier(.2, .8, .2, 1); }

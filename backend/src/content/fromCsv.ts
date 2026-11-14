@@ -62,6 +62,8 @@ export function buildEvents(rows: CsvEventRow[], links: Record<string, string[]>
 
 /** The last step of any job: finish it yourself (risky) or pay a pro (safe, a little pricey). */
 export function makeFinale(job: string, quote: Quote): GameEvent {
+  // The last step takes a day on a job quoted at a few days or more. On a quick job it takes no extra time.
+  const lastStep = quote.days >= 3 ? 1 : 0;
   return {
     id: 'finale',
     kind: 'finale',
@@ -73,19 +75,19 @@ export function makeFinale(job: string, quote: Quote): GameEvent {
       {
         label: 'Finish it yourself',
         quality: 'ok',
-        effects: { days: 1, complete: true },
+        effects: { days: lastStep, complete: true },
         result: 'A couple of turns of a wrench. How hard could it be?',
         gamble: {
           // Everything you skipped earlier comes due right here.
           chance: (s) => cap(0.1 + s.riskDebt / 150 + (s.house.waterDamage ? 0.15 : 0), 0.85),
-          effects: { cost: Math.round((quote.budget * 0.2) / 10) * 10, days: 2, stress: 15 },
+          effects: { cost: Math.round((quote.budget * 0.2) / 10) * 10, days: lastStep + 1, stress: 15 },
           result: 'It does not hold. Of course it does not hold. The pro is back, and amused.',
         },
       },
       {
         label: 'Hire a pro for the last step',
         quality: 'good',
-        effects: { cost: Math.round((quote.budget * PRO_FINISH_SHARE) / 10) * 10, days: 1, risk: -10, complete: true },
+        effects: { cost: Math.round((quote.budget * PRO_FINISH_SHARE) / 10) * 10, days: lastStep, risk: -10, complete: true },
         result: 'Ten minutes and a signature. It works. It always works when someone else does it.',
       },
     ],

@@ -83,7 +83,7 @@ describe('projects, quote and payments', () => {
     const r = await call(real(), 'GET', '/api/projects');
     expect(r.status).toBe(200);
     const { projects } = (await r.json()) as { projects: Array<{ id: string; quote: { budget: number } }> };
-    expect(projects).toHaveLength(6);
+    expect(projects).toHaveLength(12);
     expect(projects[0]).toMatchObject({ id: 'wall-removal', quote: { budget: 10000 } });
   });
 

@@ -18,8 +18,8 @@ const bump = (file: string) => {
 };
 
 describe('projectSource', () => {
-  it('builds the six projects from the real folder', () => {
-    expect(projectSource(real)().map((p) => p.id)).toHaveLength(6);
+  it('builds every project from the real folder', () => {
+    expect(projectSource(real)().map((p) => p.id)).toHaveLength(12);
   });
 
   it('returns the same projects until a file changes', () => {

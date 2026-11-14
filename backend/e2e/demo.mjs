@@ -6,6 +6,8 @@
 //   SPEED=8        how fast to run the demo for this check (the real demo is 1.5)
 //   BASE=http://127.0.0.1:3001   where the game is
 //   OUT=e2e/out    where the screenshots go
+//   SHOTS=0        skip the screenshots (for timing the demo at its real speed)
+//   DEMO=short     play the gameplay-only demo instead of the whole thing
 //
 // Exits non-zero if the demo does not reach the end, or the page throws an error.
 
@@ -53,7 +55,7 @@ let last = '';
 let n = 0;
 let failure = null;
 
-await chrome.navigate(`${BASE}/app/?demo=1&speed=${SPEED}`);
+await chrome.navigate(`${BASE}/app/?demo=${process.env.DEMO ?? '1'}&speed=${SPEED}`);
 
 while (Date.now() - started < LIMIT_MS) {
   await new Promise((r) => setTimeout(r, 200));
@@ -65,7 +67,7 @@ while (Date.now() - started < LIMIT_MS) {
     seen.push({ secs, stage });
     console.log(`${secs.padStart(6)}s  ${stage}`);
     await new Promise((r) => setTimeout(r, Math.max(60, (450 * 1.5) / SPEED))); // let the stage settle, scaled to how fast it runs
-    if (n < 60) await chrome.screenshot(join(OUT, `${String(++n).padStart(2, '0')}-${stage.replace(/[^a-z0-9]+/gi, '-').slice(0, 40)}.png`));
+    if (n < 60 && process.env.SHOTS !== '0') await chrome.screenshot(join(OUT, `${String(++n).padStart(2, '0')}-${stage.replace(/[^a-z0-9]+/gi, '-').slice(0, 40)}.png`));
   }
   if (stage === 'finished') break;
 }

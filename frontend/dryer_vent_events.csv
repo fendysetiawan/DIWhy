@@ -1,0 +1,6 @@
+id,event,kind,category,description,option_1,option_2,option_3,answer_key
+lint_packed,Vent packed with lint,snowball,fire safety,The vent is so full of lint it could knit a sweater. Also: fire hazard.,Vacuum it and keep the old foil hose,Replace it with rigid metal duct,Buy a brand new dryer,"ok,good,excessive"
+bird_nest,A bird moved in,snowball,environmental,Something is chirping inside the outside vent cap. You have tenants.,Poke them out with a broom handle,"Wait until they leave, then fit a vent guard",Hire wildlife removal and redo the siding,"wrong,good,excessive"
+gas_line,It's a gas dryer,snowball,gas,"Behind the dryer is a yellow gas line, not just a plug.",Yank it out of the way,Shut off the gas valve and move it gently,Convert the whole house to electric,"wrong,good,excessive"
+vent_maze,Vent run is a maze,snowball,mechanical,The duct snakes 40 feet with six bends. Your dryer is blowing into a labyrinth.,Reroute it on a shorter path outside,Add a booster fan,Move the laundry room upstairs,"good,ok,excessive"
+duct_tape,Duct tape everywhere,snowball,mechanical,"The old joints are held together with duct tape. Ironically, duct tape is not for ducts.",Add more duct tape,Use foil tape and clamps,Replace every duct in the basement,"wrong,good,excessive"

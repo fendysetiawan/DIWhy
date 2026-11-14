@@ -4,7 +4,9 @@
 
 A game where replacing one $250 faucet snowballs into a very different project. You watched a six-minute video. How hard could it be? Choices change a hidden state, the state decides which events can happen next, and the end report counts the moments you asked "why?"
 
-This folder is the whole backend: the game rules, the events, an HTTP API, and a small reference front end that uses only that API. If you are building a different front end, start with [`API.md`](API.md).
+This folder is the backend: the game rules, the HTTP API that serves them, and a small developer console. The game itself is played through the front-end folders next to it (`../app`, `../frontend`), which this server also serves. If you are building a different front end, start with [`API.md`](API.md).
+
+The events are not in this folder: they are the team's CSV files in `../events`, read live. This folder turns them into playable jobs.
 
 TypeScript, Vite, no frameworks. Events are picked by weighted random, or by a local decision model (Jev) so the two can be compared.
 
@@ -12,9 +14,11 @@ TypeScript, Vite, no frameworks. Events are picked by weighted random, or by a l
 
 ```
 npm install
-npm run dev        # reference page + API together: http://localhost:5173
+npm run play       # THE GAME: front door, gameplay page and API at http://127.0.0.1:3001
 npm run api        # the API alone: http://127.0.0.1:3001/api
+npm run dev        # the developer console (dev mode, Jev traces) with live reload: http://localhost:5173
 npm test           # all tests
+npm run e2e        # play the whole hands-free demo in a real Chrome and photograph each stage
 ```
 
 Pick a seed to reproduce a playthrough: `http://localhost:5173/?seed=42`. Dev mode is off by default. See [Dev mode](#dev-mode).
@@ -24,19 +28,23 @@ Pick a seed to reproduce a playthrough: `http://localhost:5173/?seed=42`. Dev mo
 ```
 src/
   engine/         the rules. Pure functions, no I/O.
-  data/events.ts  all 12 events plus the finale
+  data/events.ts  the built-in bathroom events (the plan's "leaking pipe" job)
+  content/        turns the team's event CSVs into playable jobs: the CSV parser, what each
+                  answer quality costs, which events follow which, each job's contractor quote
   directors/      who picks the next event: Jev (local model) lives here
-  service/        the backend core: GameService, the JSON contract (types.ts), the game store
-  server/         HTTP: a standard Request/Response handler, Node adapter, server entry
+  service/        the backend core: GameService, the JSON contract (types.ts), the game store,
+                  the cast, the advice
+  server/         HTTP: the API handler, the static file server, the CSV loader, entry points
   client/         a typed client for the API (any front end can use or copy it)
-  ui/ dev/ main.ts  the reference front end and its dev tools. Uses only the JSON contract.
+  ui/ dev/ main.ts  a small developer console. Uses only the JSON contract.
+e2e/              a real-browser runner for the demo (Chrome over the DevTools protocol)
 ```
 
 Each layer may only use the ones below it, and `architecture.test.ts` fails if an import breaks the rules:
 
 ```
 front end (ui, dev, client, main)  --types only-->  service/types
-server  -->  service  -->  directors, data, engine
+server  -->  service  -->  content, directors, data, engine
 ```
 
 The important consequence: the front end holds no game rules, and its bundle contains no event text. A different front end gets exactly the same view of the game.

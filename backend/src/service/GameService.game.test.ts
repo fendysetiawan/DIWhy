@@ -32,9 +32,9 @@ async function playOut(s: GameService, id: string, pick = 0): Promise<GameView> 
 }
 
 describe('projects', () => {
-  it('lists all six, with the plan\'s three marked and the wall quoted at $10,000', () => {
+  it('lists every project, with the plan\'s three first and marked, and the wall quoted at $10,000', () => {
     const list = svc().listProjects();
-    expect(list.map((p) => p.id)).toEqual([
+    expect(list.slice(0, 6).map((p) => p.id)).toEqual([
       'wall-removal',
       'bathroom-leak',
       'dryer-replacement',
@@ -42,6 +42,7 @@ describe('projects', () => {
       'carpet-replacement',
       'window-caulking',
     ]);
+    expect(list).toHaveLength(12);
     expect(list.filter((p) => p.fromPlan).map((p) => p.id)).toEqual(['wall-removal', 'bathroom-leak', 'dryer-replacement']);
     expect(list[0].quote).toEqual({ budget: 10000, days: 14 });
   });
