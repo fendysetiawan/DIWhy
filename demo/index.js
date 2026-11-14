@@ -9,8 +9,9 @@
 // Each page has a short script in pages/. See README.md.
 
 import { createActor, Stopped } from "./actor.js";
+import { DEMO } from "./config.js";
 
-export const DEMO_SPEED = 1.5;
+export const DEMO_SPEED = DEMO.speed;
 
 export function demoSpeed(params = new URLSearchParams(location.search)) {
   const n = Number(params.get("speed"));

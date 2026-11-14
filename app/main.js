@@ -19,11 +19,9 @@ const params = new URLSearchParams(location.search);
 const demoMode = params.get("demo");
 const shortDemo = demoMode === "short";
 const demo = demoMode === "1" || shortDemo;
-// The demo plays one fixed game, so it tells the same story every time: the dryer chain through to the
-// beehive, a cat in the vent, a shortcut that blows up, and an overrun. See demo/README.md.
-const DEMO_SEED = 0;
-const DEMO_OWNER = "gigi-singh";
-const DEMO_PROJECT = "dryer-replacement";
+// The demo plays one fixed game (seed, owner and job are in demo/config.js), so it tells the same
+// story every time. The app only loads that file when demoing, so it never depends on demo/ otherwise.
+const DEMO = demo ? (await import("/demo/config.js")).DEMO : null;
 
 if (demo && !shortDemo) {
   // The demo drives these same screens with a visible mouse, at 1.5x speed.
@@ -49,7 +47,7 @@ function startGame(game) {
 try {
   if (shortDemo) {
     // Straight to the game: the same owner, job and seed the full demo uses.
-    startGame(await createGame({ owner: DEMO_OWNER, project: DEMO_PROJECT, seed: DEMO_SEED }));
+    startGame(await createGame({ owner: DEMO.owner, project: DEMO.project, seed: DEMO.seed }));
   } else {
     // The intro always plays, unless "skip intro" is ticked (and never when demoing).
     if (demo || !getSetting("skipIntro", false)) await splash(app);
@@ -58,7 +56,7 @@ try {
     const projects = await listProjects();
     const { project } = await story(app, { character, projects });
 
-    startGame(await createGame({ owner: character.id, project: project.id, ...(demo ? { seed: DEMO_SEED } : {}) }));
+    startGame(await createGame({ owner: character.id, project: project.id, ...(demo ? { seed: DEMO.seed } : {}) }));
   }
 } catch (err) {
   showError(err && err.message ? err.message : "Something went wrong.");

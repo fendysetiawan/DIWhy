@@ -1,0 +1,3 @@
+# DIWhy
+
+@AGENTS.md

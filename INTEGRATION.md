@@ -2,6 +2,8 @@
 
 Everyone works in their own folder. This page says how the folders connect, so a change in one doesn't surprise another.
 
+**Using an AI assistant? Point it at [`AGENTS.md`](AGENTS.md).** It lists what to update when you change something, and how to keep the hands-free demo from breaking. (Claude Code reads it automatically through `CLAUDE.md`.)
+
 ## The flow
 
 ```
@@ -54,7 +56,8 @@ Search for `INTEGRATION` to find every one. They are all small, they do nothing 
 | `settle()` | one line calling `DIWHY_HOOKS.onSettle` | The backend hears "Yes it was me" or "No, block it" |
 | `setPhase()` | `&& !LIVE` on the dawn line | The backend decides what day it is |
 | `useSpot()` | `if (sp.project && LIVE) return` | The glowing DIY spots start this page's own local projects |
-| End of the script | the demo loop and demo tasks wait for `!LIVE`; `window.DIWHY_HOOKS` exposes what the link needs | The backend supplies the tasks and the numbers |
+| End of the script | the demo loop, the one "hello" text and the demo tasks wait for `!LIVE`; `window.DIWHY_HOOKS` exposes what the link needs | The backend supplies the tasks and the numbers |
+| The "people text when something happens" timer | `if (LIVE) return` (**added by Ramy**) | It watches the page's own fake budget and time, which the backend replaces |
 | Before `</body>` | `<script src="game-link.js">` | The link itself |
 
 `frontend/game-link.js` does the rest. Without `?game=<id>` it does nothing, and Ramy's page runs exactly as it does on its own, including the house, the DIY jobs and the day and night cycle.
@@ -68,4 +71,5 @@ These are for the team, not for any one person:
 3. **Two dryer event sets.** `events/dryer_replace_events.csv` (17 events, a first draft following the plan's smoke, dust, wall, beehive chain) and `frontend/dryer_vent_events.csv` (5 events, Ramy's, about fire and gas). Worth merging into one.
 4. **The dryer draft is mine.** Fendy, please review `events/dryer_replace_events.csv`. It uses your columns and `answer_key` convention.
 5. **Story scene 3** (the living room and the AI render) has no art yet. A placeholder card stands in.
-6. **Aidan's screens.** `assets/app` was removed in the tidy (commit `4d59a21`). The splash and character select are restored in `app/` from git history (`391db4d`). If Aidan has newer versions, `app/` only depends on `screens/screen.js` and the functions `main.js` imports.
+6. **YouTube and ChatGPT on the phone.** Ramy's phone now has them: a how-to video (1 to 2.5 game hours) makes the job's surprise card mark the right answer, and ChatGPT is quicker but skips steps. The backend already knows which answer is right (`answer_key`) and uses it for the neighbor's, parent's, friend's and clerk's advice. A natural next step is for those two apps to ask the backend, for example "reveal the good answer for the next event, at a cost in days", so researching a job changes the real game. In a backend game the two apps currently do nothing to it. Needs Ramy and Travis together.
+7. **Aidan's screens.** `assets/app` was removed in the tidy (commit `4d59a21`). The splash and character select are restored in `app/` from git history (`391db4d`). If Aidan has newer versions, `app/` only depends on `screens/screen.js` and the functions `main.js` imports.

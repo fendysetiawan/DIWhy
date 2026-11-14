@@ -1,9 +1,11 @@
 // The demo for the front door: splash, pick a character, sign the contract, click through the story,
 // pick the dryer (the plan's showpiece: smoke, dust, wall, beehive), answer the contractor.
 // It ends when the page moves on to the game, where pages/game.js takes over.
+//
+// Every element it touches is listed in ../selectors.js. Settings are in ../config.js.
 
-const OWNER = "gigi-singh";
-const PROJECT = "Replace the smoking dryer";
+import { DEMO } from "../config.js";
+import { SEL } from "../selectors.js";
 
 /** A loopy signature, as points from 0 to 1 across the signature box. */
 export function signature() {
@@ -18,32 +20,32 @@ export function signature() {
 
 export async function run(a) {
   // ---- splash: watch the logo for a moment, then click like a player would
-  await a.waitFor(".splash");
+  await a.waitFor(SEL.splash);
   await a.sleep(2300);
   await a.clickAnywhere();
 
   // ---- pick your diy-er: look around, choose, start
-  await a.waitFor(".select .pick");
+  await a.waitFor(`${SEL.select} ${SEL.pick}`);
   await a.sleep(700);
-  await a.hover('.pick[data-id="aidan-newsome"]');
-  await a.hover('.pick[data-id="rachel-katz"]');
-  await a.click(`.pick[data-id="${OWNER}"]`);
+  await a.hover(SEL.pickOf("aidan-newsome"));
+  await a.hover(SEL.pickOf("rachel-katz"));
+  await a.click(SEL.pickOf(DEMO.owner));
   await a.sleep(900);
-  await a.click(".select-start");
+  await a.click(SEL.selectStart);
 
   // ---- the contract: sign, then the green check
-  await a.waitFor(".deed-pad canvas");
+  await a.waitFor(SEL.deedPad);
   await a.sleep(1300);
-  await a.drag(".deed-pad canvas", signature());
+  await a.drag(SEL.deedPad, signature());
   await a.sleep(500);
-  await a.click(".deed-check");
+  await a.click(SEL.deedCheck);
 
   // ---- the story: read each line, click to go on, pick the project, answer the contractor
   for (;;) {
-    const [el, which] = await a.waitForAny([".choices .choice", ".reply-button", ".caption.ready:not(.choosing)"]);
+    const [el, which] = await a.waitForAny([SEL.choice, SEL.replyButton, SEL.captionReady]);
     if (which === 0) {
-      const options = [...document.querySelectorAll(".choices .choice")];
-      const wanted = options.find((b) => b.textContent.includes(PROJECT)) || options[0];
+      const options = [...document.querySelectorAll(SEL.choice)];
+      const wanted = options.find((b) => b.textContent.includes(DEMO.projectTitle)) || options[0];
       await a.sleep(900);
       for (const other of options.filter((b) => b !== wanted).slice(0, 2)) await a.hover(other);
       await a.click(wanted);
@@ -51,7 +53,7 @@ export async function run(a) {
       await a.sleep(1200); // let the quote sink in
       await a.click(el);
     } else {
-      const length = (document.querySelector(".caption-text")?.textContent || "").length;
+      const length = (document.querySelector(SEL.captionText)?.textContent || "").length;
       await a.sleep(Math.min(3200, 500 + length * 22)); // time to read it
       await a.clickAnywhere();
     }
