@@ -3,10 +3,21 @@
 // Nothing in here touches the DOM or randomness. State goes in, new state comes out.
 // That makes it easy to test and easy to hand to a different "director" later.
 
+// Defaults describe the original faucet job. A real game passes its project's contractor quote.
 export const ESTIMATE = 250; // what the faucet job "should" cost
 export const ESTIMATED_DAYS = 1; // ...and how long it "should" take
 export const BUDGET = 5000;
 export const MAX_DAYS = 30;
+
+/** With a contractor quote, the game ends at this multiple of the quote's money and days. */
+export const BUDGET_LIMIT_FACTOR = 2.5;
+export const DAYS_LIMIT_FACTOR = 3;
+
+/** The contractor's ORIGINAL quote. It is the baseline the player is judged against. */
+export interface Quote {
+  budget: number; // dollars
+  days: number;
+}
 
 export type FailureReason = 'budget' | 'time' | 'stress';
 
@@ -16,7 +27,12 @@ export interface LedgerEntry {
 }
 
 export interface GameState {
-  budget: number;
+  /** Short noun phrase for the job, used in the report: "wall removal", "dryer replacement". */
+  job: string;
+  /** What the contractor quoted. Never changes during a game. */
+  quote: Quote;
+  budget: number; // the hard limit: the game ends when spending reaches it
+  maxDays: number; // the hard limit: the game ends when the days pass it
   spent: number;
   daysElapsed: number;
   stress: number; // 0..100, game over at 100
@@ -33,7 +49,7 @@ export interface GameState {
   /** Number of unexpected problems so far (problem events + gambles that went wrong). */
   problems: number;
   ledger: LedgerEntry[];
-  completed: boolean; // the faucet got installed
+  completed: boolean; // the job got finished
   failure: FailureReason | null; // or the game ended badly
 }
 
@@ -51,9 +67,18 @@ export interface Effects {
   complete?: boolean; // renovation finished
 }
 
-export function createInitialState(): GameState {
+export interface StartOptions {
+  job?: string;
+  quote?: Quote;
+}
+
+export function createInitialState(opts: StartOptions = {}): GameState {
+  const quote = opts.quote ?? { budget: ESTIMATE, days: ESTIMATED_DAYS };
   return {
-    budget: BUDGET,
+    job: opts.job ?? 'faucet replacement',
+    quote,
+    budget: opts.quote ? Math.round(quote.budget * BUDGET_LIMIT_FACTOR) : BUDGET,
+    maxDays: opts.quote ? Math.ceil(quote.days * DAYS_LIMIT_FACTOR) : MAX_DAYS,
     spent: 0,
     daysElapsed: 0,
     stress: 0,
@@ -99,7 +124,7 @@ export function applyEffects(state: GameState, fx: Effects, label: string): Game
 export function checkEnd(state: GameState): GameState {
   let failure: FailureReason | null = null;
   if (state.spent >= state.budget) failure = 'budget';
-  else if (state.daysElapsed > MAX_DAYS) failure = 'time';
+  else if (state.daysElapsed > state.maxDays) failure = 'time';
   else if (state.stress >= 100) failure = 'stress';
   return failure ? { ...state, failure } : state;
 }

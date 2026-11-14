@@ -1,16 +1,19 @@
 // The backend's core. Transport-agnostic: HTTP, a CLI or a test can all call it the same way.
 //
-//   createGame()  -> start a game
-//   getGame()     -> look at it
-//   choose()      -> make a choice, then the director picks what happens next
-//   deleteGame()  -> throw it away
+//   listProjects()    the jobs a player can take on
+//   createGame()      start a game on one of them
+//   getGame()         look at it
+//   choose()          make a choice, then the director picks what happens next
+//   requestQuote()    ask the contractor for an updated quote
+//   payment()         answer the bank about the latest charge
+//   deleteGame()      throw it away
 //
-// Every method returns a GameView (see types.ts). Games are stored as plain JSON records, so
+// Every game method returns a GameView (see types.ts). Games are stored as plain JSON records, so
 // the service holds no per-game state in memory and can sit on any GameStore.
 
-import { EVENTS, FINALE } from '../data/events';
 import { JevDirector } from '../directors/JevDirector';
 import { readInfo, resetInfo } from '../directors/types';
+import { builtInProjects, type Project } from '../content/projects';
 import {
   MAX_EVENTS,
   applyChoice,
@@ -19,10 +22,13 @@ import {
   type EventDirector,
   type GameEvent,
 } from '../engine/EventEngine';
-import { MAX_DAYS, createInitialState, isOver } from '../engine/GameState';
+import { applyEffects, checkEnd, createInitialState, isOver } from '../engine/GameState';
+import { SERIOUS } from '../content/consequences';
 import { RandomDirector } from '../engine/RandomDirector';
 import { buildReport } from '../engine/report';
 import { createRng, type StatefulRng } from '../engine/rng';
+import { adviceFor } from './advice';
+import { CHARACTER_IDS, dealCast } from './cast';
 import { badRequest, conflict, notFound } from './errors';
 import { MemoryGameStore, type GameRecord, type GameStore } from './store';
 import type {
@@ -32,8 +38,12 @@ import type {
   EventView,
   GameView,
   HealthView,
+  PaymentRequest,
   PoolEntry,
+  ProjectView,
+  Quote,
   RequestOptions,
+  TaskView,
 } from './types';
 
 type FetchFn = (url: string, init: RequestInit) => Promise<Response>;
@@ -42,16 +52,27 @@ export interface ServiceOptions {
   store?: GameStore;
   /** Where the Jev model server lives. Leave out to disable the `jev` director. */
   jev?: { url: string; timeoutMs?: number; fetch?: FetchFn };
+  /**
+   * The playable projects. Pass a function to read them fresh for each new game, so edited event
+   * files apply without a restart. Defaults to the built-in bathroom project.
+   */
+  projects?: Project[] | (() => Project[]);
   now?: () => number;
   newId?: () => string;
 }
 
-const EVENT_BY_ID = new Map<string, GameEvent>([...EVENTS, FINALE].map((e) => [e.id, e]));
 const MAX_SEED = 4294967295;
+/** The partner is unhappy about the thing they care about being over the quote. */
+const PARTNER_NAG_STRESS = 4;
+/** Telling the bank "No, block it" about a real purchase costs a day and some nerves. */
+const BLOCKED_CARD_STRESS = 5;
+
+const round50 = (n: number) => Math.round(n / 50) * 50;
 
 export class GameService {
   private store: GameStore;
   private jev?: ServiceOptions['jev'];
+  private getProjects: () => Project[];
   private now: () => number;
   private newId: () => string;
   private locks = new Map<string, Promise<unknown>>();
@@ -59,12 +80,18 @@ export class GameService {
   constructor(opts: ServiceOptions = {}) {
     this.store = opts.store ?? new MemoryGameStore();
     this.jev = opts.jev;
+    const projects = opts.projects ?? builtInProjects();
+    this.getProjects = typeof projects === 'function' ? projects : () => projects;
     this.now = opts.now ?? Date.now;
     this.newId = opts.newId ?? (() => crypto.randomUUID());
   }
 
   health(): HealthView {
     return { status: 'ok', directors: { random: true, jev: Boolean(this.jev) } };
+  }
+
+  listProjects(): ProjectView[] {
+    return this.getProjects().map(({ id, title, job, blurb, fromPlan, quote }) => ({ id, title, job, blurb, fromPlan, quote }));
   }
 
   async createGame(req: CreateGameRequest = {}, opts: RequestOptions = {}): Promise<GameView> {
@@ -79,13 +106,27 @@ export class GameService {
     if (director === 'jev' && !this.jev) {
       throw badRequest('director_unavailable', 'the jev director is not configured on this server');
     }
+    if (req.owner !== undefined && !CHARACTER_IDS.includes(req.owner)) {
+      throw badRequest('invalid_owner', `owner must be one of: ${CHARACTER_IDS.join(', ')}`);
+    }
+    const projects = this.getProjects();
+    const project = req.project === undefined ? projects[seed % projects.length] : projects.find((p) => p.id === req.project);
+    if (!project) {
+      throw badRequest('invalid_project', `project must be one of: ${projects.map((p) => p.id).join(', ')}`);
+    }
 
     const now = this.now();
     const rec: GameRecord = {
       id: this.newId(),
       seed,
       director,
-      state: createInitialState(),
+      projectId: project.id,
+      cast: dealCast(seed, req.owner),
+      quoteCurrent: project.quote,
+      charge: null,
+      chargeSeq: 0,
+      outcome: null,
+      state: createInitialState({ job: project.job, quote: project.quote }),
       rngState: seed, // a fresh generator starts at its seed
       eventId: null,
       log: [],
@@ -94,42 +135,118 @@ export class GameService {
       createdAt: now,
       updatedAt: now,
     };
-    await this.pickNext(rec, createRng(rec.rngState));
+    await this.pickNext(rec, project, createRng(rec.rngState));
     await this.store.set(rec);
-    return this.toView(rec, opts);
+    return this.toView(rec, project, opts);
   }
 
   async getGame(id: string, opts: RequestOptions = {}): Promise<GameView> {
-    return this.toView(await this.load(id), opts);
+    const rec = await this.load(id);
+    return this.toView(rec, this.projectOf(rec), opts);
   }
 
   async choose(id: string, req: ChooseRequest, opts: RequestOptions = {}): Promise<GameView> {
     return this.withLock(id, async () => {
       const rec = await this.load(id);
+      const project = this.projectOf(rec);
       if (isOver(rec.state) || !rec.eventId) throw conflict('game_over', 'this game has ended');
       if (req.eventId !== undefined && req.eventId !== rec.eventId) {
         throw conflict('stale_event', `the current event is "${rec.eventId}", not "${req.eventId}"`);
       }
-      const event = EVENT_BY_ID.get(rec.eventId)!;
+      const event = this.eventOf(project, rec.eventId);
       if (!Number.isInteger(req.choice) || req.choice < 0 || req.choice >= event.choices.length) {
         throw badRequest('invalid_choice', `choice must be an integer from 0 to ${event.choices.length - 1}`);
       }
 
+      const before = rec.state;
       const rng = createRng(rec.rngState);
-      const result = applyChoice(rec.state, event, req.choice, rng);
-      rec.state = result.state;
+      const result = applyChoice(before, event, req.choice, rng);
+      let next = result.state;
       rec.log = [...result.log.slice().reverse(), ...rec.log].slice(0, 12);
 
-      if (isOver(rec.state)) {
-        rec.eventId = null;
-        rec.last = { pool: [], forced: false };
-        rec.rngState = rng.state();
+      // The partner is unhappy while the thing they care about is over the contractor's quote.
+      let partnerNagged = false;
+      if (!isOver(next)) {
+        const over = rec.cast.partnerFocus === 'budget' ? next.spent > next.quote.budget : next.daysElapsed > next.quote.days;
+        if (over) {
+          next = checkEnd(applyEffects(next, { stress: PARTNER_NAG_STRESS }, 'The partner'));
+          partnerNagged = true;
+        }
+      }
+      rec.state = next;
+
+      // Anything that cost money is a charge the bank will ask the player about.
+      const cost = next.spent - before.spent;
+      const choice = event.choices[req.choice];
+      rec.charge = cost > 0 ? { id: ++rec.chargeSeq, amount: cost, what: choice.label.toLowerCase(), status: 'pending' } : null;
+      rec.outcome = {
+        eventId: event.id,
+        choice: req.choice,
+        quality: choice.quality ?? null,
+        blewUp: result.gambleHit,
+        cost: Math.max(0, cost),
+        days: next.daysElapsed - before.daysElapsed,
+        partnerNagged,
+      };
+
+      if (isOver(next)) {
+        this.endGame(rec, rng);
       } else {
-        await this.pickNext(rec, rng);
+        await this.pickNext(rec, project, rng);
       }
       rec.updatedAt = this.now();
       await this.store.set(rec);
-      return this.toView(rec, opts);
+      return this.toView(rec, project, opts);
+    });
+  }
+
+  /** The contractor re-quotes. They only ever go up, as problems turn up. The original never changes. */
+  async requestQuote(id: string, opts: RequestOptions = {}): Promise<GameView> {
+    return this.withLock(id, async () => {
+      const rec = await this.load(id);
+      const project = this.projectOf(rec);
+      const { quote, problems } = rec.state;
+      const asked: Quote = {
+        budget: round50(quote.budget * (1 + 0.12 * problems)),
+        days: quote.days + Math.ceil(problems * 0.5),
+      };
+      rec.quoteCurrent = {
+        budget: Math.max(rec.quoteCurrent.budget, asked.budget),
+        days: Math.max(rec.quoteCurrent.days, asked.days),
+      };
+      rec.updatedAt = this.now();
+      await this.store.set(rec);
+      return this.toView(rec, project, opts);
+    });
+  }
+
+  /**
+   * Answer the bank about the latest charge. Confirming changes nothing. Blocking your own card
+   * costs a day and some nerves; the charge still stands. Answering twice does nothing more.
+   */
+  async payment(id: string, req: PaymentRequest, opts: RequestOptions = {}): Promise<GameView> {
+    return this.withLock(id, async () => {
+      const rec = await this.load(id);
+      const project = this.projectOf(rec);
+      if (typeof req.confirm !== 'boolean') throw badRequest('invalid_payment', 'confirm must be true or false');
+      const charge = rec.charge;
+      if (!charge || charge.id !== req.chargeId) {
+        throw conflict('stale_charge', 'that charge is not the latest one');
+      }
+      if (charge.status === 'pending') {
+        if (req.confirm) {
+          charge.status = 'confirmed';
+        } else {
+          charge.status = 'blocked';
+          rec.log = ['Your bank blocked the card. Sorting it out cost a day.', ...rec.log].slice(0, 12);
+          const wasOver = isOver(rec.state);
+          rec.state = checkEnd(applyEffects(rec.state, { days: 1, stress: BLOCKED_CARD_STRESS }, 'Card blocked'));
+          if (!wasOver && isOver(rec.state)) this.endGame(rec, createRng(rec.rngState));
+        }
+      }
+      rec.updatedAt = this.now();
+      await this.store.set(rec);
+      return this.toView(rec, project, opts);
     });
   }
 
@@ -143,6 +260,24 @@ export class GameService {
     const rec = await this.store.get(id);
     if (!rec) throw notFound('game_not_found', `no game with id "${id}"`);
     return rec;
+  }
+
+  private projectOf(rec: GameRecord): Project {
+    const project = this.getProjects().find((p) => p.id === rec.projectId);
+    if (!project) throw conflict('project_changed', `the project "${rec.projectId}" is no longer available; start a new game`);
+    return project;
+  }
+
+  private eventOf(project: Project, id: string): GameEvent {
+    const event = id === project.finale.id ? project.finale : project.events.find((e) => e.id === id);
+    if (!event) throw conflict('project_changed', `the event "${id}" no longer exists; start a new game`);
+    return event;
+  }
+
+  private endGame(rec: GameRecord, rng: StatefulRng): void {
+    rec.eventId = null;
+    rec.last = { pool: [], forced: false };
+    rec.rngState = rng.state();
   }
 
   /** One game handles one request at a time, so a slow model call can't be raced by a double click. */
@@ -165,15 +300,15 @@ export class GameService {
   }
 
   /** Ask the director what happens next and record how it decided. Saves the RNG position. */
-  private async pickNext(rec: GameRecord, rng: StatefulRng): Promise<void> {
+  private async pickNext(rec: GameRecord, project: Project, rng: StatefulRng): Promise<void> {
     const director = this.makeDirector(rec.director, rng);
     resetInfo(director);
     const state = rec.state;
-    const candidates = eligibleEvents(state, EVENTS);
-    const event = await nextEvent(state, EVENTS, director, FINALE);
+    const candidates = eligibleEvents(state, project.events);
+    const event = await nextEvent(state, project.events, director, project.finale);
 
     // A forced finale never asks the director, so anything it reports would be stale.
-    const forced = event === FINALE;
+    const forced = event === project.finale;
     const info = forced ? undefined : readInfo(director);
 
     const total = candidates.reduce((sum, e) => sum + Math.max(0, e.weight(state)), 0);
@@ -195,22 +330,37 @@ export class GameService {
     rec.rngState = rng.state();
   }
 
+  /** The post-it: what has come up so far, then what is on the table now, then the last step. */
+  private tasks(rec: GameRecord, project: Project, current: GameEvent | undefined): TaskView[] {
+    const byId = new Map([...project.events, project.finale].map((e) => [e.id, e]));
+    const priority = (e: GameEvent): TaskView['priority'] =>
+      e.kind === 'temptation' ? 'normal' : e.category && SERIOUS.has(e.category) ? 'urgent' : 'high';
+    const done = rec.state.eventHistory
+      .filter((id) => id !== project.finale.id)
+      .slice(-4)
+      .map((id) => byId.get(id))
+      .filter((e): e is GameEvent => Boolean(e))
+      .map((e): TaskView => ({ id: e.id, title: e.title, priority: priority(e), done: true }));
+    const now: TaskView[] =
+      current && current.id !== project.finale.id ? [{ id: current.id, title: current.title, priority: priority(current), done: false }] : [];
+    const last: TaskView = { id: project.finale.id, title: `Finish the ${project.job}`, priority: 'normal', done: rec.state.completed };
+    return [...done, ...now, last];
+  }
+
   /** Record -> the JSON a front end gets. Hidden consequences (effects, gambles, weights) stay out. */
-  private toView(rec: GameRecord, opts: RequestOptions): GameView {
+  private toView(rec: GameRecord, project: Project, opts: RequestOptions): GameView {
     const s = rec.state;
-    const event = rec.eventId ? EVENT_BY_ID.get(rec.eventId) : undefined;
+    const event = rec.eventId ? this.eventOf(project, rec.eventId) : undefined;
+    const advice = event ? adviceFor(event, rec.seed) : null;
     const eventView: EventView | null = event
       ? {
           id: event.id,
           kind: event.kind,
           title: event.title,
           description: event.description,
-          choices: event.choices.map((c, index) => ({
-            index,
-            label: c.label,
-            cost: c.effects.cost ?? 0,
-            days: c.effects.days ?? 0,
-          })),
+          category: event.category ?? null,
+          choices: event.choices.map((c, index) => ({ index, label: c.label, cost: null, days: null })),
+          advice: advice ? { from: advice.from, pick: advice.pick } : null,
         }
       : null;
 
@@ -218,13 +368,19 @@ export class GameService {
       id: rec.id,
       seed: rec.seed,
       director: rec.director,
+      project: { id: project.id, title: project.title, job: project.job },
+      cast: rec.cast,
+      quote: { original: s.quote, current: rec.quoteCurrent },
+      tasks: this.tasks(rec, project, event),
+      charge: rec.charge,
+      outcome: rec.outcome,
       status: s.failure ? 'failed' : s.completed ? 'complete' : 'playing',
       failure: s.failure,
       stats: {
         budget: s.budget,
         spent: s.spent,
         daysElapsed: s.daysElapsed,
-        maxDays: MAX_DAYS,
+        maxDays: s.maxDays,
         stress: s.stress,
         riskDebt: s.riskDebt,
         problems: s.problems,
@@ -235,7 +391,13 @@ export class GameService {
       report: isOver(s) ? buildReport(s) : null,
     };
     if (opts.debug) {
-      view.debug = { state: s, maxEvents: MAX_EVENTS, decisions: rec.decisions, last: rec.last };
+      view.debug = {
+        state: s,
+        maxEvents: MAX_EVENTS,
+        decisions: rec.decisions,
+        last: rec.last,
+        adviceReliable: advice ? advice.reliable : null,
+      };
     }
     return view;
   }

@@ -1,14 +1,20 @@
 // Where games live between requests. The service only talks to the GameStore interface,
 // so swapping memory for a database means writing one small class.
 
-import type { GameState } from '../engine/GameState';
-import type { DecisionRecord, DirectorName, LastDecision } from './types';
+import type { GameState, Quote } from '../engine/GameState';
+import type { Cast, ChargeView, DecisionRecord, DirectorName, LastDecision, OutcomeView } from './types';
 
 /** Everything needed to resume a game. Plain JSON, so any store can persist it as-is. */
 export interface GameRecord {
   id: string;
   seed: number;
   director: DirectorName;
+  projectId: string;
+  cast: Cast;
+  quoteCurrent: Quote; // what the contractor last told the player
+  charge: ChargeView | null; // the latest charge awaiting the bank
+  chargeSeq: number;
+  outcome: OutcomeView | null; // what the last choice did
   state: GameState;
   rngState: number; // createRng(rngState) continues the exact random sequence
   eventId: string | null; // the event on screen, null once the game is over

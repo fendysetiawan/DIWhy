@@ -37,12 +37,12 @@ function statusBar(g: GameView): string {
   </header>`;
 }
 
-/** "$180, 1 day" or "free". Risk and stress stay hidden on purpose. */
+/** "$180, 1 day" when the backend shows prices. Most games hide them: nobody quotes a DIY fix. */
 function hint(c: ChoiceView): string {
+  if (c.cost === null && c.days === null) return '';
   const parts: string[] = [];
-  if (c.cost > 0) parts.push(money(c.cost));
-  if (c.cost < 0) parts.push(`refund ${money(-c.cost)}`);
-  if (c.days > 0) parts.push(`${c.days} day${c.days === 1 ? '' : 's'}`);
+  if (c.cost) parts.push(c.cost > 0 ? money(c.cost) : `refund ${money(-c.cost)}`);
+  if (c.days) parts.push(`${c.days} day${c.days === 1 ? '' : 's'}`);
   return parts.length ? parts.join(', ') : 'free';
 }
 

@@ -2,8 +2,9 @@
 //
 //   engine, data   pure rules; know nothing else
 //   directors      pick events (random, Jev); use the engine
-//   service        the backend core; uses engine, data, directors
-//   server         HTTP and Node adapters; use the service only
+//   content        turns the team's event files into engine events (pure: takes text, not files)
+//   service        the backend core; uses engine, data, directors, content
+//   server         HTTP, Node and file access; use the service and content layers
 //   client, ui, dev, main   the front end. It may use ONLY the JSON contract, as types
 //                  (service/types), so a different front end can replace it. Dev tools are
 //                  loaded lazily and only through main.
@@ -40,8 +41,9 @@ const allowed: Record<string, string[]> = {
   engine: ['engine'],
   data: ['engine', 'data'],
   directors: ['engine', 'directors'],
-  service: ['engine', 'data', 'directors', 'service'],
-  server: ['service', 'server'],
+  content: ['engine', 'data', 'content'],
+  service: ['engine', 'data', 'directors', 'content', 'service'],
+  server: ['service', 'content', 'server'],
   client: ['client'],
   ui: ['ui'],
   dev: ['dev', 'ui'],
@@ -53,7 +55,7 @@ const FRONT_END = new Set(['client', 'ui', 'dev', 'devHost', 'main', 'style']);
 describe('layering', () => {
   it('sees the files it is supposed to check', () => {
     const layers = new Set(source.map(([p]) => layerOf(p)));
-    for (const l of ['engine', 'data', 'directors', 'service', 'server', 'client', 'ui', 'dev', 'main']) {
+    for (const l of ['engine', 'data', 'directors', 'content', 'service', 'server', 'client', 'ui', 'dev', 'main']) {
       expect(layers.has(l), `no files found in ${l}`).toBe(true);
     }
   });

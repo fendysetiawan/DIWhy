@@ -1,5 +1,5 @@
 import type { GameEvent } from '../engine/EventEngine';
-import { ESTIMATE, ESTIMATED_DAYS, MAX_DAYS, type GameState } from '../engine/GameState';
+import type { GameState } from '../engine/GameState';
 import type { Rng } from '../engine/rng';
 import type { DirectorInfo, InspectableDirector } from './types';
 
@@ -27,9 +27,9 @@ export function describeState(state: GameState, candidates: GameEvent[]): string
   const flags = [...new Set(state.flags)];
   const yesNo = (b: boolean) => (b ? 'yes' : 'no');
   return [
-    `DIWhy, a comedy game about do-it-yourself home renovation. The player set out to replace a ` +
-      `bathroom faucet themselves (estimate $${ESTIMATE}, ${ESTIMATED_DAYS} day) and every decision snowballs.`,
-    `So far: spent $${state.spent} of a $${state.budget} budget, ${state.daysElapsed} of ${MAX_DAYS} days, ` +
+    `DIWhy, a comedy game about do-it-yourself home renovation. The player turned down a contractor's ` +
+      `quote ($${state.quote.budget}, ${state.quote.days} days) to do a ${state.job} themselves, and every decision snowballs.`,
+    `So far: spent $${state.spent} (the game ends at $${state.budget}), ${state.daysElapsed} days (it ends after ${state.maxDays}), ` +
       `stress ${state.stress}/100, risk debt ${state.riskDebt} (shortcuts raise it, and high risk makes disasters likelier).`,
     `House: plumbing ${state.house.plumbingCondition}/100, electrical ${state.house.electricalCondition}/100, ` +
       `water damage: ${yesNo(state.house.waterDamage)}.`,

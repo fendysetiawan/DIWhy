@@ -37,7 +37,10 @@ describe('createGame', () => {
     expect(v.seed).toBe(42);
     expect(v.director).toBe('random');
     expect(v.event?.id).toBe('valve-stuck');
-    expect(v.stats).toMatchObject({ spent: 0, daysElapsed: 0, stress: 0, riskDebt: 0, budget: 5000, maxDays: 30 });
+    // The bathroom project's contractor quote is $3,500 and 10 days. The game ends at 2.5 times the
+    // money and 3 times the days.
+    expect(v.quote).toEqual({ original: { budget: 3500, days: 10 }, current: { budget: 3500, days: 10 } });
+    expect(v.stats).toMatchObject({ spent: 0, daysElapsed: 0, stress: 0, riskDebt: 0, budget: 8750, maxDays: 30 });
     expect(v.report).toBeNull();
     expect(v.failure).toBeNull();
   });
@@ -58,10 +61,10 @@ describe('createGame', () => {
 });
 
 describe('what a front end is allowed to see', () => {
-  it('shows choices as label, cost and days only', async () => {
+  it('shows choices as a label only: nobody quotes a DIY fix, so prices and days are hidden', async () => {
     const v = await svc().createGame({ seed: 1 });
     for (const c of v.event!.choices) expect(Object.keys(c).sort()).toEqual(['cost', 'days', 'index', 'label']);
-    expect(v.event!.choices[1]).toMatchObject({ label: 'Replace the valve', cost: 180, days: 1 });
+    expect(v.event!.choices[1]).toEqual({ index: 1, label: 'Replace the valve', cost: null, days: null });
   });
 
   it('never leaks hidden consequences or internals unless debug is asked for', async () => {

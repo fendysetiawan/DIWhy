@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "play": "vite build --ssr src/server/play.ts --outDir dist-server && node dist-server/play.js",
     "dev": "vite",
     "api": "vite build --ssr src/server/index.ts --outDir dist-server && node dist-server/index.js",
     "build": "tsc && vite build",

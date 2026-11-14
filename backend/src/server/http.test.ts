@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { ApiErrorBody, GameView } from '../service/types';
 import { GameService } from '../service/GameService';
 import { appWithFakeModel } from '../testing';
+import { realProjects } from '../testing';
 import { createApp } from './app';
 import { createHttpHandler, type Handler } from './http';
 
@@ -72,6 +73,54 @@ describe('routes', () => {
 
   it('tolerates a trailing slash', async () => {
     expect((await call(createApp().handler, 'GET', '/api/health/')).status).toBe(200);
+  });
+});
+
+describe('projects, quote and payments', () => {
+  const real = () => createApp({ projects: realProjects() }).handler;
+
+  it('GET /api/projects lists the jobs with their contractor quotes', async () => {
+    const r = await call(real(), 'GET', '/api/projects');
+    expect(r.status).toBe(200);
+    const { projects } = (await r.json()) as { projects: Array<{ id: string; quote: { budget: number } }> };
+    expect(projects).toHaveLength(6);
+    expect(projects[0]).toMatchObject({ id: 'wall-removal', quote: { budget: 10000 } });
+  });
+
+  it('POST /api/games takes a project and an owner and returns the cast', async () => {
+    const r = await call(real(), 'POST', '/api/games', { seed: 3, project: 'dryer-replacement', owner: 'gigi-singh' });
+    expect(r.status).toBe(201);
+    const v = await view(r);
+    expect(v.project.id).toBe('dryer-replacement');
+    expect(v.cast.owner).toBe('gigi-singh');
+    expect(Object.keys(v.cast.roles).sort()).toEqual(['clerk', 'contractor', 'friend', 'neighbor', 'parent', 'partner']);
+  });
+
+  it('POST /quote and POST /payments work, and bad input gets stable errors', async () => {
+    const handler = real();
+    let v = await view(await call(handler, 'POST', '/api/games', { seed: 12, project: 'wall-removal' }));
+    for (let i = 0; i < 12 && !v.charge; i++) {
+      v = await view(await call(handler, 'POST', `/api/games/${v.id}/choices`, { choice: 1, eventId: v.event!.id }));
+    }
+    const quote = await call(handler, 'POST', `/api/games/${v.id}/quote`);
+    expect(quote.status).toBe(200);
+    expect((await view(quote)).quote.original).toEqual({ budget: 10000, days: 14 });
+
+    const paid = await call(handler, 'POST', `/api/games/${v.id}/payments`, { chargeId: v.charge!.id, confirm: true });
+    expect((await view(paid)).charge!.status).toBe('confirmed');
+
+    const stale = await call(handler, 'POST', `/api/games/${v.id}/payments`, { chargeId: 999, confirm: true });
+    expect(stale.status).toBe(409);
+    expect((await err(stale)).code).toBe('stale_charge');
+    const bad = await call(handler, 'POST', `/api/games/${v.id}/payments`, { chargeId: v.charge!.id, confirm: 'maybe' });
+    expect(bad.status).toBe(400);
+    expect((await err(bad)).code).toBe('invalid_payment');
+
+    for (const [path, method] of [['/api/projects', 'POST'], [`/api/games/${v.id}/quote`, 'GET'], [`/api/games/${v.id}/payments`, 'GET']]) {
+      expect((await call(handler, method, path)).status, `${method} ${path}`).toBe(405);
+    }
+    expect((await err(await call(handler, 'POST', '/api/games', { project: 'nope' }))).code).toBe('invalid_project');
+    expect((await err(await call(handler, 'POST', '/api/games', { owner: 'nobody' }))).code).toBe('invalid_owner');
   });
 });
 

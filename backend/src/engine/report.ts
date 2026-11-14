@@ -1,7 +1,7 @@
 // Turns a finished game into the end-of-game report and a humorous achievement.
 // Pure functions, no DOM.
 
-import { ESTIMATE, ESTIMATED_DAYS, MAX_DAYS, flagCount, type GameState } from './GameState';
+import { flagCount, type GameState } from './GameState';
 
 export interface Report {
   estimate: number;
@@ -19,8 +19,9 @@ export interface Report {
 const money = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 
 export function buildReport(s: GameState): Report {
-  const fever = flagCount(s, 'upgrade-fever');
-  const overrunPct = Math.round(((s.spent - ESTIMATE) / ESTIMATE) * 100);
+  const quote = s.quote;
+  const fever = flagCount(s, 'upgrade-fever') + flagCount(s, 'scope-creep');
+  const overrunPct = Math.round(((s.spent - quote.budget) / quote.budget) * 100);
 
   let outcome: string;
   let why: string;
@@ -34,32 +35,32 @@ export function buildReport(s: GameState): Report {
       text: 'Your stress hit 100 before your faucet hit the sink.',
     };
   } else if (s.failure === 'budget') {
-    outcome = `The ${money(s.budget)} budget ran out before the faucet went in.`;
+    outcome = `The ${money(s.budget)} limit ran out before the ${s.job} was done.`;
     why = 'To save money. The irony is not lost on anyone.';
     achievement = {
       title: 'Financially renovated',
-      text: `You turned a ${money(ESTIMATE)} faucet replacement into a ${money(s.spent)} money pit. Without a working faucet.`,
+      text: `You turned the contractor's ${money(quote.budget)} ${s.job} into a ${money(s.spent)} money pit. And it still isn't done.`,
     };
   } else if (s.failure === 'time') {
-    outcome = `${MAX_DAYS} days came and went. The faucet is still in its box.`;
+    outcome = `${s.maxDays} days came and went. The ${s.job} is still not done.`;
     why = 'The video said it would take one day.';
     achievement = {
       title: 'Is it done yet?',
       text: 'Somewhere, a contractor is "just finishing up". He has been for a month.',
     };
-  } else if (s.spent <= 400 && s.daysElapsed <= 3) {
-    outcome = 'The faucet is in, and so is your dignity.';
+  } else if (s.spent <= quote.budget && s.daysElapsed <= quote.days) {
+    outcome = 'The job is done, and so is your dignity.';
     why = 'Because, for once, it really was a good idea.';
     achievement = {
-      title: 'Against all odds',
-      text: 'You actually finished on budget. Please buy a lottery ticket.',
+      title: 'Beat the contractor',
+      text: `You finished under the contractor's ${money(quote.budget)} and ${quote.days} days. They'd like to know your secret.`,
     };
   } else if (fever >= 3) {
-    outcome = 'The faucet is in. So is almost everything else.';
+    outcome = 'The job is done. So is almost everything else.';
     why = '"While we\'re at it" is a powerful phrase.';
     achievement = {
       title: "While we're at it...",
-      text: `You turned a ${money(ESTIMATE)} faucet replacement into a ${money(s.spent)} bathroom renovation.`,
+      text: `You turned the contractor's ${money(quote.budget)} ${s.job} into a ${money(s.spent)} whole-house renovation.`,
     };
   } else if (s.riskDebt >= 50) {
     outcome = 'It works. For now.';
@@ -69,7 +70,7 @@ export function buildReport(s: GameState): Report {
       text: 'Everything is held together by optimism. Do not look behind the wall.',
     };
   } else {
-    outcome = 'The faucet is in and the bathroom survived.';
+    outcome = 'The job is done and the house survived.';
     why = 'How hard could it be?';
     achievement = {
       title: 'The optimist',
@@ -78,9 +79,9 @@ export function buildReport(s: GameState): Report {
   }
 
   return {
-    estimate: ESTIMATE,
+    estimate: quote.budget,
     actualCost: s.spent,
-    plannedDays: ESTIMATED_DAYS,
+    plannedDays: quote.days,
     actualDays: s.daysElapsed,
     overrunPct,
     problems: s.problems,

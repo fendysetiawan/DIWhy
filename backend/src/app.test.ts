@@ -79,7 +79,7 @@ describe('the front end with dev mode off (the default)', () => {
     document.querySelector<HTMLButtonElement>('#restart')!.click();
     await settle();
     expect(document.querySelector('.report-card')).toBeNull();
-    expect(text()).not.toContain('seed 7');
+    expect(text()).not.toMatch(/seed 7\b/); // a new seed, not 7 (a bare 'seed 7' would match 'seed 71234')
   });
 
   it('says so when the server cannot be reached, and recovers on retry', async () => {

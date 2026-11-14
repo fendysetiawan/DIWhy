@@ -14,8 +14,19 @@ import type { Rng } from './rng';
 
 export type EventKind = 'problem' | 'temptation' | 'humor' | 'finale';
 
+/**
+ * How good an answer is, from the team's event files (`answer_key`):
+ *   good       the sensible fix
+ *   ok         acceptable, a little rough
+ *   wrong      a shortcut that bites later
+ *   excessive  far more than the problem needs
+ */
+export type Quality = 'good' | 'ok' | 'wrong' | 'excessive';
+
 export interface Choice {
   label: string;
+  /** How good this answer is. Powers NPC advice and the consequences. Optional for older events. */
+  quality?: Quality;
   /** Effects that always happen. */
   effects: Effects;
   /** Flavor text shown in the history log. */
@@ -33,6 +44,8 @@ export interface GameEvent {
   kind: EventKind;
   title: string;
   description: string;
+  /** What kind of trouble this is: "plumbing", "structural", ... Optional for older events. */
+  category?: string;
   /** Hard rule: can this event happen right now? (Prerequisites live here.) */
   eligible: (state: GameState) => boolean;
   /** Soft rule: how likely is it relative to other eligible events? (Risk debt lives here.) */

@@ -31,7 +31,7 @@ function director(fetchFn: ReturnType<typeof fakeFetch>['fn'], seed = 1) {
 describe('describeState', () => {
   it('tells the model the numbers, the history and every candidate', () => {
     const text = describeState({ ...state, spent: 180, flags: ['wall-open', 'wall-open'] }, candidates);
-    expect(text).toContain('spent $180 of a $5000 budget');
+    expect(text).toContain('spent $180 (the game ends at $5000)');
     expect(text).toContain('wall-open'); // once, flags are de-duplicated
     expect(text.match(/wall-open/g)).toHaveLength(1);
     expect(text).toContain('Events so far, in order: valve-stuck');

@@ -1,8 +1,19 @@
 // Test support (not part of the game). Fakes for the model server and a way to run the real
 // backend in-process so UI tests need no network.
 
+import { readFileSync, readdirSync } from 'node:fs';
+import { buildProjects, type Project } from './content/projects';
 import { createApp, type App, type AppOptions } from './server/app';
 import type { Handler } from './server/http';
+
+/** The six real projects, built from the team's actual events/*.csv. */
+export function realProjects(): Project[] {
+  const dir = new URL('../../events/', import.meta.url);
+  const files = Object.fromEntries(
+    readdirSync(dir).filter((f) => f.endsWith('.csv')).map((f) => [f, readFileSync(new URL(f, dir), 'utf8')]),
+  );
+  return buildProjects(files);
+}
 
 /** A fake Jev model server: gives every option in the request an equal chance. */
 export function fakeModel() {

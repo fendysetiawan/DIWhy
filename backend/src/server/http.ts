@@ -2,16 +2,19 @@
 // That means it runs unchanged in Node, in Vite's dev server, in a Worker, or in a test.
 //
 //   GET    /api/health
-//   POST   /api/games              { seed?, director? }       -> 201 GameView
+//   GET    /api/projects                                       -> { projects }
+//   POST   /api/games              { seed?, project?, owner?, director? }  -> 201 GameView
 //   GET    /api/games/:id                                      -> GameView
 //   POST   /api/games/:id/choices  { choice, eventId? }       -> GameView
+//   POST   /api/games/:id/quote                                -> GameView (contractor re-quotes)
+//   POST   /api/games/:id/payments { chargeId, confirm }      -> GameView (answer the bank)
 //   DELETE /api/games/:id                                      -> 204
 //
 // Add ?debug=1 to any game request to include the `debug` payload. See API.md.
 
 import { ServiceError } from '../service/errors';
 import type { GameService } from '../service/GameService';
-import type { ApiErrorBody, ChooseRequest, CreateGameRequest } from '../service/types';
+import type { ApiErrorBody, ChooseRequest, CreateGameRequest, PaymentRequest } from '../service/types';
 
 export interface HttpOptions {
   /** Value for Access-Control-Allow-Origin. Use "*" for any site, or one origin. Omit to disable CORS. */
@@ -75,6 +78,11 @@ export function createHttpHandler(service: GameService, opts: HttpOptions = {}):
         return json(service.health());
       }
 
+      if (path === '/api/projects') {
+        if (method !== 'GET') return error(405, 'method_not_allowed', 'use GET', { Allow: 'GET, OPTIONS' });
+        return json({ projects: service.listProjects() });
+      }
+
       if (path === '/api/games') {
         if (method !== 'POST') return error(405, 'method_not_allowed', 'use POST', { Allow: 'POST, OPTIONS' });
         const view = await service.createGame((await readBody(req)) as CreateGameRequest, { debug });
@@ -92,11 +100,14 @@ export function createHttpHandler(service: GameService, opts: HttpOptions = {}):
         return error(405, 'method_not_allowed', 'use GET or DELETE', { Allow: 'GET, DELETE, OPTIONS' });
       }
 
-      const choices = path.match(/^\/api\/games\/([^/]+)\/choices$/);
-      if (choices) {
+      const action = path.match(/^\/api\/games\/([^/]+)\/(choices|quote|payments)$/);
+      if (action) {
         if (method !== 'POST') return error(405, 'method_not_allowed', 'use POST', { Allow: 'POST, OPTIONS' });
-        const body = (await readBody(req)) as Partial<ChooseRequest>;
-        return json(await service.choose(decodeURIComponent(choices[1]), body as ChooseRequest, { debug }));
+        const id = decodeURIComponent(action[1]);
+        const body = await readBody(req);
+        if (action[2] === 'choices') return json(await service.choose(id, body as unknown as ChooseRequest, { debug }));
+        if (action[2] === 'quote') return json(await service.requestQuote(id, { debug }));
+        return json(await service.payment(id, body as unknown as PaymentRequest, { debug }));
       }
 
       return error(404, 'not_found', `no route for ${method} ${path}`);
