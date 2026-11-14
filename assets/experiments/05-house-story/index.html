@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DIWHY?!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<!-- The story: the house, the deed, SOLD -->
+<div id="story" hidden>
+  <div class="stage">
+    <div class="camera">
+      <img class="house" src="assets/house-sold.png" alt="A tired old two-storey wooden house with a porch, under big trees, with a stone path leading up to it" />
+      <div class="sold-sticker" aria-hidden="true">SOLD</div>
+    </div>
+  </div>
+  <div class="caption" aria-live="polite">
+    <p class="caption-text"></p>
+    <span class="caption-next" aria-hidden="true">&#9654;</span>
+  </div>
+</div>
+
+<!-- The deed: an old paper (assets/deed-paper.png) with the words, signature and button on top -->
+<div class="deed-backdrop" id="deed" hidden>
+  <div class="deed" role="dialog" aria-label="Deed for the house">
+    <h2 class="deed-title">Deed for the House</h2>
+    <p class="deed-price">$750,000</p>
+    <p class="deed-line l1">The buyer agrees to take the house</p>
+    <p class="deed-line l2">exactly as it is, with everything in it,</p>
+    <p class="deed-line l3">and everything living in it.</p>
+    <span class="deed-label">Sign here</span>
+    <div class="deed-pad">
+      <canvas aria-label="Signature box: draw your signature"></canvas>
+    </div>
+    <button class="deed-start" type="button" disabled>Start</button>
+  </div>
+</div>
+
+  <script src="deed.js"></script>
+  <script src="story.js"></script>
+</body>
+</html>

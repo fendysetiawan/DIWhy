@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 52 36" width="520" height="360" shape-rendering="crispEdges" role="img" aria-label="DIWhy cat, eating">
+<path fill="#24382B" opacity=".2" d="M5 30h38v1H5z"/>
+<g><path fill="#191420" d="M10 23H5v-7H3v-4H1v5h2v8h7z"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -1;0 0" dur="1.5s" repeatCount="indefinite"/></g>
+<path fill="#191420" d="M9 19h20v7h-5v4h-3v-5H14v5h-3v-5H9z"/><path fill="#352C39" d="M13 20h9v1h-9z"/>
+<g transform="translate(-5 3)"><g><path fill="#191420" d="M26 21v-8h2V5h3v2h3v3h5V8h2V5h3v2h1v6h1v7h-2v4H29v-3z"/><path fill="#74515f" d="M30 8h1v3h-1zM42 8h1v4h-2v-2h1z"/><path fill="#504353" d="M14 21h3v-1h5v1h-5v1h-3zM31 12h5v1h-5zM36 11h4v1h-4z"/><path fill="#f9ae3b" d="M30 15h4v3h-3v-1h-1zM38 15h5v2h-1v1h-4z"/><path fill="#191420" d="M32 15h1v3h-1zM40 15h1v3h-1zM35 18h2v1h-2z"/><path fill="#f7e8d1" d="M31 15h1v1h-1zM39 15h1v1h-1z"/><path fill="#19447F" d="M28 20h3v1h11v-1h2v4h-2v1h-4v1h-3v-1h-2v-1h-3v-2h-2z"/><path fill="#337EDB" d="M30 21h4v1h7v-1h2v2h-2v1h-4v1h-2v-1h-3v-1h-2z"/><path fill="#FFFFFF" d="M31 21h1v1h-1zM34 22h1v1h-1zM38 22h1v1h-1zM41 21h1v1h-1zM36 24h1v1h-1zM40 23h1v1h-1z"/><path fill="#352C39" d="M30 15h4v3h-4zM38 15h5v3h-5z" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.82;.86;.9;1" dur="3s" repeatCount="indefinite"/></path><animateTransform attributeName="transform" type="translate" values="0 0;0 2;0 0" dur="0.55s" repeatCount="indefinite"/></g></g>
+<path fill="#587142" d="M34 27h13l-2 4h-9z"/><path fill="#F9AE3B" d="M36 26h9v1h-9z"/>
+</svg>
+
+
