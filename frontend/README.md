@@ -42,4 +42,4 @@ The page runs a demo loop: messages arrive every ~10 seconds, time and budget cr
 
 **Working on the graphics? Read [GRAPHICS.md](GRAPHICS.md) first:** pixel scale, palette, drawing rules, sprite format and a checklist.
 
-Follows the ramymaher.com style guide: system font, calm colours, the house easing curve `cubic-bezier(.65,0,.25,1)`, round buttons and pill chips, light and dark themes, and `prefers-reduced-motion` turns the motion off.
+The interface uses the system font, dark grey ink with few colours (teal, gold and red as accents), round buttons and pill-shaped chips with soft shadows, light and dark themes that follow the computer's setting, and one easing curve, `cubic-bezier(.65,0,.25,1)`, for every larger movement. With `prefers-reduced-motion` all motion is off.

@@ -6,7 +6,7 @@ Everything someone working on the look of the gameplay needs: the pixel scale, t
 
 ## 1. The look in one paragraph
 
-A cozy top-down farm-sim look, matching the character sprites: **chunky pixel art** with **dark brown outlines**, **warm saturated colours**, **two to four tones of shading per material**, and **light from the top left**. Buildings are seen in **three-quarter view** (roof from above, front wall visible). The UI on top (post-its, phone, buttons) is clean and calm, in the ramymaher.com style, and is never pixelated.
+A cozy top-down farm-sim look, matching the character sprites: **chunky pixel art** with **dark brown outlines**, **warm saturated colours**, **two to four tones of shading per material**, and **light from the top left**. Buildings are seen in **three-quarter view** (roof from above, front wall visible). The UI on top (post-its, phone, buttons) is clean and calm, and never pixelated: the system font, few colours on light or dark backgrounds, round buttons and pill-shaped chips, soft shadows, and smooth motion on one easing curve (section 9).
 
 ---
 
@@ -224,9 +224,9 @@ When you add something that gives light (a lamp, a window, a fire pit), mark its
 
 ## 9. UI style (the non-pixel layer)
 
-> **Two sources, not yet aligned.** The team's brand is in `assets/app/brand.css` (see `assets/README.md`): mustard `#eeb155`, navy `#0c1450`, forest `#29372d`, cream `#f7e8d1`, and the fonts Caveat Brush (titles), Amatic SC (taglines), Nunito (reading), Fredoka (buttons, labels), Press Start 2P (retro game text, HUD, scores) and Space Mono (numbers, prices). `frontend/index.html` currently uses the ramymaher.com style below. **For new UI work, use `brand.css`**; the frontend will be moved over to it when the two front ends are merged.
+> **Two sources, not yet aligned.** The team's brand is in `assets/app/brand.css` (see `assets/README.md`): mustard `#eeb155`, navy `#0c1450`, forest `#29372d`, cream `#f7e8d1`, and the fonts Caveat Brush (titles), Amatic SC (taglines), Nunito (reading), Fredoka (buttons, labels), Press Start 2P (retro game text, HUD, scores) and Space Mono (numbers, prices). `frontend/index.html` currently uses the system font and the calm style described below. **For new UI work, use `brand.css`**; the frontend will be moved over to it when the two front ends are merged.
 
-What `frontend/index.html` uses today (ramymaher.com style guide):
+What `frontend/index.html` uses today: one system font, dark grey ink on white (light grey on near-black in dark mode), three accent colours used sparingly, round buttons, pill-shaped chips, soft shadows, and every larger movement on the same easing curve.
 
 | Token | Value |
 |---|---|
