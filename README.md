@@ -4,11 +4,13 @@
 
 **Do it yourself. Then ask why.**
 
+[![Play DIWhy](https://img.shields.io/badge/▶%20Play%20DIWhy%20now-diwhy.onrender.com-F5A623?style=for-the-badge&logo=googlechrome&logoColor=white)](https://diwhy.onrender.com/)
+
 A game where replacing one faucet snowballs into a very different project. You turn down the contractor's quote and do it yourself: walk the house, take on the DIY jobs, answer the surprises that come up, and keep an eye on the days, the money and your health. Meanwhile everyone in your life texts you about it.
 
 By Around The World Games: Travis, Aidan, Gigi, Christian, Rachel, Ramy and Fendy.
 
-## Play
+## How to Play
 
 Arrow keys (or WASD) to walk, **Enter** to use what you're next to, **P** for the phone, **Esc** to put it away. Or click and tap.
 
