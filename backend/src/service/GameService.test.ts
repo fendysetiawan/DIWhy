@@ -40,7 +40,7 @@ describe('createGame', () => {
     // The bathroom project's contractor quote is $3,500 and 10 days. The game ends at 2.5 times the
     // money and 3 times the days.
     expect(v.quote).toEqual({ original: { budget: 3500, days: 10 }, current: { budget: 3500, days: 10 } });
-    expect(v.stats).toMatchObject({ spent: 0, daysElapsed: 0, stress: 0, riskDebt: 0, budget: 8750, maxDays: 30 });
+    expect(v.stats).toMatchObject({ spent: 0, daysElapsed: 0, stress: 0, riskDebt: 0, budget: 8750, maxDays: 30, eventsDone: 0, eventsMax: 9 });
     expect(v.report).toBeNull();
     expect(v.failure).toBeNull();
   });

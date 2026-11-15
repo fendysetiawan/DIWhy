@@ -130,6 +130,16 @@
     if (!loop) loop = setInterval(stepBars, 50);
     stepBars();
     H.renderQuote();
+    showWork(g);
+  }
+
+  /** The 2D elevation view of the job (the wall, the dryer, the toilet). The backend says how far along it is. */
+  function showWork(g) {
+    const job = Object.keys(SPOT_PROJECT).find((k) => SPOT_PROJECT[k] === g.project.id);
+    if (!job || !H.diyOpenLive || !H.diyProgress) return;
+    if (g.status === 'playing') H.diyOpenLive(job, 1); // does nothing if it is already open
+    const fraction = g.status === 'complete' ? 1 : g.stats.eventsDone / g.stats.eventsMax;
+    H.diyProgress(fraction, `Spent ${money(g.stats.spent)} of the contractor's ${money(g.quote.original.budget)}`);
   }
 
   /** "This one cost $490 and 2 days": a short note above the bars after each answer. */
@@ -363,6 +373,11 @@
         width: min(640px, calc(100vw - 24px)); max-height: calc(100vh - 24px); overflow: auto;
         display: grid; gap: 16px; animation: dw-in .35s cubic-bezier(.2, .8, .2, 1); }
       .dw-card[hidden] { display: none; }
+      /* While a job is open the page shows its elevation view (the wall, the dryer). Dock the card low and to the left so the work stays in sight. */
+      .in-diy .dw-card { left: 16px; top: auto; bottom: 16px; transform: none; width: min(520px, 48vw); max-height: 52vh; overflow-y: auto; padding: 18px 20px; gap: 12px; }
+      .in-diy .dw-title { font-size: 13px; }
+      .in-diy .dw-desc { min-height: 0; font-size: 11px; }
+      .in-diy .dw-option { padding: 8px 12px; font-size: 11px; }
       .dw-kind { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
       .dw-title { font-size: 16px; line-height: 1.6; margin: 0; }
       .dw-desc { margin: 0; min-height: 4em; }

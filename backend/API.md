@@ -98,7 +98,7 @@ Every endpoint that returns a game returns this shape. Trimmed:
   "quote": { "original": { "budget": 1800, "days": 3 }, "current": { "budget": 1800, "days": 3 } },
   "status": "playing",
   "failure": null,
-  "stats": { "budget": 4500, "spent": 0, "daysElapsed": 0, "maxDays": 9, "stress": 0, "riskDebt": 0, "problems": 0 },
+  "stats": { "budget": 4500, "spent": 0, "daysElapsed": 0, "maxDays": 9, "stress": 0, "riskDebt": 0, "problems": 0, "eventsDone": 0, "eventsMax": 9 },
   "charge": null,
   "outcome": null,
   "ledger": [],
@@ -127,7 +127,7 @@ Every endpoint that returns a game returns this shape. Trimmed:
 | `quote` | `original` is the contractor's quote and the baseline the player is judged against, always. `current` is what the contractor last said; `POST /quote` can raise it as problems turn up. |
 | `status` | `"playing"`, `"complete"` (the job got finished) or `"failed"`. |
 | `failure` | When `"failed"`: `"budget"`, `"time"`, `"stress"` or `"giveup"` (the player called the contractor in). The game ends at 2.5 times the quote's money, 3 times its days, or stress 100 (`stats.budget` and `stats.maxDays` are those limits). |
-| `stats` | The numbers to show. `riskDebt` is the hidden cost of shortcuts; hide it if you want the risk to stay secret. |
+| `stats` | The numbers to show. `eventsDone` out of `eventsMax` is how far along the work is (a game has at most 8 events plus the finale), which a front end can use to animate the job. `riskDebt` is the hidden cost of shortcuts; hide it if you want the risk to stay secret. |
 | `charge` | The latest purchase, waiting for the bank: `{ id, amount, what, status }`. `status` is `pending`, `confirmed` or `blocked`. |
 | `outcome` | What the last choice did: its `quality`, what it cost, whether it `blewUp`, and whether the partner nagged. Use it to have the cast react. `null` at the start. |
 | `ledger` | Every cost so far, as `{ label, cost }`. |

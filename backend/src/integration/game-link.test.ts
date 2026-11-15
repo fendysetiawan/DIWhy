@@ -50,6 +50,10 @@ function makeHooks() {
       const p = pending.shift()!;
       hooks.onSettle?.(ok, p);
     },
+    diyOpened: [] as string[],
+    diyProgressed: [] as Array<[number, string]>,
+    diyOpenLive: (job: string) => hooks.diyOpened.push(job),
+    diyProgress: (fraction: number, note: string) => hooks.diyProgressed.push([fraction, note]),
     crackPhone: () => hooks.cracked++,
     openPhone: () => undefined,
     openChat: (id: string) => hooks.opened.push(id),
@@ -460,6 +464,21 @@ describe('game-link: the contractor and the end', () => {
     expect(text).toContain('Why did you do it yourself?');
     expect(document.querySelector<HTMLAnchorElement>('#dwAgain')!.getAttribute('href')).toBe('/app/');
     expect(document.getElementById('dwCard')!.hidden).toBe(true);
+  });
+});
+
+describe('game-link: the elevation view', () => {
+  it(`opens the job's view and tells it how far along the backend says the work is`, async () => {
+    const { hooks } = await boot({ seed: 2, project: 'wall-removal' });
+    await waitForOptions();
+    expect(hooks.diyOpened).toContain('wall');
+    expect(hooks.diyProgressed[0][0]).toBe(0);
+    expect(hooks.diyProgressed[0][1]).toBe("Spent $0 of the contractor's $10,000");
+    options()[1].click();
+    await vi.waitFor(() => expect(hooks.diyProgressed.length).toBeGreaterThan(1), { timeout: 3000 });
+    const last = hooks.diyProgressed[hooks.diyProgressed.length - 1];
+    expect(last[0]).toBeCloseTo(1 / 9);
+    expect(last[1]).toMatch(/^Spent \$[\d,]+ of the contractor's \$10,000$/);
   });
 });
 

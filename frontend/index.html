@@ -2371,7 +2371,8 @@ function fitDiy() {
   const k = Math.max(innerWidth / VW, innerHeight / VH), ox = (innerWidth - VW*k) / 2, oy = (innerHeight - VH*k) / 2;
   Object.assign(diyCv.style, { width:VW*k + 'px', height:VH*k + 'px', transform:`translate(${ox}px,${oy}px)` });
   const s = 240 * k;   /* the character, twice as close as in the yard, left of the phone */
-  Object.assign(diySprite.style, { width:s + 'px', height:s + 'px', left:(ox + ((run && run.px) || 1340)*k - s/2) + 'px', top:(oy + FLOOR_Y*EU*k - s*.95) + 'px' });
+  /* the sprite art has transparent margins (the .diy-sprite padding in %), but % padding is measured on the whole screen here, so set it in pixels from the sprite's own size */
+  Object.assign(diySprite.style, { padding:`${s*.11875}px ${s*.2875}px ${s*.00625}px ${s*.29375}px`, width:s + 'px', height:s + 'px', left:(ox + ((run && run.px) || 1340)*k - s/2) + 'px', top:(oy + FLOOR_Y*EU*k - s*.95) + 'px' });
 }
 const toCanvas = img => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; c.getContext('2d').putImageData(img, 0, 0); return c; };
 const fr = (x, y, w, h, c) => { dg.fillStyle = c; dg.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
@@ -2574,7 +2575,7 @@ function askProject(id) {
   askEl.querySelector('.no').onclick = e => { e.stopPropagation(); askEl.classList.remove('open'); frozen = false; };
 }
 function startProject(id) {
-  if (LIVE && window.DIWHY_HOOKS && window.DIWHY_HOOKS.onStartProject) { frozen = false; window.DIWHY_HOOKS.onStartProject(id); return; }   /* INTEGRATION: the backend plays this job */
+  if (LIVE && window.DIWHY_HOOKS && window.DIWHY_HOOKS.onStartProject) { frozen = false; window.DIWHY_HOOKS.onStartProject(id); diyOpenLive(id, 1); return; }   /* INTEGRATION: the backend plays this job; the elevation view just shows the work (diyOpenLive) */
   const p = PROJECTS[id];
   run = { id, p, step:0, t:0, cost:p.cost, days:p.days, health:-.04, paused:false, last:performance.now(), small:0 };   /* small: corners cut */
   job = jobs.find(j => j.id === id && !j.done);   /* back to a job you walked away from: it keeps its days and money */
@@ -2588,28 +2589,49 @@ function startProject(id) {
   fadeEl.classList.add('on');
   setTimeout(() => { document.body.classList.add('in-diy', 'in-scene'); diyEl.classList.add('open'); fitDiy(); fadeEl.classList.remove('on'); diyTick(); }, 320);
 }
+/* INTEGRATION: with a backend game the elevation view only draws the work. The backend decides how far along it is
+   (game-link.js calls diyProgress), the steps wait at `limit`, and its event cards show over the top. */
+function diyOpenLive(id, limit) {
+  const p = PROJECTS[id];
+  if (!p || run) return;
+  run = { id, p, step:0, t:0, live:true, limit, note:'', cost:0, days:0, health:0, paused:false, last:performance.now(), small:0 };
+  document.querySelectorAll('.diy-need').forEach(x => x.remove());
+  $('#diyTitle').textContent = p.title;
+  $('#diySteps').innerHTML = p.steps.map(s => `<li>${s[0] === 'EVENT' ? 'Surprise!' : s[0]}</li>`).join('');
+  run.px = 1460; run.face = null; run.atWork = false; diySprite.src = SPRITES[owner].left;   /* walks in from the right */
+  fadeEl.classList.add('on');
+  setTimeout(() => { document.body.classList.add('in-diy', 'in-scene'); diyEl.classList.add('open'); fitDiy(); fadeEl.classList.remove('on'); diyTick(); }, 320);
+}
+/* fraction: 0..1 of the work the backend says is done. note: the line under the progress bar. */
+function diyProgress(fraction, note) {
+  if (!run || !run.live) return;
+  const n = run.p.steps.length;
+  run.limit = Math.max(run.limit, Math.min(n, 1 + Math.round(fraction * (n - 1))));   /* the first step always runs; the last one opens when the work is done */
+  if (note != null) run.note = note;
+}
 function diyCard() {
   const p = run.p;
   $('#diySteps').querySelectorAll('li').forEach((li, i) => { li.className = i < run.step ? 'done' : i === run.step ? 'now' : ''; });
   const total = p.steps.length; $('#diyProg').style.width = Math.min(100, (run.step + (p.steps[run.step] && p.steps[run.step][0] !== 'EVENT' ? run.t : 0)) / total * 100) + '%';
-  $('#diyCost').textContent = `Spent at the store: ${money(job ? job.spent : 0)} of ${money(job ? job.quote.budget : 0)}`;
+  $('#diyCost').textContent = run.live ? run.note : `Spent at the store: ${money(job ? job.spent : 0)} of ${money(job ? job.quote.budget : 0)}`;
 }
 function diyTick() {
   if (!run) return;
   const now = performance.now(), dt = Math.min(.1, (now - run.last) / 1000); run.last = now;
   const p = run.p, st = p.steps[run.step];
   if (st && st[0] === 'EVENT') {
-    if (!run.paused) showEvent();
-  } else if (st && !diyMove(dt)) { /* walking to the work */ } else if (st && needsTool()) { /* waiting for a tool: Go buy it */ } else if (st) {
-    run.t += dt / st[1];
-    if (run.t >= 1) { run.t = 0; run.step++; }
+    if (run.live) { if (run.step < run.limit) { run.step++; run.t = 0; } }   /* INTEGRATION: the backend's cards are the surprises */
+    else if (!run.paused) showEvent();
+  } else if (st && !diyMove(dt)) { /* walking to the work */ } else if (st && !run.live && needsTool()) { /* waiting for a tool: Go buy it */ } else if (st) {
+    if (!run.live || run.step < run.limit) { run.t += dt / st[1]; if (run.t >= 1) { run.t = 0; run.step++; } }   /* live: wait for the backend */
   }
   const s2 = Math.min(run.step, p.steps.length - 1), drawStep = run.step >= p.steps.length ? p.steps.length - 1 : s2;
   DRAW[run.id](drawStep, run.step >= p.steps.length ? 1 : run.t);
-  diySprite.classList.toggle('work', !run.paused && !run.waitTool && run.atWork && run.step < p.steps.length);
-  diyTool.classList.toggle('swing', !run.paused && !run.waitTool && run.atWork && run.step < p.steps.length);
+  const working = !run.paused && !run.waitTool && run.atWork && run.step < p.steps.length && !(run.live && run.step >= run.limit);
+  diySprite.classList.toggle('work', working);
+  diyTool.classList.toggle('swing', working);
   diyCard();
-  if (run.step >= p.steps.length) return finishProject();
+  if (run.step >= p.steps.length) { if (run.live) return; return finishProject(); }   /* live: the backend's report ends the game */
 }
 setInterval(diyTick, 40);
 function showEvent() {
@@ -3702,6 +3724,7 @@ window.DIWHY_HOOKS = {
   onSettle: null,                                   /* set by game-link.js: (ok, payment) => void */
   onStartProject: null,                             /* set by game-link.js: (spotId) => void, called when you say yes to a DIY spot */
   started: false,                                   /* set by game-link.js once the backend game is running */
+  diyOpenLive, diyProgress,                         /* the elevation view for a backend game: open it, then say how far along the work is */
   travel,                                           /* the demo uses this to go to a DIY spot: travel(scene, x, y, dir) */
   owner: () => owner,
   current: () => current,

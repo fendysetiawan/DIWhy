@@ -101,6 +101,8 @@ export interface StatsView {
   stress: number; // 0..100, game over at 100
   riskDebt: number;
   problems: number; // the "times you asked why" count
+  eventsDone: number; // events answered so far
+  eventsMax: number; // the most events a game can have, finale included. eventsDone / eventsMax is how far the work has got
 }
 
 /** One row of "what the director could have picked". */

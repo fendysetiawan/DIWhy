@@ -423,6 +423,8 @@ export class GameService {
         stress: s.stress,
         riskDebt: s.riskDebt,
         problems: s.problems,
+        eventsDone: s.eventHistory.length,
+        eventsMax: MAX_EVENTS + 1,
       },
       ledger: s.ledger,
       log: rec.log,
