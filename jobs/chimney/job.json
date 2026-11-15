@@ -16,7 +16,7 @@
   },
   "quote": {
     "days": 2,
-    "money": 850
+    "money": 2800
   },
   "steps": [
     {
@@ -52,15 +52,18 @@
       "options": [
         {
           "text": "Stuff the hole with an old sock",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 3
         },
         {
           "text": "Steel wool and mortar",
-          "quality": "good"
+          "quality": "good",
+          "cost": 45
         },
         {
           "text": "Rebuild the whole chimney",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 9500
         }
       ]
     },
@@ -70,15 +73,18 @@
       "options": [
         {
           "text": "Light a fire to burn it out",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 10
         },
         {
           "text": "Pull it out with a sweep brush",
-          "quality": "good"
+          "quality": "good",
+          "cost": 35
         },
         {
           "text": "Hire a crane for the roof",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 3500
         }
       ]
     },
@@ -88,15 +94,18 @@
       "options": [
         {
           "text": "Tarp and a brick",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 20
         },
         {
           "text": "Patch it with crown sealant",
-          "quality": "good"
+          "quality": "good",
+          "cost": 90
         },
         {
           "text": "Replace the whole stack",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 7500
         }
       ]
     },
@@ -106,15 +115,18 @@
       "options": [
         {
           "text": "Sweep it into the fire and light it",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 5
         },
         {
           "text": "Gloves, mask and disinfectant",
-          "quality": "good"
+          "quality": "good",
+          "cost": 60
         },
         {
           "text": "Rip out the fireplace",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 6500
         }
       ]
     }

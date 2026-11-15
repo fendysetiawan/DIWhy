@@ -25,7 +25,7 @@ import {
   type Role,
   START_MINUTES,
 } from '../shared/game';
-import { type Event, JOBS, QUOTE, TOOLS } from './jobs';
+import { type Event, JOBS, TOOLS } from './jobs';
 import { PERSONALITIES } from './roles';
 import { type Talk, writeText } from './texts';
 
@@ -33,6 +33,8 @@ const START_HEALTH = 0.78;
 const FIRST_TEXT_AFTER_MS = 6000; // into playing, the contractor texts
 const ANSWER_MS = 1600; // at the soonest, someone answers you after this (they're typing)
 const DAY = 24 * 60; // minutes
+/** New jobs turn up this much faster (1.75 = 75% faster): their days and delays are divided by it. */
+const TROUBLE_PACE = 1.75;
 
 /** A surprise comes up on this share of steps. */
 const SURPRISE_CHANCE = 0.5;
@@ -66,17 +68,18 @@ const PHONE_CRACK_CHANCE = 0.1;
 /** The levels someone can come over to. */
 const LEVELS = ['Yard', 'Ground', 'Upstairs', 'Basement'];
 
-/** What an answer to a surprise does (Ramy's numbers): the share of the job's quote it costs, the days it loses, how you feel. */
-const OUTCOMES: Record<Quality, { cost: number; days: number; health: number; text: string }> = {
-  good: { cost: 0.1, days: 0, health: 0, text: 'Exactly what a pro would do.' },
-  ok: { cost: 0.25, days: 0, health: -0.03, text: 'Works. Mostly. Probably.' },
-  wrong: { cost: 0.15, days: 1, health: -0.09, text: "That'll bite you later." },
-  excessive: { cost: 1.2, days: 2, health: -0.02, text: 'Overkill. Your wallet felt it.' },
+/** What an answer to a surprise does (Ramy's numbers; each option's price is in its job.json): the days it loses, how you feel. */
+const OUTCOMES: Record<Quality, { days: number; health: number; text: string }> = {
+  good: { days: 0, health: 0, text: 'Exactly what a pro would do.' },
+  ok: { days: 0, health: -0.03, text: 'Works. Mostly. Probably.' },
+  wrong: { days: 1, health: -0.09, text: "That'll bite you later." },
+  excessive: { days: 2, health: -0.02, text: 'Overkill. Your wallet felt it.' },
 };
 
 /** Something planned on the timeline. */
 type Plan =
   | { kind: 'text'; from: Role; talk: Talk }
+  | { kind: 'quote'; days: number; money: number }
   | { kind: 'appear'; job: string }
   | { kind: 'break'; job: string }
   | { kind: 'visit'; role: Role; level: string }
@@ -127,6 +130,8 @@ export class GameMode {
   /** Trouble so far (a bad call, a fix breaking, a cheap tool): the contractor's price climbs with it. */
   private trouble = 0;
   private phoneCracked = false;
+  /** The contractor's quotes so far: nothing at the start, then each job's quote as you take it on. It's the budget's ceiling. */
+  private quoted = { days: 0, money: 0 };
   /** The tools you've bought, and how good each is. */
   private readonly tools = new Map<string, 'cheap' | 'right' | 'premium'>();
 
@@ -140,7 +145,7 @@ export class GameMode {
       JOBS.map((j) => [j.id, { status: j.appears ? 'hidden' : 'open', done: 0, spent: 0, surprise: null, surprises: shuffle(j.events), cornersCut: 0, watched: false, asked: false, hint: undefined }]),
     );
     for (const job of JOBS) {
-      if (job.appears?.day) this.schedule((job.appears.day - 1) * DAY + START_MINUTES, { kind: 'appear', job: job.id });
+      if (job.appears?.day) this.schedule(((job.appears.day - 1) * DAY) / TROUBLE_PACE + START_MINUTES, { kind: 'appear', job: job.id });
     }
   }
 
@@ -156,7 +161,7 @@ export class GameMode {
     if (!this.firstTextSent && now - this.playingSince >= FIRST_TEXT_AFTER_MS) {
       this.firstTextSent = true;
       this.lastTexter = 'contractor';
-      this.startTyping('contractor', 'text', now); // first, the contractor you turned down
+      this.startTyping('contractor', 'text', now, "You haven't started anything yet, so there's no quote yet. Say they'll quote each job as you take it on."); // first, the contractor you turned down
     }
     const day = this.dayAt(now);
     if (day !== this.day) {
@@ -183,7 +188,7 @@ export class GameMode {
         this.reply(action.to, action.text, now);
         return [];
       case 'startJob':
-        this.startJob(action.job);
+        this.startJob(action.job, now);
         return [];
       case 'work':
         return this.doStep(action.job, now);
@@ -209,7 +214,7 @@ export class GameMode {
       cast: this.cast,
       minutes: this.minutesAt(now),
       playing: this.playingSince !== null,
-      quote: QUOTE,
+      quote: this.quoted,
       money: this.money,
       health: this.health,
       chats: this.chats,
@@ -234,7 +239,7 @@ export class GameMode {
           done,
           spent,
           status: status === 'hidden' ? 'open' : status,
-          surprise: surprise && { title: surprise.title, description: surprise.description, options: surprise.options, hint },
+          surprise: surprise && { title: surprise.title, description: surprise.description, options: surprise.options, costs: surprise.costs, hint },
           prep: { ...info.prep, watched, asked },
           sign: status === 'open' && done === 0 ? info.appears?.sign : undefined,
         };
@@ -270,6 +275,9 @@ export class GameMode {
     switch (plan.kind) {
       case 'text':
         return this.deliverText(plan.from, plan.talk);
+      case 'quote':
+        this.quoted = { days: this.quoted.days + plan.days, money: this.quoted.money + plan.money }; // the budget grows
+        return [];
       case 'appear':
         return this.revealJob(plan.job, now);
       case 'break':
@@ -303,17 +311,19 @@ export class GameMode {
   }
 
   /** Have Claude write what `who` says (about `news`, if any), in the background: they're typing until it's due. */
-  private startTyping(who: Role, kind: 'text' | 'reply', now: number, news?: string): void {
+  private startTyping(who: Role, kind: 'text' | 'reply', now: number, news?: string, alongside?: Plan): void {
     const chat = this.chats[who];
     chat.typing = true;
     const situation = { role: who, kind, chat: chat.messages, playerName: this.playerName ?? 'the new homeowner', facts: this.describe(now), news };
     writeText(situation).then((talk) => {
       if (!talk) {
         chat.typing = false; // it failed: nothing arrives
+        if (alongside) this.schedule(this.minutesAt(Date.now()), alongside); // but what came with it still happens
         return;
       }
-      const due = this.minutesAt(now + ANSWER_MS);
-      this.schedule(Math.max(this.minutesAt(Date.now()), due), { kind: 'text', from: who, talk });
+      const due = Math.max(this.minutesAt(Date.now()), this.minutesAt(now + ANSWER_MS));
+      this.schedule(due, { kind: 'text', from: who, talk });
+      if (alongside) this.schedule(due, alongside);
     });
   }
 
@@ -335,7 +345,7 @@ export class GameMode {
     const working = titles('working');
     const done = titles('done');
     return [
-      `Day ${this.dayAt(now)} of the ${QUOTE.days}-day quote, about ${hour}:00. Spent $${Math.round(this.money)} of the contractor's $${QUOTE.money} quote. The player's mood: ${Math.round(this.health * 100)}%.`,
+      `Day ${this.dayAt(now)} of the ${this.quoted.days}-day quote so far, about ${hour}:00. Spent $${Math.round(this.money)} of the contractor's $${this.quoted.money} quote so far. The player's mood: ${Math.round(this.health * 100)}%.`,
       working.length ? `Working on: ${working.join(', ')}.` : 'No job started yet.',
       done.length ? `Done: ${done.join(', ')}.` : '',
     ].join(' ');
@@ -379,15 +389,20 @@ export class GameMode {
   }
 
   /** Take on a job. */
-  private startJob(id: string): void {
+  private startJob(id: string, now: number): void {
     const job = this.jobs[id];
-    if (job?.status === 'open') job.status = 'working';
+    const info = JOBS.find((j) => j.id === id);
+    if (job?.status !== 'open' || !info) return;
+    job.status = 'working';
+    const { days, money } = info.quote;
+    // The budget grows when their text lands, so the meter and the quote arrive together.
+    this.startTyping('contractor', 'text', now, `Their quote for ${info.title.toLowerCase()}: ${days} days, $${money}. The whole quote is now ${this.quoted.days + days} days, $${this.quoted.money + money}.`, { kind: 'quote', days, money });
   }
 
   /** Do the job's next step: it takes time and materials, unless a surprise comes up first. */
   private doStep(id: string, now: number): Happening[] {
     const job = this.jobs[id];
-    if (job?.status === 'open') job.status = 'working'; // doing a step means you've started
+    if (job?.status === 'open') this.startJob(id, now); // doing a step means you've started
     if (job?.status !== 'working' || job.surprise) return [];
     const tool = JOBS.find((j) => j.id === id)?.steps[job.done]?.tool;
     if (tool && !this.tools.has(tool)) return []; // buy it first
@@ -405,7 +420,7 @@ export class GameMode {
     return this.finishStep(id);
   }
 
-  /** Your answer to the surprise: it costs what it costs (OUTCOMES), then the step gets done. */
+  /** Your answer to the surprise: it costs its price (job.json), then the step gets done. */
   private answerSurprise(id: string, option: number, now: number): Happening[] {
     const job = this.jobs[id];
     const info = JOBS.find((j) => j.id === id);
@@ -414,7 +429,7 @@ export class GameMode {
     const outcome = OUTCOMES[quality];
     if (quality === 'wrong' || quality === 'excessive') this.addTrouble(1, now);
     job.cornersCut += quality === 'ok' ? 1 : quality === 'wrong' ? 2 : 0;
-    const money = Math.round(info.quote.money * outcome.cost);
+    const money = job.surprise.costs[option] ?? 0;
     this.spend(job, money);
     const charged = this.chargeCard(money, `${info.title.toLowerCase()} (an unexpected fix)`);
     this.extraMinutes += outcome.days * DAY;
@@ -438,7 +453,7 @@ export class GameMode {
     if (Math.random() < PHONE_CRACK_CHANCE) this.phoneCracked = true; // celebrated a bit too hard
     const minutes = this.minutesAt(Date.now());
     if (Math.random() < job.cornersCut * BREAK_PER_CORNER) this.schedule(minutes + DAY * (1 + Math.random() * 2), { kind: 'break', job: id });
-    for (const next of JOBS.filter((j) => j.appears?.after === id)) this.schedule(minutes + 60, { kind: 'appear', job: next.id });
+    for (const next of JOBS.filter((j) => j.appears?.after === id)) this.schedule(minutes + 60 / TROUBLE_PACE, { kind: 'appear', job: next.id });
     return [{ type: 'finished', job: id }];
   }
 
@@ -500,7 +515,7 @@ export class GameMode {
     const jobs = JOBS.filter((j) => this.jobs[j.id].status !== 'hidden');
     return {
       days: this.dayAt(now) - 1,
-      quote: QUOTE,
+      quote: this.quoted,
       spent: Math.round(this.money),
       jobsDone: jobs.filter((j) => this.jobs[j.id].status === 'done').length,
       jobs: jobs.length,

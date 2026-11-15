@@ -10,7 +10,7 @@
   },
   "quote": {
     "days": 14,
-    "money": 17000
+    "money": 45000
   },
   "steps": [
     {
@@ -52,15 +52,18 @@
       "options": [
         {
           "text": "Hang drywall over it",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 1800
         },
         {
           "text": "Dig out and waterproof every wall",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 42000
         },
         {
           "text": "Fix gutters and grading, then waterproof",
-          "quality": "good"
+          "quality": "good",
+          "cost": 4500
         }
       ]
     },
@@ -70,15 +73,18 @@
       "options": [
         {
           "text": "Fill it with spray foam",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 600
         },
         {
           "text": "Have a structural engineer evaluate it",
-          "quality": "good"
+          "quality": "good",
+          "cost": 600
         },
         {
           "text": "Replace the foundation",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 60000
         }
       ]
     },
@@ -88,15 +94,18 @@
       "options": [
         {
           "text": "Lower the basement floor",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 55000
         },
         {
           "text": "Box them into a soffit",
-          "quality": "good"
+          "quality": "good",
+          "cost": 1400
         },
         {
           "text": "Just duck",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 0
         }
       ]
     },
@@ -106,15 +115,18 @@
       "options": [
         {
           "text": "Add egress windows to every room",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 24000
         },
         {
           "text": "Cut in an egress window and well",
-          "quality": "good"
+          "quality": "good",
+          "cost": 5500
         },
         {
           "text": "Call it an office instead",
-          "quality": "ok"
+          "quality": "ok",
+          "cost": 200
         }
       ]
     },
@@ -124,15 +136,18 @@
       "options": [
         {
           "text": "Install a full perimeter drain system",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 14000
         },
         {
           "text": "Bail the pit with a bucket",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 15
         },
         {
           "text": "Replace the pump and add a backup",
-          "quality": "good"
+          "quality": "good",
+          "cost": 900
         }
       ]
     },
@@ -142,15 +157,18 @@
       "options": [
         {
           "text": "Install a radon mitigation system",
-          "quality": "good"
+          "quality": "good",
+          "cost": 1300
         },
         {
           "text": "Seal off the basement forever",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 2500
         },
         {
           "text": "Open a window now and then",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 0
         }
       ]
     },
@@ -160,15 +178,18 @@
       "options": [
         {
           "text": "Upgrade the utility service",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 6500
         },
         {
           "text": "Double-tap the breakers",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 20
         },
         {
           "text": "Add a subpanel",
-          "quality": "good"
+          "quality": "good",
+          "cost": 1200
         }
       ]
     },
@@ -178,15 +199,18 @@
       "options": [
         {
           "text": "Hide them behind the drywall",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 40
         },
         {
           "text": "Rewire the whole house",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 18000
         },
         {
           "text": "Replace them with proper wiring in boxes",
-          "quality": "good"
+          "quality": "good",
+          "cost": 700
         }
       ]
     },
@@ -196,15 +220,18 @@
       "options": [
         {
           "text": "Install a backwater valve",
-          "quality": "good"
+          "quality": "good",
+          "cost": 2200
         },
         {
           "text": "Put a heavy box over the drain",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 30
         },
         {
           "text": "Replace the main sewer line",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 9500
         }
       ]
     },
@@ -214,15 +241,18 @@
       "options": [
         {
           "text": "Rebuild the stairs to code",
-          "quality": "good"
+          "quality": "good",
+          "cost": 3800
         },
         {
           "text": "Move the staircase",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 11000
         },
         {
           "text": "Add a handrail and hope",
-          "quality": "ok"
+          "quality": "ok",
+          "cost": 250
         }
       ]
     },
@@ -232,15 +262,18 @@
       "options": [
         {
           "text": "Replace the joists",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 16000
         },
         {
           "text": "Dry, clean, and add a dehumidifier",
-          "quality": "good"
+          "quality": "good",
+          "cost": 450
         },
         {
           "text": "Paint it white so it blends in",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 60
         }
       ]
     },
@@ -250,15 +283,18 @@
       "options": [
         {
           "text": "Replace the whole HVAC system",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 14000
         },
         {
           "text": "Add supply and return ducts",
-          "quality": "good"
+          "quality": "good",
+          "cost": 2400
         },
         {
           "text": "Plug in a space heater forever",
-          "quality": "ok"
+          "quality": "ok",
+          "cost": 60
         }
       ]
     },
@@ -268,15 +304,18 @@
       "options": [
         {
           "text": "Cut the post out",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 100
         },
         {
           "text": "Add a long-span beam to remove the post",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 8500
         },
         {
           "text": "Design the layout around the post",
-          "quality": "good"
+          "quality": "good",
+          "cost": 75
         }
       ]
     },
@@ -286,15 +325,18 @@
       "options": [
         {
           "text": "Install an ejector pit",
-          "quality": "good"
+          "quality": "good",
+          "cost": 3800
         },
         {
           "text": "Dig a deeper sewer line to the street",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 18000
         },
         {
           "text": "Hope gravity changes its mind",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 0
         }
       ]
     },
@@ -304,15 +346,18 @@
       "options": [
         {
           "text": "Close the curtains and keep working",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 0
         },
         {
           "text": "Hire an architect for full plans",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 6500
         },
         {
           "text": "Apply for a permit now",
-          "quality": "good"
+          "quality": "good",
+          "cost": 450
         }
       ]
     },
@@ -322,15 +367,18 @@
       "options": [
         {
           "text": "Paint it and use it as a side table",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 30
         },
         {
           "text": "Have it professionally removed",
-          "quality": "good"
+          "quality": "good",
+          "cost": 1500
         },
         {
           "text": "Dig up the yard looking for more tanks",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 3500
         }
       ]
     },
@@ -340,15 +388,18 @@
       "options": [
         {
           "text": "Stack three TVs on the floor",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 0
         },
         {
           "text": "Run the wiring now, buy gear later",
-          "quality": "good"
+          "quality": "good",
+          "cost": 500
         },
         {
           "text": "Install a full projector system this month",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 6500
         }
       ]
     },
@@ -358,15 +409,18 @@
       "options": [
         {
           "text": "Put a cooler on a bookshelf",
-          "quality": "ok"
+          "quality": "ok",
+          "cost": 40
         },
         {
           "text": "Build a full bar with a kegerator now",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 7500
         },
         {
           "text": "Rough in a drain for the future",
-          "quality": "good"
+          "quality": "good",
+          "cost": 700
         }
       ]
     },
@@ -376,15 +430,18 @@
       "options": [
         {
           "text": "Lay rubber flooring on the slab",
-          "quality": "good"
+          "quality": "good",
+          "cost": 900
         },
         {
           "text": "Bolt a pull-up bar to a single joist",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 45
         },
         {
           "text": "Build a climbing wall",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 5500
         }
       ]
     },
@@ -394,15 +451,18 @@
       "options": [
         {
           "text": "Stack them in the garage. Bye, car",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 0
         },
         {
           "text": "Rent a storage unit forever",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 3600
         },
         {
           "text": "Sort and donate as you go",
-          "quality": "good"
+          "quality": "good",
+          "cost": 50
         }
       ]
     }

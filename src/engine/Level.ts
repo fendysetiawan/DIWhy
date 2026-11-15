@@ -138,7 +138,9 @@ export abstract class Level extends Screen {
 
   /** Take on a job (or go back to it): its DIY level, coming back here afterwards. */
   startJob(job: string): void {
+    const isNew = this.state.jobs.find((j) => j.id === job)?.status === 'open';
     this.game.session.startJob(job);
+    if (isNew) this.game.hud.phone.openChat('contractor'); // a new task: the contractor's quote is on its way
     this.open('Diy', { job, back: { level: this.key, at: { x: this.you.x, y: this.you.y, facing: this.you.facing } } });
   }
 

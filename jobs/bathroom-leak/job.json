@@ -15,7 +15,7 @@
   },
   "quote": {
     "days": 10,
-    "money": 3500
+    "money": 6000
   },
   "steps": [
     {
@@ -51,15 +51,18 @@
       "options": [
         {
           "text": "Force it with a wrench",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 40
         },
         {
           "text": "Shut off the main and replace it",
-          "quality": "good"
+          "quality": "good",
+          "cost": 250
         },
         {
           "text": "Repipe the whole bathroom",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 7500
         }
       ]
     },
@@ -69,15 +72,18 @@
       "options": [
         {
           "text": "Patch it with sealant",
-          "quality": "ok"
+          "quality": "ok",
+          "cost": 25
         },
         {
           "text": "Replace that run of pipe",
-          "quality": "good"
+          "quality": "good",
+          "cost": 400
         },
         {
           "text": "Repipe the house",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 9000
         }
       ]
     },
@@ -87,15 +93,18 @@
       "options": [
         {
           "text": "Paint over it",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 35
         },
         {
           "text": "Dry it out and reseal",
-          "quality": "good"
+          "quality": "good",
+          "cost": 450
         },
         {
           "text": "Gut the bathroom",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 8500
         }
       ]
     },
@@ -105,15 +114,18 @@
       "options": [
         {
           "text": "Sure, do the whole bathroom",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 9500
         },
         {
           "text": "Just the leak. Please.",
-          "quality": "good"
+          "quality": "good",
+          "cost": 300
         },
         {
           "text": "Add heated floors too",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 2400
         }
       ]
     }

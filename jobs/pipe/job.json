@@ -52,15 +52,18 @@
       "options": [
         {
           "text": "Crank harder with a pipe wrench",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 8
         },
         {
           "text": "Shut off the main and replace it",
-          "quality": "good"
+          "quality": "good",
+          "cost": 55
         },
         {
           "text": "Repipe the whole bathroom",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 600
         }
       ]
     },
@@ -70,15 +73,18 @@
       "options": [
         {
           "text": "Turn the radio up",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 5
         },
         {
           "text": "Check the washer and the valve seat",
-          "quality": "good"
+          "quality": "good",
+          "cost": 20
         },
         {
           "text": "Hire a ghost hunter",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 500
         }
       ]
     },
@@ -88,15 +94,18 @@
       "options": [
         {
           "text": "Wrap the pipe in a towel",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 4
         },
         {
           "text": "Fit a water hammer arrestor",
-          "quality": "good"
+          "quality": "good",
+          "cost": 45
         },
         {
           "text": "Whole-house pressure system",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 650
         }
       ]
     },
@@ -106,15 +115,18 @@
       "options": [
         {
           "text": "Cut it and see",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 10
         },
         {
           "text": "Trace it back before touching it",
-          "quality": "good"
+          "quality": "good",
+          "cost": 15
         },
         {
           "text": "Call the city",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 400
         }
       ]
     }

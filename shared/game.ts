@@ -85,6 +85,8 @@ export interface Surprise {
   title: string;
   description: string;
   options: string[];
+  /** What each option costs (dollars), the same order as the options. */
+  costs: number[];
   /** What your prep tells you: the option a video showed you (or AskBot said), or that AskBot skipped this part. */
   hint?: { option: number; from: 'video' | 'ask' } | { skipped: true };
 }

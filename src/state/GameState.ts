@@ -21,7 +21,7 @@ export class GameState {
   /** You're in the game (past the intro): the clock runs. */
   playing = false;
   /** The contractor's quote, what you've spent, and how you're holding up (0 to 1). */
-  quote = { days: 30, money: 24000 };
+  quote = { days: 0, money: 0 };
   money = 0;
   health = 1;
   /** Every chat in the phone. */

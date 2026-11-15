@@ -48,8 +48,8 @@ export class Meters {
   private render(): void {
     const { state } = this;
     const now = { days: state.day - 1, money: state.money, health: state.health };
-    this.draw('days', `${now.days}`, `/${state.quote.days}`, now.days / state.quote.days, false);
-    this.draw('money', formatMoney(now.money), `/${formatMoney(state.quote.money)}`, now.money / state.quote.money, false);
+    this.draw('days', `${now.days}`, `/${state.quote.days}`, state.quote.days ? now.days / state.quote.days : 0, false);
+    this.draw('money', formatMoney(now.money), `/${formatMoney(state.quote.money)}`, state.quote.money ? now.money / state.quote.money : 0, false);
     this.draw('health', `${Math.round(now.health * 100)}%`, '', now.health, true);
     if (this.last && !this.el.hidden) this.showChanges(this.last, now);
     this.last = state.id ? now : null; // a new game starts fresh

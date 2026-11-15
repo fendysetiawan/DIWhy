@@ -51,15 +51,18 @@
       "options": [
         {
           "text": "Prop it up with a brick",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 5
         },
         {
           "text": "Set a new post in concrete",
-          "quality": "good"
+          "quality": "good",
+          "cost": 85
         },
         {
           "text": "Replace every post on the street",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 2800
         }
       ]
     },
@@ -69,15 +72,18 @@
       "options": [
         {
           "text": "Glue it on as decoration",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 10
         },
         {
           "text": "Photo for the police, then pull it out",
-          "quality": "good"
+          "quality": "good",
+          "cost": 15
         },
         {
           "text": "Hire a private detective",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 900
         }
       ]
     },
@@ -87,15 +93,18 @@
       "options": [
         {
           "text": "Nobody will notice",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 0
         },
         {
           "text": "Paint the whole street side",
-          "quality": "good"
+          "quality": "good",
+          "cost": 120
         },
         {
           "text": "Repaint the house to match",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 6500
         }
       ]
     },
@@ -105,15 +114,18 @@
       "options": [
         {
           "text": "Use the neighbor's nails",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 8
         },
         {
           "text": "Smile, nod, keep nailing",
-          "quality": "good"
+          "quality": "good",
+          "cost": 12
         },
         {
           "text": "Build a privacy wall",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 1800
         }
       ]
     }

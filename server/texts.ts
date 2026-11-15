@@ -40,8 +40,17 @@ interface Situation {
 
 let claude: Anthropic;
 
+// PHONE_BACKEND=ollama writes the texts with a local model instead (OLLAMA_URL, OLLAMA_MODEL), no Claude sign-in needed.
+const OLLAMA = process.env.PHONE_BACKEND === 'ollama';
+const OLLAMA_URL = process.env.OLLAMA_URL ?? 'http://127.0.0.1:11434';
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL ?? 'qwen3:8b';
+
 /** When the server starts: Claude's credentials are there (the SDK finds a sign-in or a key by itself), or stop. */
 export function prepareTexts(): void {
+  if (process.env.PHONE_BACKEND === 'ollama') {
+    console.log(`Phone texts: written by ${process.env.OLLAMA_MODEL ?? 'qwen3:8b'} on Ollama`);
+    return;
+  }
   const configDir = process.env.ANTHROPIC_CONFIG_DIR ?? join(homedir(), '.config', 'anthropic');
   if (!process.env.ANTHROPIC_API_KEY && !existsSync(join(configDir, 'credentials'))) {
     throw new Error('The phone texts need Claude. Sign in once: brew install anthropics/tap/ant && ant auth login (see the README).');
@@ -52,6 +61,7 @@ export function prepareTexts(): void {
 
 /** Claude writes their text and your three replies; null if the call fails (they stop typing, nothing arrives). */
 export async function writeText(situation: Situation): Promise<Talk | null> {
+  if (OLLAMA) return writeTextOllama(situation);
   try {
     const response = await claude.messages.parse(
       {
@@ -67,6 +77,36 @@ export async function writeText(situation: Situation): Promise<Talk | null> {
     return response.parsed_output ? check(response.parsed_output) : null;
   } catch (error) {
     console.error('Phone texts: Claude failed:', error instanceof Error ? error.message : error);
+    return null;
+  }
+}
+
+/** The same, from a local Ollama model: JSON in the shape of Answer, then the same checks. */
+async function writeTextOllama(situation: Situation): Promise<Talk | null> {
+  try {
+    const res = await fetch(`${OLLAMA_URL}/api/chat`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      signal: AbortSignal.timeout(30_000),
+      body: JSON.stringify({
+        model: OLLAMA_MODEL,
+        stream: false,
+        think: false, // Qwen3 would otherwise reason before it answers
+        format: z.toJSONSchema(Answer),
+        keep_alive: '30m',
+        messages: [
+          { role: 'system', content: describe(situation) },
+          { role: 'user', content: brief(situation) },
+        ],
+        options: { temperature: 0.8, top_p: 0.9, num_predict: 260 },
+      }),
+    });
+    if (!res.ok) throw new Error(`Ollama answered ${res.status}`);
+    const content = ((await res.json()) as { message?: { content?: string } }).message?.content ?? '';
+    const parsed = Answer.safeParse(JSON.parse(content.replace(/<think>[\s\S]*?<\/think>/g, '').trim()));
+    return parsed.success ? check(parsed.data) : null;
+  } catch (error) {
+    console.error('Phone texts: Ollama failed:', error instanceof Error ? error.message : error);
     return null;
   }
 }

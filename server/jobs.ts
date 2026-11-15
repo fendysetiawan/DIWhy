@@ -28,7 +28,7 @@ interface Job {
 /** A job.json, as written. */
 interface JobFile extends Omit<Job, 'events' | 'prep'>, Prep {
   spot: { x: number; y: number; w: number; h: number };
-  surprises: { title: string; description: string; options: { text: string; quality: Quality }[] }[];
+  surprises: { title: string; description: string; options: { text: string; quality: Quality; cost: number }[] }[];
   set: { name: string }[];
 }
 
@@ -59,6 +59,7 @@ function check(job: JobFile): string[] {
       s.tool && !TOOLS[s.tool] && `step "${s.name}": no tool "${s.tool}" in tools.json`,
     ]),
     ...job.surprises.flatMap((s) => s.options.map((o) => !QUALITIES.includes(o.quality) && `surprise "${s.title}": "${o.quality}" isn't good, ok, wrong or excessive`)),
+    ...job.surprises.flatMap((s) => s.options.map((o) => !(Number.isInteger(o.cost) && o.cost >= 0) && `surprise "${s.title}": "${o.text}" needs a "cost" (whole dollars)`)),
     job.appears?.from && !(job.appears.from in ROLES) && `appears from "${job.appears.from}": there's no such role`,
     job.appears?.after && !files.some((j) => j.id === job.appears?.after) && `appears after "${job.appears.after}": there's no such job`,
     job.appears?.sign && !has('sign.svg') && "appears with a sign, but there's no sign.svg",
@@ -82,12 +83,7 @@ export const JOBS: Job[] = files.map((job) => ({
     title: s.title,
     description: s.description,
     options: s.options.map((o) => o.text),
+    costs: s.options.map((o) => o.cost),
     answers: s.options.map((o) => o.quality),
   })),
 }));
-
-/** The whole renovation's quote: every job there at the start, added up. */
-export const QUOTE = {
-  days: JOBS.filter((j) => !j.appears).reduce((sum, j) => sum + j.quote.days, 0),
-  money: JOBS.filter((j) => !j.appears).reduce((sum, j) => sum + j.quote.money, 0),
-};

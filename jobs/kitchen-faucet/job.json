@@ -46,15 +46,18 @@
       "options": [
         {
           "text": "Repipe the whole kitchen",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 600
         },
         {
           "text": "Shut off the main and replace the shutoff",
-          "quality": "good"
+          "quality": "good",
+          "cost": 45
         },
         {
           "text": "Crank harder with a pipe wrench",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 10
         }
       ]
     },
@@ -64,15 +67,18 @@
       "options": [
         {
           "text": "Replace every valve in the house",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 500
         },
         {
           "text": "Call the utility to shut off the street",
-          "quality": "good"
+          "quality": "good",
+          "cost": 60
         },
         {
           "text": "Work fast with a bucket and hope",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 15
         }
       ]
     },
@@ -82,15 +88,18 @@
       "options": [
         {
           "text": "Cut it out with an oscillating tool",
-          "quality": "ok"
+          "quality": "ok",
+          "cost": 25
         },
         {
           "text": "Pull the whole sink out of the countertop",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 450
         },
         {
           "text": "Use penetrating oil and a basin wrench",
-          "quality": "good"
+          "quality": "good",
+          "cost": 18
         }
       ]
     },
@@ -100,15 +109,18 @@
       "options": [
         {
           "text": "Reuse the old line very gently",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 5
         },
         {
           "text": "Install new braided supply lines",
-          "quality": "good"
+          "quality": "good",
+          "cost": 28
         },
         {
           "text": "Wrap it in duct tape",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 6
         }
       ]
     },
@@ -118,15 +130,18 @@
       "options": [
         {
           "text": "Replace the sink and countertop",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 700
         },
         {
           "text": "Cover the extra holes with a deck plate",
-          "quality": "good"
+          "quality": "good",
+          "cost": 20
         },
         {
           "text": "Fill the extra holes with caulk",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 8
         }
       ]
     },
@@ -136,15 +151,18 @@
       "options": [
         {
           "text": "Lay a plastic mat over it",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 12
         },
         {
           "text": "Remodel the whole kitchen",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 600
         },
         {
           "text": "Cut out and replace the cabinet floor",
-          "quality": "good"
+          "quality": "good",
+          "cost": 160
         }
       ]
     },
@@ -154,15 +172,18 @@
       "options": [
         {
           "text": "Return it for a sink that fits",
-          "quality": "good"
+          "quality": "good",
+          "cost": 25
         },
         {
           "text": "Force it in with a rubber mallet",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 8
         },
         {
           "text": "Replace the countertop",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 500
         }
       ]
     },
@@ -172,15 +193,18 @@
       "options": [
         {
           "text": "Retile the backsplash this weekend",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 600
         },
         {
           "text": "Paint over the tile with wall paint",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 20
         },
         {
           "text": "Add it to the someday list",
-          "quality": "good"
+          "quality": "good",
+          "cost": 5
         }
       ]
     },
@@ -190,15 +214,18 @@
       "options": [
         {
           "text": "Leave the sink in pieces and do it now",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 5
         },
         {
           "text": "Smart lights in every room",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 400
         },
         {
           "text": "Change it once the faucet is done",
-          "quality": "good"
+          "quality": "good",
+          "cost": 5
         }
       ]
     },
@@ -208,15 +235,18 @@
       "options": [
         {
           "text": "Use a push-fit valve made for short stubs",
-          "quality": "good"
+          "quality": "good",
+          "cost": 30
         },
         {
           "text": "Open the wall and repipe the run",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 650
         },
         {
           "text": "Solder on a pipe extension",
-          "quality": "ok"
+          "quality": "ok",
+          "cost": 55
         }
       ]
     },
@@ -226,15 +256,18 @@
       "options": [
         {
           "text": "Turn the street valve with a broom",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 4
         },
         {
           "text": "Cap the sink lines and wait until Monday",
-          "quality": "good"
+          "quality": "good",
+          "cost": 15
         },
         {
           "text": "Pay a plumber to freeze the pipe",
-          "quality": "ok"
+          "quality": "ok",
+          "cost": 180
         }
       ]
     },
@@ -244,15 +277,18 @@
       "options": [
         {
           "text": "Color it in with a silver marker",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 6
         },
         {
           "text": "Replace the sink",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 450
         },
         {
           "text": "Buff it out with a scratch repair kit",
-          "quality": "good"
+          "quality": "good",
+          "cost": 25
         }
       ]
     },
@@ -262,15 +298,18 @@
       "options": [
         {
           "text": "Wrap the threads in tape until it holds",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 5
         },
         {
           "text": "Grab the right adapters before close",
-          "quality": "good"
+          "quality": "good",
+          "cost": 22
         },
         {
           "text": "Buy one of every fitting in the aisle",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 380
         }
       ]
     },
@@ -280,15 +319,18 @@
       "options": [
         {
           "text": "Replace the entire countertop",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 700
         },
         {
           "text": "Superglue the chip back on",
-          "quality": "ok"
+          "quality": "ok",
+          "cost": 6
         },
         {
           "text": "Fill it with a color-matched repair kit",
-          "quality": "good"
+          "quality": "good",
+          "cost": 28
         }
       ]
     },
@@ -298,15 +340,18 @@
       "options": [
         {
           "text": "Gut the kitchen to the studs",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 800
         },
         {
           "text": "Clean, dry, and treat the area",
-          "quality": "good"
+          "quality": "good",
+          "cost": 20
         },
         {
           "text": "Paint right over it",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 15
         }
       ]
     },
@@ -316,15 +361,18 @@
       "options": [
         {
           "text": "Install a commercial-grade disposal today",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 450
         },
         {
           "text": "Pour drain cleaner in it and run it",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 12
         },
         {
           "text": "Note it and finish the faucet first",
-          "quality": "good"
+          "quality": "good",
+          "cost": 8
         }
       ]
     }

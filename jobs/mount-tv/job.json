@@ -46,15 +46,18 @@
       "options": [
         {
           "text": "Reframe the wall",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 1200
         },
         {
           "text": "Use a mount with a sliding plate",
-          "quality": "good"
+          "quality": "good",
+          "cost": 45
         },
         {
           "text": "Hang it off-center",
-          "quality": "ok"
+          "quality": "ok",
+          "cost": 0
         }
       ]
     },
@@ -64,15 +67,18 @@
       "options": [
         {
           "text": "Open the wall and add plywood backing",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 650
         },
         {
           "text": "Use wood screws anyway",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 8
         },
         {
           "text": "Use toggle bolts rated for metal studs",
-          "quality": "good"
+          "quality": "good",
+          "cost": 22
         }
       ]
     },
@@ -82,15 +88,18 @@
       "options": [
         {
           "text": "Hammer the anchors in",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 6
         },
         {
           "text": "Replace the wall with drywall",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 1400
         },
         {
           "text": "Drill slowly with a masonry bit",
-          "quality": "good"
+          "quality": "good",
+          "cost": 18
         }
       ]
     },
@@ -100,15 +109,18 @@
       "options": [
         {
           "text": "Rewire the room",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 1800
         },
         {
           "text": "Pretend it didn't happen",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 0
         },
         {
           "text": "Breaker off, splice it in a box",
-          "quality": "good"
+          "quality": "good",
+          "cost": 30
         }
       ]
     },
@@ -118,15 +130,18 @@
       "options": [
         {
           "text": "Shut off the water and fix the pipe",
-          "quality": "good"
+          "quality": "good",
+          "cost": 180
         },
         {
           "text": "Leave the bit in to plug it",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 0
         },
         {
           "text": "Repipe the whole wall",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 2500
         }
       ]
     },
@@ -136,15 +151,18 @@
       "options": [
         {
           "text": "Remove the fire blocking",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 0
         },
         {
           "text": "Run the cables in a surface raceway",
-          "quality": "ok"
+          "quality": "ok",
+          "cost": 40
         },
         {
           "text": "Drill through it with a flexible bit",
-          "quality": "good"
+          "quality": "good",
+          "cost": 25
         }
       ]
     },
@@ -154,15 +172,18 @@
       "options": [
         {
           "text": "Install an in-wall power kit",
-          "quality": "good"
+          "quality": "good",
+          "cost": 70
         },
         {
           "text": "Push the cord through anyway",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 5
         },
         {
           "text": "Add a dedicated circuit and outlet",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 550
         }
       ]
     },
@@ -172,15 +193,18 @@
       "options": [
         {
           "text": "Remove the fireplace",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 7500
         },
         {
           "text": "Mount it on another wall",
-          "quality": "good"
+          "quality": "good",
+          "cost": 25
         },
         {
           "text": "Use a pull-down mantel mount",
-          "quality": "ok"
+          "quality": "ok",
+          "cost": 280
         }
       ]
     },
@@ -190,15 +214,18 @@
       "options": [
         {
           "text": "Tighten the mount and check the bolts",
-          "quality": "good"
+          "quality": "good",
+          "cost": 5
         },
         {
           "text": "Prop it up with a book",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 4
         },
         {
           "text": "Swap in a heavier-duty mount",
-          "quality": "ok"
+          "quality": "ok",
+          "cost": 85
         }
       ]
     },
@@ -208,15 +235,18 @@
       "options": [
         {
           "text": "Hire someone to finish the job",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 450
         },
         {
           "text": "Patch them and redrill",
-          "quality": "good"
+          "quality": "good",
+          "cost": 22
         },
         {
           "text": "Hang a picture over the extra holes",
-          "quality": "ok"
+          "quality": "ok",
+          "cost": 30
         }
       ]
     },
@@ -226,15 +256,18 @@
       "options": [
         {
           "text": "Splice the HDMI wires with tape",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 6
         },
         {
           "text": "Move the whole entertainment center",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 600
         },
         {
           "text": "Pull a longer cable through",
-          "quality": "good"
+          "quality": "good",
+          "cost": 20
         }
       ]
     },
@@ -244,15 +277,18 @@
       "options": [
         {
           "text": "Use a soundbar bracket under the mount",
-          "quality": "good"
+          "quality": "good",
+          "cost": 25
         },
         {
           "text": "Buy a new TV",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 1100
         },
         {
           "text": "Raise the TV above eye level",
-          "quality": "ok"
+          "quality": "ok",
+          "cost": 0
         }
       ]
     },
@@ -262,15 +298,18 @@
       "options": [
         {
           "text": "Run speaker wire under the rug",
-          "quality": "ok"
+          "quality": "ok",
+          "cost": 15
         },
         {
           "text": "Wire speakers into every room",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 1800
         },
         {
           "text": "Pull an extra pull-string for later",
-          "quality": "good"
+          "quality": "good",
+          "cost": 8
         }
       ]
     },
@@ -280,15 +319,18 @@
       "options": [
         {
           "text": "Try a sample swatch first",
-          "quality": "good"
+          "quality": "good",
+          "cost": 10
         },
         {
           "text": "Paint the whole room black",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 450
         },
         {
           "text": "Paint only the rectangle behind the TV",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 20
         }
       ]
     },
@@ -298,15 +340,18 @@
       "options": [
         {
           "text": "Plan the layout on paper first",
-          "quality": "good"
+          "quality": "good",
+          "cost": 3
         },
         {
           "text": "Buy all new art",
-          "quality": "excessive"
+          "quality": "excessive",
+          "cost": 900
         },
         {
           "text": "Hang 30 frames by eye tonight",
-          "quality": "wrong"
+          "quality": "wrong",
+          "cost": 30
         }
       ]
     }

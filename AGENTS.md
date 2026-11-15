@@ -14,7 +14,7 @@ DIWhy is a pixel-art browser game about a DIY renovation that snowballs. Several
 
 | If you change... | ...also do this |
 |---|---|
-| **A job, or a new one** | Only its folder, `jobs/<id>/`: `job.json` (title, level and spot, quote, steps, surprises, WeTube video and AskBot chat, its set, and `appears` if it turns up later) and its pictures (`backdrop.png`, the set's pieces, `sign.svg`). The level places its spot and the job screen draws its set from that folder. The server checks every folder when it starts and lists anything wrong (a missing picture, an unknown act, sound or tool). |
+| **A job, or a new one** | Only its folder, `jobs/<id>/`: `job.json` (title, level and spot, quote, steps, surprises (each answer has a quality and a dollar `cost`), WeTube video and AskBot chat, its set, and `appears` if it turns up later) and its pictures (`backdrop.png`, the set's pieces, `sign.svg`). The level places its spot and the job screen draws its set from that folder. The server checks every folder when it starts and lists anything wrong (a missing picture, an unknown act, sound or tool). |
 | **A tool** | `server/tools.json`: a cheap, a right and a premium option, each with the clerk's pitch. |
 | **A role's personality** | Only `server/roles.ts`. |
 | **What the server sends** (`GameView`, `Happening`, `Action` in `shared/game.ts`) | `GameMode.replicate()` on the server and `GameState.apply()` in the app; then whatever draws it. |

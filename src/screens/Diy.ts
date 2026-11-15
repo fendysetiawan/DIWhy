@@ -196,7 +196,7 @@ export class Diy extends Screen {
     if (!surprise) return '';
     const hint = surprise.hint;
     const tag = hint && 'option' in hint && hint.option === i ? (hint.from === 'video' ? ' · SEEN ON WETUBE' : ' · ASKBOT SAYS SO') : '';
-    return surprise.options[i] + tag;
+    return `${surprise.options[i]} · ${formatMoney(surprise.costs[i])}${tag}`;
   }
 
   /** ← →: the surprise's next option, or the other button. */
