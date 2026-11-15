@@ -2,7 +2,7 @@
 
 Everyone works in their own folder. This page says how the folders connect, so a change in one doesn't surprise another.
 
-**Using an AI assistant? Point it at [`AGENTS.md`](AGENTS.md).** It lists what to update when you change something, and how to keep the hands-free demo from breaking. (Claude Code reads it automatically through `CLAUDE.md`.)
+**Using an AI assistant? Point it at [`AGENTS.md`](AGENTS.md).** It lists what to update when you change something, and how to keep the hands-free demo from breaking.
 
 ## The flow
 

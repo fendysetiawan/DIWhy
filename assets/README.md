@@ -6,17 +6,18 @@ The art and brand for DIWHY?! by Around The World Games.
 > When you build or refactor any part of the game, take sprites, backgrounds, sounds, logos and styles from here, not from copies elsewhere.
 > If something you need isn't here yet, bring it into `assets/` first: put it in the right folder, give it a clear lowercase name (people as `first-last`, words joined with `-`), crop it to its content, and add a line about it to this README. Then use it from here.
 
-**See it all on one page: [style.html](style.html)** (the font, colours, styles, logos, characters and music), and every scene playing on [cinematics/index.html](cinematics/index.html). Start the game server (`npm run play` in `backend/`) and open http://127.0.0.1:3001/assets/style.html
+**See it all on one page: [style.html](style.html)** (the font, colours, styles, logos, characters, end screens, effects and music), and every scene playing on [cinematics/index.html](cinematics/index.html). Start the game server (`npm run play` in `backend/`) and open http://127.0.0.1:3001/assets/style.html
 
 ```
 assets/
 ├── style.css      the brand: the blues, the font (Press Start 2P) and ready-made styles
 ├── style.html     the style guide: everything in style.css on one page
+├── banner.png     the picture at the top of the GitHub README (2560 × 1280)
 ├── cinematics/    cut scenes, one HTML file each (contract, sold, ...) + shared/
 ├── characters/    the seven team characters and the cat, one folder each
 ├── backgrounds/   character-select.svg, stars.svg and sky.svg
 ├── logos/         Around The World Games logos and the team globe
-├── effects/       small extras, like the "!" over a character
+├── effects/       small extras: the "!" over a character, champagne, burning rubble
 ├── sounds/        music, the logo sound, interface sounds and sound effects, one folder each
 └── precedents/    precedents to learn from, not game art
 ```
@@ -51,6 +52,7 @@ A scene file has its own `<style id="scene-style">` and `<script id="scene">`; e
 | `emote.svg` | Their emote: standing, then a victory pose (for character select). Plays once and holds the last pose. Cropped to 238×297 (same box for everyone) |
 | `reaction.svg` | Their reaction when the house falls (8.8 s), cropped to 88×123. Placed on top of `cinematics/falling-house.svg` (see The falling house) |
 | `standing.svg` | Large full-body version, transparent background, cropped tight (about 160×345) |
+| `you-won.svg`, `you-failed.svg` | The end screens: the character jumping for joy, or sitting slumped in the rubble (960×630, transparent, looping). Not used in the game yet; preview them all on [style.html](style.html) (the "End screens" section) |
 
 **The cat** (`characters/cat/`): the blue bandana cat, one animated SVG per mood: `normal`, `standing`, `sitting`, `eating`, `sleepy`, `mischievous`, `scared`.
 
@@ -82,6 +84,8 @@ A scene file has its own `<style id="scene-style">` and `<script id="scene">`; e
 ## Effects
 
 `effects/exclamation.svg`: the orange "!" that pops up over a character.
+
+`effects/champagne-pop.svg` (a bottle popping its cork, with confetti) and `effects/burning-rubble.svg` (a pile of rubble on fire, with smoke): 480×480, looping, for the endings (won and failed). Not used yet.
 
 ## Sounds
 

@@ -1,0 +1,10 @@
+{
+  "name": "diwhy-repo",
+  "private": true,
+  "description": "DIWHY?! Run everything from here: npm install, then npm start.",
+  "scripts": {
+    "postinstall": "npm --prefix backend install",
+    "start": "npm --prefix backend run play",
+    "test": "npm --prefix backend test"
+  }
+}

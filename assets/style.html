@@ -18,6 +18,7 @@
 
     .logo { width: min(100%, 424px); image-rendering: pixelated; }
     .scene { width: min(100%, 840px); image-rendering: pixelated; }
+    .endings figure { margin: 0; width: min(100%, 320px); } .endings img { display: block; width: 100%; image-rendering: pixelated; background: var(--brand-blue); }
     .team-world { width: min(100%, 696px); image-rendering: pixelated; }
 
     .cast figure { width: 112px; text-align: center; }
@@ -116,6 +117,19 @@
       <p class="brand-text brand-highlight">Characters</p>
       <div class="row cast" id="cast"></div>
     </section>
+
+    <section>
+      <p class="brand-text brand-highlight">End screens (characters/&lt;name&gt;/you-won.svg and you-failed.svg)</p>
+      <div class="row endings" id="endings"></div>
+    </section>
+
+    <section>
+      <p class="brand-text brand-highlight">Effects (effects/)</p>
+      <div class="row endings">
+        <figure><img src="effects/champagne-pop.svg" alt="A champagne bottle popping" /><figcaption class="brand-text">champagne-pop</figcaption></figure>
+        <figure><img src="effects/burning-rubble.svg" alt="A pile of rubble on fire" /><figcaption class="brand-text">burning-rubble</figcaption></figure>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -138,6 +152,9 @@
         `<figure><div class="sprite"><img src="characters/${id}/front.svg" alt="${name}" /></div><figcaption class="brand-text">${name}</figcaption></figure>`
       ).join("") +
       `<figure class="cat"><img src="characters/cat/normal.svg" alt="The cat" /><figcaption class="brand-text">Cat</figcaption></figure>`;
+
+    document.getElementById("endings").innerHTML = people.flatMap(([id, name]) => [["you-won", "won"], ["you-failed", "failed"]].map(([f, word]) =>
+      `<figure><img src="characters/${id}/${f}.svg" alt="${name} ${word}" /><figcaption class="brand-text">${name}: ${word}</figcaption></figure>`)).join("");
   </script>
 </body>
 </html>
