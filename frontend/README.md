@@ -16,7 +16,7 @@ The game's user interface as a single self-contained page. Open `index.html` in 
 
 - **Going in:** walk up to the front door; it glows. Click it (or press **Space** or **Enter**) and the scene changes to the inside of the house.
 - **The cottage:** a Northeast-style cottage with 3 bedrooms, 2 bathrooms, two storeys and a basement. Each floor is a plan seen from above with low walls. Walls and big furniture are colliders: you walk around them, never over them.
-- **Stairs:** one staircase, in the hall on every floor (the way down runs under the way up). Walk up to it; it glows. Click it and the house appears in section: your storey is dimmed with your face on it, the other two light up. Hover one to see its name, click it to go there, or **Cancel**.
+- **Stairs:** one staircase, in the hall on every floor (the way down runs under the way up). Walk up to it; it glows. Click it and a simple house builds up, storey by storey: your storey is dimmed with your face on it, the other two light up. Hover one to see its name, click it to go there, or **Cancel**.
 - **Fits the screen:** inside, the house and the player shrink so the plan fits between the post-its and the phone. At night the room you are in is lit.
 - **DIY potential:** walk into a room with something to fix and it glows softly; come close and it glows fully with a label. Three spots: the **wall between kitchen and living room** (ground floor; the dining room sits next to the kitchen), the **toilet** in the upstairs bathroom and the **dryer** (basement). Click one to see the cost and time, then **Take it on**.
 - **DIY projects:** the scene changes to a side view (elevation) where the job is animated step by step. Halfway through, an event card from `events/` asks how you handle a surprise; the answer changes the cost, the days and your health. At the end the payment goes through the bank's fraud check, the days are added, and some projects change the house (the kitchen wall really disappears from the plan).
@@ -26,7 +26,8 @@ The game's user interface as a single self-contained page. Open `index.html` in 
 
 - **Partner:** lives on the ground floor and roams the living room, dining room and kitchen. Never outside.
 - **Neighbor:** stands outside the bottom fence, peeping. Step out of the house and they come over to talk; every few minutes they also walk in (through the gate, the front door, or up the stairs). What visitors say appears at the bottom of the screen, in the middle, above the arrows.
-- **Friend and parent:** not around. Each minute there is a 10% chance one of them pops by for about 30 seconds: walks to the player, comments, leaves.
+- **Friend and parent:** not around. Each minute there is a 15% chance the parent and a 15% chance the friend comes by; they walk over, say something, stay for about 30 seconds and leave. A visit that cannot start yet (in a job or the store) waits until it can.
+- **Close by, they talk:** walk near the partner or the neighbor and they come over and say something (at most every 45 seconds each). When someone in the same place as you has something to say, they say it in person instead of texting.
 - **Contractor:** only appears in person when the player answers "Give up." in the contractor's chat.
 - **Store clerk:** only appears behind the counter in the store.
 - Only the home owner is played; clicking the others does nothing.
@@ -36,7 +37,7 @@ The game's user interface as a single self-contained page. Open `index.html` in 
 - Each DIY job needs a couple of tools (`TOOLS_NEEDED` in `index.html`; the event files don't list tools yet). The player starts with a hammer, a screwdriver and a tape measure.
 - When a step needs a tool the player doesn't have, the job stops: **"Go buy it"**. The player walks out through the gate and appears in the store, in front of the counter, with the clerk behind it.
 - The store window sits on the right, below the "You" chip and the theme button. It lists the tools this job needs first, then everything else. Each tool comes in three versions (cheap, right, fancy), with a line of recommendations: **the clerk** always (the fancy one), **YouTube** (the right one) once watched, **ChatGPT** (whatever it read first, sometimes wrong) once asked.
-- Click items to put them in the **cart** (click again to take them out); **Buy all** pays for everything at once in one charge through `pay()`. Anything can be bought. A tool bought only in its cheap version costs a little health.
+- Click items to put them in the **cart**; click again ("Remove") or use the × on an item in the cart list to take it out; **Buy all** pays for everything at once in one charge through `pay()`. Anything can be bought. A tool bought only in its cheap version costs a little health.
 - **At the bottom of the store window:** **Watch YouTube first** (2 to 3 hours) or **Ask ChatGPT first** (20 minutes) adds their picks to each tool's recommendations, and **Leave the store** (the job keeps waiting for the tool) turns into **Back to the job** once you have what you need.
 - **Back to the job** jumps straight back into the fixing scene, which carries on.
 

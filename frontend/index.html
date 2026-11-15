@@ -285,6 +285,19 @@ html[data-theme="dark"] #homeView{background:linear-gradient(165deg,#24485a 0%,#
 body.inside{background:#231912}
 /* the staircase: the house in section; the other storeys light up */
 .floor-pick{width:min(340px,calc(100vw - 32px))}
+/* the simple house: a roof and three plain storeys, built up one after another */
+.section.simple{width:200px;gap:4px}
+.section.simple .roof2{width:0;height:0;border-left:100px solid transparent;border-right:100px solid transparent;border-bottom:46px solid #c97a5d;margin-bottom:0}
+.section.simple .storey{width:170px;height:46px;margin:0;padding:0;background:#efe5d3;border:0;border-radius:6px}
+.section.simple .storey.under{background:#b1ada4}
+.section.simple .ground-line{width:200px;height:4px;border-radius:2px;background:#5a9737}
+.floor-pick.open .section.simple > *{animation:build .4s var(--settle) both}
+.floor-pick.open .section.simple > :nth-child(1){animation-delay:.24s}
+.floor-pick.open .section.simple > :nth-child(2){animation-delay:.16s}
+.floor-pick.open .section.simple > :nth-child(3){animation-delay:.08s}
+.floor-pick.open .section.simple > :nth-child(4),.floor-pick.open .section.simple > :nth-child(5){animation-delay:0s}
+@keyframes build{from{opacity:0;transform:translateY(14px) scale(.96)}}
+.section.simple .storey:not(.here)::after{content:"";position:absolute;inset:0;border-radius:6px;pointer-events:none;animation:storeyGlow 1.6s ease-in-out infinite}   /* the glow, on its own layer so the build-up can run too */
 .section{position:relative;width:220px;margin:4px auto 16px;display:flex;flex-direction:column;align-items:center}
 .section .roof{display:block;width:220px;height:64px;margin-bottom:-2px}
 .storey{position:relative;width:196px;height:62px;margin-top:-2px;display:flex;align-items:flex-end;justify-content:space-evenly;padding:0 10px 10px;
@@ -333,12 +346,20 @@ body.in-scene .talk{display:none}
 .cart-line b{margin-left:auto;font-variant-numeric:tabular-nums}
 #stBuy{padding:8px 18px;border-radius:999px;font-size:13px;font-weight:650;background:#facc15;color:#2b1a12}
 #stBuy:disabled{opacity:.4;cursor:default}
+.cart-items{display:flex;flex-wrap:wrap;gap:5px;max-height:64px;overflow-y:auto}
+.cart-items:empty{display:none}
+.ci{display:inline-flex;align-items:center;gap:6px;padding:3px 4px 3px 10px;border-radius:999px;font-size:11.5px;font-weight:600;background:rgba(34,195,160,.12);border:1px solid rgba(34,195,160,.4)}
+.ci button{width:20px;height:20px;border-radius:50%;font-size:14px;line-height:1;background:var(--btn-bg);border:1px solid var(--line);color:var(--ink-2)}
+.ci button:hover{background:#fde2e2;color:#dc2626}
+.opt.incart .ck{background:#ef4444}
 .st-note{font-size:12.5px;font-weight:600;color:#0f8a70}
 .st-note:empty{display:none}
 .store-card .ask-out{box-shadow:none;background:var(--soft);-webkit-backdrop-filter:none;backdrop-filter:none}
 .store-card .ask-row{display:flex;flex-wrap:wrap;gap:6px}
 .store-card .ask-row button{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:999px;font-size:12.5px;font-weight:650;background:var(--btn-bg);border:1px solid var(--btn-border);color:var(--ink)}
-.store-card .ask-row button:disabled{opacity:.55;cursor:default}
+.store-card .ask-row button:disabled,.store-card #askGPT:disabled{opacity:1;background:#d6d6d6;color:#8a8a8a;border-color:#cfcfcf;cursor:default;filter:grayscale(1)}   /* used: grey */
+.st-time{margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--trough);color:var(--ink-2);letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums}
+.st-time.bump{animation:recNew 1.6s var(--settle)}
 .store-card #askGPT{background:#111;color:#fff;border-color:#111}
 .store-card #stLeave{margin-left:auto;background:var(--soft)}
 .store-card #stLeave.go{background:var(--teal);color:#fff;border-color:transparent}
@@ -447,6 +468,7 @@ body.in-diy .floor-tag,body.in-diy .dpad,body.in-diy .yard,body.in-diy .hots{dis
 /* while fixing (and on the way to the store) the phone and the post-its step aside */
 .notes,#phone{transition:opacity .3s,visibility 0s}
 body.in-scene .notes,body.in-scene #phone,body.in-scene .dpad,body.in-scene .floor-tag{opacity:0;visibility:hidden;transition:opacity .3s,visibility 0s .3s}
+body.in-scene .notes,body.in-scene .notes *,body.in-scene #phone,body.in-scene #phone *,body.in-scene .dpad,body.in-scene .dpad *{pointer-events:none!important}   /* never in the way, even while fading */
 /* speech bubbles above people */
 .ch .say,.store-say{position:absolute;left:50%;bottom:100%;margin-bottom:6px;transform:translateX(-50%);width:max-content;max-width:260px;padding:8px 11px;border-radius:14px;
   background:#fffdf6;color:rgb(35,35,35);font-size:12px;line-height:1.35;font-weight:500;box-shadow:0 6px 18px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .25s;z-index:3}
@@ -788,12 +810,12 @@ html[data-theme="dark"] .diy-sprite,html[data-theme="dark"] .diy canvas{filter:b
 </div>
 <div class="modal" id="diyAsk"><div class="eyebrow"></div><h3></h3><p></p><div class="est"></div><div class="prepline"></div><div class="row"><button class="yes">Take it on</button><button class="no">Not now</button></div></div>
 <div class="modal floor-pick" id="floorAsk"><div class="eyebrow">Stairs</div><h3>Where to?</h3>
-  <div class="section" aria-label="The house">
-    <svg class="roof" viewBox="0 0 220 64" shape-rendering="crispEdges" aria-hidden="true"><path d="M168 6h14v34h-14z" fill="#2b1a12"/><path d="M170 8h10v30h-10z" fill="#a3533b"/><path d="M0 64L110 2L220 64z" fill="#2b1a12"/><path d="M9 62L110 7L211 62z" fill="#c97a5d"/><path d="M40 52h140M70 36h80" stroke="#ab6148" stroke-width="3"/></svg>
-    <button class="storey" data-f="upper"><span class="win"></span><span class="win"></span><span class="win"></span><span class="win"></span><span class="nm">Upstairs</span><span class="me"></span></button>
-    <button class="storey" data-f="ground"><span class="win"></span><span class="door"></span><span class="win"></span><span class="nm">Ground floor</span><span class="me"></span></button>
-    <div class="grade" aria-hidden="true"></div>
-    <button class="storey under" data-f="basement"><span class="win low"></span><span class="win low"></span><span class="nm">Basement</span><span class="me"></span></button>
+  <div class="section simple" aria-label="The house">
+    <div class="roof2" aria-hidden="true"></div>
+    <button class="storey" data-f="upper"><span class="nm">Upstairs</span><span class="me"></span></button>
+    <button class="storey" data-f="ground"><span class="nm">Ground floor</span><span class="me"></span></button>
+    <div class="ground-line" aria-hidden="true"></div>
+    <button class="storey under" data-f="basement"><span class="nm">Basement</span><span class="me"></span></button>
   </div>
   <div class="row"><button class="no">Cancel</button></div></div>
 <!-- ============ the hardware store: the clerk behind the counter ============ -->
@@ -1422,6 +1444,7 @@ function hideBanner() { $('#banner').classList.remove('show'); }
 /* an NPC texts: pick the next line from its pool */
 function receive(id) {
   const list = pool[id], text = list[poolIx[id]++ % list.length];
+  if (typeof inPerson === 'function' && inPerson(id, text)) { applyFx(FX[id]); return; }   /* they are right here: they say it instead of texting */
   deliver(id, text);
   if (id !== 'clerk') applyFx(FX[id]);
   /* the clerk's upsell sometimes turns into a purchase, which goes through pay() */
@@ -2662,7 +2685,7 @@ function visit(role, line, stay) {
   const via = routeVia(scene, p.x, p.y), goal = [p.x + (p.x > 700 ? -62 : 62), p.y + 4];
   n.path = [...via, goal]; visitor = role;
   n.onArrive = () => {
-    turn(ch, p.x < ch.x ? 'left' : 'right'); talk(role, line, stay); n.talking = true;
+    turn(ch, p.x < ch.x ? 'left' : 'right'); talk(role, line, Math.min(stay, 9000)); n.talking = true;
     n.leaveT = setTimeout(() => {
       n.talking = false; hideTalk();
       n.path = [...via.slice().reverse(), start];
@@ -2694,14 +2717,55 @@ travel = (name, x, y, dir) => {
 };
 /* the neighbor drops in every few minutes; the friend or a parent sometimes (10 % a minute) */
 setTimeout(function neighborLoop() { visit('neighbor', oneOf(TEXTS.neighbor), 7000); setTimeout(neighborLoop, 150000 + Math.random() * 60000); }, 45000);
-setInterval(() => { if (Math.random() < .1) { const who = Math.random() < .5 ? 'friend' : 'parent'; visit(who, oneOf(TEXTS[who]), 22000); } }, 60000);
+let pendingVisit = null;
+setInterval(() => {   /* every minute: 15 % the parent comes by, 15 % the friend */
+  if (pendingVisit) return;
+  const r = Math.random(); if (r < .15) pendingVisit = 'parent'; else if (r < .30) pendingVisit = 'friend';
+}, 60000);
+setInterval(() => { if (pendingVisit && visit(pendingVisit, lineFor(pendingVisit), 30000)) pendingVisit = null; }, 3000);   /* waits until a visit can start */
+
+/* ---------- close by: the partner and the neighbor come over and say something ---------- */
+const lastTalk = {};
+function lineFor(role) { const list = pool[role] || TEXTS[role]; return list[Math.floor(Math.random() * list.length)]; }
+function comeOver(role, line) {   /* someone already here walks up, talks, and carries on */
+  const n = NPCS[role], ch = charOf(role), p = chars[selected];
+  if (!ch || n.scene !== scene || n.talking || visitor === role || frozen || talkEl.classList.contains('show')) return false;
+  lastTalk[role] = performance.now();
+  if (role === 'neighbor' && !n.path.length) {
+    if (Math.hypot(p.x - ch.x, p.y - ch.y) < 170) {   /* close to the fence: they talk over it */
+      turn(ch, Math.abs(p.x - ch.x) < 30 ? 'back' : p.x < ch.x ? 'left' : 'right'); n.talking = true; talk(role, line, 7000);
+      setTimeout(() => { n.talking = false; turn(ch, 'back'); }, 7000); return true;
+    }
+    return visit('neighbor', line, 7000);
+  }
+  const goal = [p.x + (ch.x < p.x ? -62 : 62), p.y + 4];
+  const arrive = () => { turn(ch, p.x < ch.x ? 'left' : 'right'); n.talking = true; talk(role, line, 7000); setTimeout(() => { n.talking = false; n.wait = 3; }, 7000); };
+  if (Math.hypot(goal[0] - ch.x, goal[1] - ch.y) > 20) { n.path = [goal]; n.onArrive = arrive; } else arrive();
+  return true;
+}
+function inPerson(role, text) {   /* used by receive(): someone in the same place says it instead of texting */
+  if (!['partner', 'neighbor', 'parent', 'friend'].includes(role) || LIVE) return false;
+  if (frozen || document.body.classList.contains('in-scene')) return false;
+  const n = NPCS[role]; if (!n || n.scene !== scene) return false;
+  return visitor === role ? (talk(role, text, 7000), true) : comeOver(role, text);
+}
+setInterval(() => {   /* walk close to the partner or the neighbor and they start talking (at most every 45 s each) */
+  if (frozen || document.body.classList.contains('in-scene') || LIVE) return;
+  const p = chars[selected];
+  ['partner', 'neighbor'].forEach(role => {
+    const n = NPCS[role], ch = charOf(role);
+    if (!ch || n.scene !== scene || n.talking || visitor) return;
+    if (Math.hypot(p.x - ch.x, p.y - ch.y) < 120 && performance.now() - (lastTalk[role] || -1e9) > 45000) comeOver(role, lineFor(role));
+  });
+}, 500);
 /* "Give up.": the contractor shows up in person */
 const GIVE_UP = ['Took you long enough. I will take it from here.', 'Step away from the drywall. Slowly.', 'Do not worry, I have seen worse. Not much worse, but worse.', 'My crew starts Monday. Put the hammer down.'];
 function contractorArrives(tries) {
   if (visit('contractor', oneOf(GIVE_UP), 9000)) return;
   if ((tries || 0) < 20) setTimeout(() => contractorArrives((tries || 0) + 1), 3000);
 }
-window.DIWHY_DEBUG = { visit, contractorArrives, goBuy:() => goBuy() };   /* for testing in the console */
+window.DIWHY_DEBUG = { visit, contractorArrives, goBuy:() => goBuy(), comeOver:(r) => comeOver(r, lineFor(r)), pending:(r) => { pendingVisit = r; },
+  state:() => ({ scene, visitor, frozen, npcs:Object.fromEntries(Object.entries(NPCS).map(([r, n]) => { const ch = charOf(r); return [r, { scene:n.scene, talking:n.talking, path:n.path.length, at:ch ? [Math.round(ch.x), Math.round(ch.y)] : null, last:lastTalk[r] ? Math.round((performance.now() - lastTalk[r]) / 1000) + ' s ago' : 'never' }]; })) }) };   /* for testing in the console */
 
 /* ---------- tools ---------- */
 const INV = new Set(['hammer', 'screwdriver', 'tape measure']);
@@ -2817,17 +2881,18 @@ function renderStore() {
         if (q === 'premium') tags.push(`<span class="tag clerk">${clerk.name} recommends</span>`);
         if (mine && prep.yt && q === 'right') tags.push('<span class="tag yt">YouTube recommends</span>');
         if (mine && prep.gpt && i === s.gpt) tags.push('<span class="tag gpt">ChatGPT recommends</span>');
-        return `<button class="opt${inCart ? ' incart' : ''}" data-key="${key}"><span class="on">${name}<span class="tags">${tags.join('')}</span></span><span class="pr">${money(price)}<span class="ck">${inCart ? 'In cart' : 'Add'}</span></span></button>`;
+        return `<button class="opt${inCart ? ' incart' : ''}" data-key="${key}"><span class="on">${name}<span class="tags">${tags.join('')}</span></span><span class="pr">${money(price)}<span class="ck">${inCart ? 'Remove' : 'Add'}</span></span></button>`;
       }).join('') + '</div>';
   };
   const total = [...cart.values()].reduce((a, [t, i]) => a + SHOP[t].opts[i][1], 0);
   const done = INV.has(run.waitTool);
   stCard.innerHTML = `
-    <div class="st-head"><div class="eyebrow">The hardware store</div><h3>${done ? 'You have what you need' : 'You need: ' + run.waitTool}</h3>
+    <div class="st-head"><div class="eyebrow">The hardware store <span class="st-time${timeBump ? ' bump' : ''}">${clockText()}</span></div><h3>${done ? 'You have what you need' : 'You need: ' + run.waitTool}</h3>
       <p class="who">${clerk.name}, the store clerk, is happy to help. Very happy.</p></div>
     <div class="st-list">${need.map(block).join('')}<div class="st-sep">Everything else</div>${others.map(block).join('')}</div>
     <div class="st-cart">
       <div class="cart-line"><span>Cart: ${cart.size} item${cart.size === 1 ? '' : 's'}</span><b>${money(total)}</b><button id="stBuy"${cart.size ? '' : ' disabled'}>Buy all</button></div>
+      <div class="cart-items">${[...cart.entries()].map(([key, [t, i]]) => `<span class="ci">${SHOP[t].opts[i][0]} ${money(SHOP[t].opts[i][1])}<button data-key="${key}" aria-label="Remove ${SHOP[t].opts[i][0]}">&times;</button></span>`).join('')}</div>
       <div class="st-note">${stNote}</div>
       <div class="ask-out">${askMsg}</div>
       <div class="ask-row">
@@ -2836,10 +2901,14 @@ function renderStore() {
         <button id="stLeave" class="${done ? 'go' : ''}">${done ? 'Back to the job' : 'Leave the store'}</button>
       </div>
     </div>`;
-  freshRec = null;
+  freshRec = null; timeBump = false;
   stCard.querySelectorAll('.opt').forEach(b => b.onclick = e => {   /* click: into the cart, click again: out */
     e.stopPropagation(); const key = b.dataset.key, [tool, i] = key.split('|');
     if (cart.has(key)) cart.delete(key); else cart.set(key, [tool, +i]);
+    const keep = stCard.querySelector('.st-list').scrollTop; renderStore(); stCard.querySelector('.st-list').scrollTop = keep;
+  });
+  stCard.querySelectorAll('.ci button').forEach(b => b.onclick = e => {   /* remove from the cart */
+    e.stopPropagation(); cart.delete(b.dataset.key);
     const keep = stCard.querySelector('.st-list').scrollTop; renderStore(); stCard.querySelector('.st-list').scrollTop = keep;
   });
   $('#stBuy').onclick = e => { e.stopPropagation(); buyAll(); };
@@ -2849,7 +2918,11 @@ function renderStore() {
 }
 /* the store window: a cart, Buy all, and YouTube or ChatGPT before buying */
 const cart = new Map();   /* "tool|option" -> [tool, option] */
-let askMsg = '', stNote = '', freshRec = null, askBusy = false;
+let askMsg = '', stNote = '', freshRec = null, askBusy = false, timeBump = false;
+function clockText() {   /* "Day 18, 14:30": the time of day moves when you watch or ask */
+  const d = S.time * PLAN_DAYS, day = Math.floor(d), mins = Math.round((d - day) * 24 * 60), hh = Math.floor(mins / 60) % 24, mm = mins % 60;
+  return `Day ${day}, ${hh}:${String(mm).padStart(2, '0')}`;
+}
 function setAsk(html) { askMsg = html; const el = stCard.querySelector('.ask-out'); if (el) el.innerHTML = html; }
 function buyAll() {
   if (!cart.size) return;
@@ -2876,7 +2949,7 @@ function askYouTube() {
     v.watched = true; PREP[run.id].yt = true; spend('yt', v.min); renderYT();
     const picks = Object.values(TOOLS_NEEDED[run.id] || {}).map(tl => SHOP[tl].opts.find(o => o[2] === 'right')[0].toLowerCase());
     askMsg = `<b>YouTube</b> Get the ${picks.join(' and the ')}. Skip the fancy stuff. <small>(${fmtMin(v.min)} of video)</small>`;
-    freshRec = 'yt'; renderStore();
+    freshRec = 'yt'; timeBump = true; renderStore();
   }, 100);
 }
 function askChatGPT() {
@@ -2886,7 +2959,7 @@ function askChatGPT() {
     askBusy = false; PREP[run.id].gpt = true; spend('gpt', 20); renderChips();
     const picks = Object.values(TOOLS_NEEDED[run.id] || {}).map(tl => SHOP[tl].opts[SHOP[tl].gpt][0].toLowerCase());
     askMsg = `<b>ChatGPT</b> Great question! You just need the ${picks.join(' and the ')}. That is it! <small>(20 min)</small>`;
-    freshRec = 'gpt'; renderStore();
+    freshRec = 'gpt'; timeBump = true; renderStore();
   }, 1100);
 }
 function backToJob() {
