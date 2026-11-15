@@ -9,8 +9,8 @@ import music from '@audio/music/menu.mp3';
 import pop from '@audio/ui/pop.wav';
 import { Screen } from '../engine/Screen';
 
-const SPEED = 1.6; // the artwork runs 8.82 s; we play it this much faster
-const LENGTH = 8820 / SPEED; // ms, one pass of the house falling
+const SPEED = 1.6; // the artwork runs 8.96 s; we play it this much faster
+const LENGTH = 8960 / SPEED; // ms, one pass of the house falling
 const STOP_AT = 0.91; // the artwork stops here and stays (house down, DIWHY?! up), instead of looping
 const HOLD_MS = 2500; // how long it stays on screen before the contract
 
@@ -74,7 +74,7 @@ export class House extends Screen {
 }
 
 /** Load an animated SVG sped up and played once: it stops at STOP_AT and holds that frame.
- *  (Its frames are <animate> steps over one 8.82 s timeline; we cut each at STOP_AT and freeze it.)
+ *  (Its frames are <animate> steps over one 8.96 s timeline; we cut each at STOP_AT and freeze it.)
  *  A fresh URL, so it starts from the top. */
 async function playOnce(url: string): Promise<string> {
   const svg = (await (await fetch(url)).text()).replace(/<animate [^>]*\/>/g, (tag) => {
