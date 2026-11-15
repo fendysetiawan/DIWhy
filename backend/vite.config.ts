@@ -19,7 +19,7 @@ function backendApi(): Plugin {
       };
 
       server.watcher.on('change', (file) => {
-        if (/\/src\/(server|service|engine|data|directors)\//.test(file)) listener = null;
+        if (/[\\/]src[\\/](server|service|engine|data|directors|content)[\\/]/.test(file)) listener = null;
       });
 
       server.middlewares.use('/api', async (req, res) => {

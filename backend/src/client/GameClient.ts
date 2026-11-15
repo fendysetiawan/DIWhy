@@ -1,12 +1,28 @@
 // A typed client for the DIWhy backend. Any front end can use it, or copy it as an example.
 // It imports only the contract's types, so it pulls no game code into a front end's bundle.
 
-import type { ApiErrorBody, ChooseRequest, CreateGameRequest, GameView, RequestOptions } from '../service/types';
+import type {
+  ApiErrorBody,
+  ChooseRequest,
+  CreateGameRequest,
+  GameView,
+  HealthView,
+  PaymentRequest,
+  PhoneRequest,
+  PhoneView,
+  ProjectView,
+  RequestOptions,
+} from '../service/types';
 
 export interface GameClient {
+  health(): Promise<HealthView>;
+  listProjects(): Promise<ProjectView[]>;
   createGame(req?: CreateGameRequest, opts?: RequestOptions): Promise<GameView>;
   getGame(id: string, opts?: RequestOptions): Promise<GameView>;
   choose(id: string, req: ChooseRequest, opts?: RequestOptions): Promise<GameView>;
+  requestQuote(id: string, opts?: RequestOptions): Promise<GameView>;
+  payment(id: string, req: PaymentRequest, opts?: RequestOptions): Promise<GameView>;
+  phone(id: string, req: PhoneRequest): Promise<PhoneView>;
   giveUp(id: string, opts?: RequestOptions): Promise<GameView>;
   deleteGame(id: string): Promise<void>;
 }
@@ -56,10 +72,15 @@ export function createHttpClient(opts: HttpClientOptions = {}): GameClient {
   }
 
   return {
+    health: () => call('GET', '/health'),
+    listProjects: async () => (await call<{ projects: ProjectView[] }>('GET', '/projects')).projects,
     createGame: (req = {}, ro) => call('POST', '/games', req, ro),
     getGame: (id, ro) => call('GET', `/games/${encodeURIComponent(id)}`, undefined, ro),
     choose: (id, req, ro) => call('POST', `/games/${encodeURIComponent(id)}/choices`, req, ro),
-    giveUp: (id, ro) => call('POST', `/games/${encodeURIComponent(id)}/giveup`, {}, ro),
+    requestQuote: (id, ro) => call('POST', `/games/${encodeURIComponent(id)}/quote`, undefined, ro),
+    payment: (id, req, ro) => call('POST', `/games/${encodeURIComponent(id)}/payments`, req, ro),
+    phone: (id, req) => call('POST', `/games/${encodeURIComponent(id)}/phone`, req),
+    giveUp: (id, ro) => call('POST', `/games/${encodeURIComponent(id)}/giveup`, undefined, ro),
     deleteGame: (id) => call('DELETE', `/games/${encodeURIComponent(id)}`),
   };
 }

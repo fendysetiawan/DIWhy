@@ -7,13 +7,14 @@
 //   GET    /api/games/:id                                      -> GameView
 //   POST   /api/games/:id/choices  { choice, eventId? }       -> GameView
 //   POST   /api/games/:id/quote                                -> GameView (contractor re-quotes)
+//   POST   /api/games/:id/giveup                               -> GameView (the contractor takes over)
 //   POST   /api/games/:id/payments { chargeId, confirm }      -> GameView (answer the bank)
 //   POST   /api/games/:id/phone    { with, kind, thread? }     -> PhoneView (a text and reply buttons, from the local model)
 //   DELETE /api/games/:id                                      -> 204
 //
 // Add ?debug=1 to any game request to include the `debug` payload. See API.md.
 
-import { ServiceError } from '../service/errors';
+import { ServiceError, notFound } from '../service/errors';
 import type { GameService } from '../service/GameService';
 import type { ApiErrorBody, ChooseRequest, CreateGameRequest, PaymentRequest, PhoneRequest } from '../service/types';
 
@@ -26,6 +27,18 @@ export interface HttpOptions {
 export type Handler = (req: Request) => Promise<Response>;
 
 const STATUS = { bad_request: 400, not_found: 404, conflict: 409 } as const;
+
+/** A game id from the URL. Anything that is not a plain id is simply a game that does not exist. */
+function gameIdFrom(raw: string): string {
+  let id: string;
+  try {
+    id = decodeURIComponent(raw);
+  } catch {
+    id = '';
+  }
+  if (!/^[A-Za-z0-9_-]{1,80}$/.test(id)) throw notFound('game_not_found', 'no game with that id');
+  return id;
+}
 
 export function createHttpHandler(service: GameService, opts: HttpOptions = {}): Handler {
   const maxBody = opts.maxBodyBytes ?? 4096;
@@ -92,7 +105,7 @@ export function createHttpHandler(service: GameService, opts: HttpOptions = {}):
 
       const game = path.match(/^\/api\/games\/([^/]+)$/);
       if (game) {
-        const id = decodeURIComponent(game[1]);
+        const id = gameIdFrom(game[1]);
         if (method === 'GET') return json(await service.getGame(id, { debug }));
         if (method === 'DELETE') {
           await service.deleteGame(id);
@@ -104,12 +117,13 @@ export function createHttpHandler(service: GameService, opts: HttpOptions = {}):
       const action = path.match(/^\/api\/games\/([^/]+)\/(choices|quote|payments|phone|giveup)$/);
       if (action) {
         if (method !== 'POST') return error(405, 'method_not_allowed', 'use POST', { Allow: 'POST, OPTIONS' });
-        const id = decodeURIComponent(action[1]);
+        const id = gameIdFrom(action[1]);
+        // These two take no body, so a stray one is never read.
+        if (action[2] === 'giveup') return json(await service.giveUp(id, { debug }));
+        if (action[2] === 'quote') return json(await service.requestQuote(id, { debug }));
         const body = await readBody(req);
         if (action[2] === 'choices') return json(await service.choose(id, body as unknown as ChooseRequest, { debug }));
         if (action[2] === 'phone') return json(await service.phone(id, body as unknown as PhoneRequest));
-        if (action[2] === 'giveup') return json(await service.giveUp(id, { debug }));
-        if (action[2] === 'quote') return json(await service.requestQuote(id, { debug }));
         return json(await service.payment(id, body as unknown as PaymentRequest, { debug }));
       }
 

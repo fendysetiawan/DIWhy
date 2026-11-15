@@ -27,6 +27,25 @@ describe('routes', () => {
     });
   });
 
+  it('a game id that is not a plain id is a 404, not a crash', async () => {
+    const { handler } = createApp();
+    for (const bad of ['%E0%A4%A', '..%2F..%2Fx', 'a%20b', 'x'.repeat(81)]) {
+      const r = await call(handler, 'GET', `/api/games/${bad}`);
+      expect(r.status, bad).toBe(404);
+      expect((await err(r)).code).toBe('game_not_found');
+    }
+    expect((await call(handler, 'GET', '/api/games/%2e%2e')).status).toBe(404); // the URL parser turns this into a different path
+    expect((await call(handler, 'POST', '/api/games/%E0%A4%A/choices', { choice: 0 })).status).toBe(404);
+    expect((await call(handler, 'DELETE', '/api/games/..%2Fx')).status).toBe(404);
+  });
+
+  it('quote and giveup ignore the body, even junk', async () => {
+    const { handler } = createApp();
+    const g = (await (await call(handler, 'POST', '/api/games', { seed: 42 })).json()) as { id: string };
+    expect((await call(handler, 'POST', `/api/games/${g.id}/quote`, 'not json {')).status).toBe(200);
+    expect((await call(handler, 'POST', `/api/games/${g.id}/giveup`, 'not json {')).status).toBe(200);
+  });
+
   it('POST /api/games/:id/giveup ends the game with the contractor bill', async () => {
     const { handler } = createApp();
     const g = (await (await call(handler, 'POST', '/api/games', { seed: 42 })).json()) as { id: string };

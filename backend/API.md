@@ -3,7 +3,7 @@
 A JSON API over HTTP. It runs the whole game: the projects, the events, the dice, the cast, the contractor's quote, the bank and the end report. A front end only has to draw what it receives and send back the player's choices.
 
 - **Contract:** [`src/service/types.ts`](src/service/types.ts) holds every request and response shape. Copy it or import it as types only.
-- **Typed client:** [`src/client/GameClient.ts`](src/client/GameClient.ts) is a small wrapper over these endpoints. Use it, or treat it as a worked example.
+- **Typed client:** [`src/client/GameClient.ts`](src/client/GameClient.ts) is a small wrapper over every endpoint here (`health`, `listProjects`, `createGame`, `getGame`, `choose`, `requestQuote`, `payment`, `phone`, `giveUp`, `deleteGame`). Use it, or treat it as a worked example.
 - **Working front ends:** [`../frontend/game-link.js`](../frontend/game-link.js) connects the team's gameplay page to this API, and [`../app/`](../app/) is the front door. Both are plain JavaScript and show the calls in use.
 
 ## Running it
@@ -63,8 +63,8 @@ console.log(game.report.achievement.title);
 | `POST /api/games` | `{ seed?, project?, owner?, director? }` | `201` GameView, `Location` header | Body may be empty. |
 | `GET /api/games/:id` | none | `200` GameView | Safe to call any time, for example to resume after a reload. |
 | `POST /api/games/:id/choices` | `{ choice, eventId? }` | `200` GameView | Applies the choice, then picks the next event. |
-| `POST /api/games/:id/quote` | none | `200` GameView | The contractor re-quotes. Only ever goes up. Answers `409 game_over` if the game has ended. |
-| `POST /api/games/:id/giveup` | none | `200` GameView | The player gives up and the contractor takes over. The game ends as `"failed"` with `failure: "giveup"`, and `report.contractorBill` says what the contractor charges. Answers `409 game_over` if the game has already ended. |
+| `POST /api/games/:id/quote` | none (a body is ignored) | `200` GameView | The contractor re-quotes. Only ever goes up. Answers `409 game_over` if the game has ended. |
+| `POST /api/games/:id/giveup` | none (a body is ignored) | `200` GameView | The player gives up and the contractor takes over. The game ends as `"failed"` with `failure: "giveup"`, and `report.contractorBill` says what the contractor charges. Answers `409 game_over` if the game has already ended. |
 | `POST /api/games/:id/payments` | `{ chargeId, confirm }` | `200` GameView | Answer the bank about the latest charge. Answers `409 game_over` if the game has ended. |
 | `POST /api/games/:id/phone` | `{ with, kind, thread? }` | `200` PhoneView | A text from someone in the cast, and reply buttons, written by the local model. Read-only: it never changes the game. See below. |
 | `DELETE /api/games/:id` | none | `204` | Throws the game away. |
@@ -198,7 +198,7 @@ Every error has the same shape, and `code` is stable, so match on it and not on 
 | 400 | `invalid_kind` | `kind` isn't `advice`, `reaction` or `reply`. |
 | 400 | `invalid_thread` | `thread` isn't a list of `{ from, text }`, or a `reply` doesn't end with a `"me"` turn. |
 | 400 | `invalid_payment` | `confirm` isn't `true` or `false`, or `chargeId` isn't a whole number. |
-| 404 | `game_not_found` | Unknown id, or the game expired. |
+| 404 | `game_not_found` | Unknown id, or the game expired. An id that isn't letters, digits, `_` or `-` (up to 80) is treated the same way. |
 | 404 | `not_found` | No such route. |
 | 405 | `method_not_allowed` | Wrong HTTP method. The `Allow` header lists the right ones. |
 | 409 | `game_over` | The game has already ended. |
