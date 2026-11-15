@@ -91,6 +91,7 @@ export interface OutcomeView {
   days: number;
   partnerNagged: boolean; // the partner's pet peeve (money or time) is over the quote
   autoConfirmed: number | null; // id of an earlier charge the player never answered, which the bank let through
+  lines: string[]; // what happened, in order: the choice's result, then the blow-up line if the shortcut gave way
 }
 
 /** The numbers a player sees. */

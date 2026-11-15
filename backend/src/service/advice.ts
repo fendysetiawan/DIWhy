@@ -2,10 +2,13 @@
 // trustworthy (plan: "can give good or bad advice"). The advice is a pure function of the seed and
 // the event, so it never disturbs the game's dice and the same game always hears the same things.
 //
-//   neighbor  a coin flip between sound and terrible
-//   parent    mostly the way it used to be done, which is mostly wrong
-//   friend    keeps it fun; usually points at the exciting option
-//   clerk     always points at the most expensive option
+// The chances below are RELIABILITY in this file: how often each one points at a sound answer
+// (good or ok) when the event has one.
+//
+//   neighbor  50%: a coin flip between sound and terrible
+//   parent    30%: mostly the way it used to be done, which is mostly wrong
+//   friend    40%: keeps it fun, so often points at the exciting option
+//   clerk     0%: always points at the most expensive option
 //
 // Whether the advice is sound comes from each answer's quality in the team's event files.
 

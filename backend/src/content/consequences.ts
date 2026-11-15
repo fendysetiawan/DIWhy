@@ -88,6 +88,7 @@ export function consequence(
         days: days(1) + bump,
         stress: 8 + 3 * base.severity,
         waterDamage: category === 'plumbing' || category === 'envelope' ? true : undefined,
+        // Nothing in the rules reads this flag. Its reader is the Jev prompt (JevDirector.ts, "Story flags"), so keep writing it.
         addFlags: [`trouble-${category}`],
       },
     };

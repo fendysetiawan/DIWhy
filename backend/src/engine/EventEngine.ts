@@ -1,6 +1,6 @@
 // The event engine: which events can happen, and what a choice does.
 //
-// The loop (driven by session.ts) is:
+// The loop (driven by GameService) is:
 //   1. nextEvent()   -> eligible events -> director picks one
 //   2. player picks a choice
 //   3. applyChoice() -> new state

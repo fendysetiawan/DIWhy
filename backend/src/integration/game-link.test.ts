@@ -79,7 +79,7 @@ function makeHooks() {
   return hooks;
 }
 
-async function boot(opts: { gameId?: string; seed?: number; project?: string; fetch?: typeof fetch; phone?: Parameters<typeof createApp>[0] extends infer O ? (O extends { phone?: infer P } ? P : never) : never } = {}) {
+async function boot(opts: { gameId?: string; seed?: number; project?: string; fetch?: typeof fetch; wrap?: (real: typeof fetch) => typeof fetch; phone?: Parameters<typeof createApp>[0] extends infer O ? (O extends { phone?: infer P } ? P : never) : never } = {}) {
   const app = createApp({ projects: realProjects(), phone: opts.phone });
   const bridge = bridgeFetch(app.handler);
   const created = await (await bridge('/api/games', {
@@ -90,7 +90,7 @@ async function boot(opts: { gameId?: string; seed?: number; project?: string; fe
   const hooks = makeHooks();
   (window as any).DIWHY_HOOKS = hooks;
   (window as any).DIWHY_SPEED = 400; // type and wait 400 times faster than real time
-  vi.stubGlobal('fetch', opts.fetch ?? bridge);
+  vi.stubGlobal('fetch', opts.fetch ?? (opts.wrap ? opts.wrap(bridge) : bridge));
   history.replaceState(null, '', `/frontend/?game=${opts.gameId ?? created.id}`);
   (0, eval)(SCRIPT);
   await (window as any).DIWHY_LINK?.ready;
@@ -372,6 +372,19 @@ describe('game-link: making choices', () => {
     expect(hooks.S.time * 30 + hooks.S.budget).toBeGreaterThan(0);
   });
 
+  it('tells the player what the last choice did, in a .dw-last line on the next card', async () => {
+    const { bridge, id } = await boot();
+    await waitForOptions();
+    expect(document.querySelector('.dw-last')!.hasAttribute('hidden')).toBe(true); // nothing has happened yet
+    options()[1].click();
+    await vi.waitFor(() => expect(document.querySelector('.dw-last:not([hidden])')).not.toBeNull(), { timeout: WAIT });
+    const o = (await (await bridge(`/api/games/${id}`)).json()).outcome;
+    expect(o.lines.length).toBeGreaterThan(0);
+    const text = document.querySelector('.dw-last')!.textContent!;
+    for (const line of o.lines) expect(text).toContain(line);
+    if (o.cost > 0) expect(text).toContain('$');
+  });
+
   it('keeps the post-it rows: a row is added per event and ticked off, never wiped and redrawn', async () => {
     const { hooks } = await boot({ seed: 9, project: 'carpet-replacement' });
     await waitForOptions();
@@ -526,6 +539,28 @@ describe('game-link: the elevation view', () => {
   });
 });
 
+describe('game-link: the report when you beat the quote', () => {
+  it('says "Under the quote" instead of a negative overrun', async () => {
+    const underTheQuote = (real: typeof fetch) =>
+      (async (input: RequestInfo | URL, init?: RequestInit) => {
+        const res = await real(input, init);
+        const body = await res.clone().json().catch(() => null);
+        if (!body?.report) return res;
+        body.report.overrunPct = -12;
+        return new Response(JSON.stringify(body), { status: res.status, headers: { 'content-type': 'application/json' } });
+      }) as typeof fetch;
+    const { hooks } = await boot({ seed: 2, project: 'dryer-replacement', wrap: underTheQuote });
+    await waitForOptions();
+    hooks.onReply('contractor', 'Give up.'); // any ending shows the same report rows
+    await vi.waitFor(() => expect(document.querySelector('.dw-report')).not.toBeNull(), { timeout: WAIT });
+    const text = document.querySelector('.dw-report')!.textContent!;
+    expect(text).toContain('Under the quote');
+    expect(text).toContain('12%');
+    expect(text).not.toContain('Cost overrun');
+    expect(text).not.toContain('-12');
+  });
+});
+
 describe('game-link: giving up', () => {
   it(`the contractor's "Give up." reply ends the game and shows the contractor's bill`, async () => {
     const { hooks, bridge, id } = await boot({ seed: 2, project: 'dryer-replacement' });
@@ -539,6 +574,8 @@ describe('game-link: giving up', () => {
     expect(text).toContain("The contractor's bill");
     expect(text).toContain('$2,430'); // $1,800 quote x1.35 = $2,430, plus $250 call-out = $2,680
     expect(text).toContain('$2,680');
+    expect(text).toContain('All in');
+    expect(text).toContain('Cost overrun');
     expect(document.getElementById('dwCard')!.hidden).toBe(true);
     const g = await (await bridge(`/api/games/${id}`)).json();
     expect(g.failure).toBe('giveup');

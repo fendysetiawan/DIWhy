@@ -87,9 +87,10 @@ function reportCard(g: GameView): string {
     <p class="why-line">${esc(r.whyLine)}</p>
     <table>
       ${row('Original estimate', money(r.estimate))}
-      ${row('Actual total cost', money(r.actualCost))}
-      ${row('Cost overrun', `${r.overrunPct.toLocaleString('en-US')}%`)}
-      ${row('Original timeline', `${r.plannedDays} day`)}
+      ${r.contractorBill ? row('You spent', money(r.actualCost)) + row("The contractor's bill", money(r.contractorBill.total)) : ''}
+      ${row(r.contractorBill ? 'All in' : 'Actual total cost', money(r.totalCost))}
+      ${r.overrunPct < 0 ? row('Under the quote', `${(-r.overrunPct).toLocaleString('en-US')}%`) : row('Cost overrun', `${r.overrunPct.toLocaleString('en-US')}%`)}
+      ${row('Original timeline', `${r.plannedDays} day${r.plannedDays === 1 ? '' : 's'}`)}
       ${row('Actual timeline', `${r.actualDays} day${r.actualDays === 1 ? '' : 's'}`)}
       ${row('Times you asked "why?"', String(r.problems))}
       ${row('Final stress', String(r.stress))}

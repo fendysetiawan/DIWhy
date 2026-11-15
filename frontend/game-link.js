@@ -246,6 +246,16 @@
   }
 
   const money = (n) => H.money(n);
+
+  /** What the last choice did, in words: the result line, the blow-up line if there was one, and what it cost. */
+  function lastText(o) {
+    if (!o || !Array.isArray(o.lines) || !o.lines.length) return '';
+    const days = Math.round(o.days * 10) / 10;
+    const bits = [];
+    if (o.cost > 0) bits.push(money(o.cost));
+    if (days > 0) bits.push(`${days} day${days === 1 ? '' : 's'}`);
+    return `${o.lines.join(' ')}${bits.length ? ` (${bits.join(', ')})` : ''}`;
+  }
   const quoteLine = (q) => `Took a stab at the cost estimate. I'm looking at around ${money(q.budget)} and ${q.days} days for all the work.`;
 
   /** The next unused line in someone's chatter. These are the lines the page already has. */
@@ -388,6 +398,7 @@
       .dw-title { font-size: 16px; line-height: 1.6; margin: 0; }
       .dw-desc { margin: 0; min-height: 4em; }
       .dw-options { display: grid; gap: 12px; }
+      .dw-last { margin: 0; font-size: 12px; line-height: 1.6; opacity: .85; }
       .dw-option { display: block; width: 100%; text-align: left; line-height: 1.6; padding: 12px 16px; }
       .dw-option[disabled] { opacity: .45; pointer-events: none; }
       .dw-option .dw-n { color: var(--brand-sky, #9cc3ff); margin-right: 12px; }
@@ -465,7 +476,14 @@
       <div class="dw-kind brand-text brand-highlight">${esc(KIND[e.kind] || e.kind)}</div>
       <h2 class="dw-title brand-text">${esc(e.title)}</h2>
       <p class="dw-desc brand-text"></p>
-      <div class="dw-options" role="group" aria-label="What do you do?"></div>`;
+      <div class="dw-options" role="group" aria-label="What do you do?"></div>
+      <p class="dw-last brand-text" hidden></p>`;
+    const last = el.querySelector('.dw-last'); // what the last choice did (the lines and the cost), shown with the new card
+    const lastLine = lastText(g.outcome);
+    if (lastLine) {
+      last.textContent = lastLine;
+      last.hidden = false;
+    }
     await typeOut(el.querySelector('.dw-desc'), e.description, token);
     if (token !== cardToken) return;
 
@@ -635,12 +653,14 @@
         <h2 class="brand-title">${esc(r.achievement.title)}</h2>
         <p class="brand-text">${esc(r.achievement.text)}</p>
         <p class="brand-text">${esc(r.outcome)}</p>
+        ${lastText(g.outcome) ? `<p class="brand-text dw-last">${esc(lastText(g.outcome))}</p>` : ''}
         <p class="brand-text dw-why">${esc(r.whyLine)}</p>
         <table>
           ${bill ? billRows + row("The contractor's bill", money(bill.total)) : ''}
           ${row('Contractor quote', money(r.estimate))}
           ${row('You spent', money(r.actualCost))}
-          ${row('Cost overrun', `${r.overrunPct.toLocaleString('en-US')}%`)}
+          ${bill ? row('All in', money(r.totalCost === undefined ? r.actualCost + bill.total : r.totalCost)) : ''}
+          ${r.overrunPct < 0 ? row('Under the quote', `${(-r.overrunPct).toLocaleString('en-US')}%`) : row('Cost overrun', `${r.overrunPct.toLocaleString('en-US')}%`)}
           ${row('Contractor timeline', `${r.plannedDays} day${r.plannedDays === 1 ? '' : 's'}`)}
           ${row('Your timeline', `${r.actualDays} day${r.actualDays === 1 ? '' : 's'}`)}
           ${row('Times you asked "why?"', r.problems)}

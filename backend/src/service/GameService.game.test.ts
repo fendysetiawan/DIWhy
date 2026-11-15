@@ -296,6 +296,36 @@ describe('what a choice does', () => {
     expect(v.outcome!.cost).toBeGreaterThan(0);
   });
 
+  it('says what happened in outcome.lines: the result, plus the blow-up line when the shortcut gave way', async () => {
+    let blew = 0;
+    for (const p of projects.filter((x) => x.source)) {
+      for (const seed of [1, 2, 3, 4, 5, 6]) {
+        const s = svc();
+        let v = await s.createGame({ seed, project: p.id });
+        for (let i = 0; i < 12 && v.status === 'playing'; i++) {
+          const event = p.events.find((e) => e.id === v.event!.id);
+          // Prefer an answer with a gamble, so the blow-up line is exercised.
+          const risky = event ? event.choices.findIndex((c) => c.gamble) : -1;
+          const pick = risky >= 0 ? risky : 0;
+          const answered = event ?? p.finale;
+          v = await s.choose(v.id, { choice: pick, eventId: v.event!.id });
+          const o = v.outcome!;
+          const choice = answered.choices[pick];
+          expect(o.lines[0], `${p.id}/${seed}`).toBe(choice.result);
+          if (o.blewUp) {
+            blew++;
+            expect(o.lines).toEqual([choice.result, choice.gamble!.result]);
+          } else {
+            expect(o.lines).toEqual([choice.result]);
+          }
+          const head = v.log.slice(o.autoConfirmed === null ? 0 : 1, (o.autoConfirmed === null ? 0 : 1) + o.lines.length);
+          expect(head.slice().reverse()).toEqual(o.lines); // the log is these same lines, newest first
+        }
+      }
+    }
+    expect(blew).toBeGreaterThan(0);
+  });
+
   it('turns a charge into a pending payment, and a free choice into none', async () => {
     const s = svc();
     const g = await s.createGame({ seed: 12, project: 'wall-removal' });

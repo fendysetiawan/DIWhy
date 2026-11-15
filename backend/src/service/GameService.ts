@@ -209,6 +209,7 @@ export class GameService {
         days: next.daysElapsed - before.daysElapsed,
         partnerNagged,
         autoConfirmed,
+        lines: [...result.log],
       };
 
       if (isOver(next)) {

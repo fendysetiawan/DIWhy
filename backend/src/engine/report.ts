@@ -12,10 +12,12 @@ export interface ContractorBill {
 
 export interface Report {
   estimate: number;
-  actualCost: number;
+  actualCost: number; // what the player spent on the job
+  totalCost: number; // everything paid: actualCost plus the contractor's bill if the player gave up
   plannedDays: number;
   actualDays: number;
-  overrunPct: number;
+  overrunPct: number; // totalCost against the quote. Negative when under it
+
   problems: number;
   stress: number;
   outcome: string; // one line: how it ended
@@ -44,7 +46,9 @@ function contractorBill(s: GameState): ContractorBill {
 export function buildReport(s: GameState): Report {
   const quote = s.quote;
   const fever = flagCount(s, 'upgrade-fever') + flagCount(s, 'scope-creep');
-  const overrunPct = Math.round(((s.spent - quote.budget) / quote.budget) * 100);
+  const bill = s.failure === 'giveup' ? contractorBill(s) : null;
+  const totalCost = s.spent + (bill ? bill.total : 0);
+  const overrunPct = Math.round(((totalCost - quote.budget) / quote.budget) * 100);
 
   let outcome: string;
   let why: string;
@@ -55,14 +59,14 @@ export function buildReport(s: GameState): Report {
     why = 'It looked easier in the video.';
     achievement = {
       title: 'The contractor fixed everything',
-      text: `You gave up, and the contractor's bill came to ${money(contractorBill(s).total)}.`,
+      text: `You gave up, and the contractor's bill came to ${money(bill!.total)}.`,
     };
   } else if (s.failure === 'stress') {
-    outcome = 'You hit 100 stress and walked out of the bathroom for good.';
+    outcome = `You hit 100 stress and walked away from the ${s.job} for good.`;
     why = 'Nobody knows. Least of all you.';
     achievement = {
       title: 'Meltdown in aisle seven',
-      text: 'Your stress hit 100 before your faucet hit the sink.',
+      text: `Your stress hit 100 before the ${s.job} was done.`,
     };
   } else if (s.failure === 'budget') {
     outcome = `The ${money(s.budget)} limit ran out before the ${s.job} was done.`;
@@ -73,10 +77,10 @@ export function buildReport(s: GameState): Report {
     };
   } else if (s.failure === 'time') {
     outcome = `${s.maxDays} days came and went. The ${s.job} is still not done.`;
-    why = 'The video said it would take one day.';
+    why = `The video said it would take ${quote.days} days.`;
     achievement = {
       title: 'Is it done yet?',
-      text: 'Somewhere, a contractor is "just finishing up". He has been for a month.',
+      text: `Somewhere, a contractor is "just finishing up". He has been for ${s.maxDays} days.`,
     };
   } else if (s.spent <= quote.budget && s.daysElapsed <= quote.days) {
     outcome = 'The job is done, and so is your dignity.';
@@ -111,6 +115,7 @@ export function buildReport(s: GameState): Report {
   return {
     estimate: quote.budget,
     actualCost: s.spent,
+    totalCost,
     plannedDays: quote.days,
     actualDays: s.daysElapsed,
     overrunPct,
@@ -119,6 +124,6 @@ export function buildReport(s: GameState): Report {
     outcome,
     whyLine: `Why did you do it yourself? ${why}`,
     achievement,
-    contractorBill: s.failure === 'giveup' ? contractorBill(s) : null,
+    contractorBill: bill,
   };
 }

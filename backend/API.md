@@ -130,14 +130,14 @@ Every endpoint that returns a game returns this shape. Trimmed:
 | `failure` | When `"failed"`: `"budget"`, `"time"`, `"stress"` or `"giveup"` (the player called the contractor in). The game ends at 2.5 times the quote's money, 3 times its days, or stress 100 (`stats.budget` and `stats.maxDays` are those limits). |
 | `stats` | The numbers to show. `eventsDone` out of `eventsMax` is how far along the work is (a game has at most 8 events plus the finale), which a front end can use to animate the job. `riskDebt` is the hidden cost of shortcuts; hide it if you want the risk to stay secret. |
 | `charge` | The latest purchase, waiting for the bank: `{ id, amount, what, status }`. `status` is `pending`, `confirmed` or `blocked`. A finished game never has a `pending` charge. |
-| `outcome` | What the last choice did: its `quality`, what it cost, whether it `blewUp`, and whether the partner nagged. Use it to have the cast react. `null` at the start. |
+| `outcome` | What the last choice did: its `quality`, what it cost, whether it `blewUp`, whether the partner nagged, and `lines`, the words for what happened (the choice's result, then the blow-up line if the shortcut gave way; the same lines that head `log`, oldest first). Use it to have the cast react. `null` at the start. |
 | `ledger` | Every cost so far, as `{ label, cost }`. |
 | `history` | The events the player has already answered, oldest first, as `{ id, title }`. The event on the table is not in it, and an event removed from the files since then shows its id as its title. A front end can use it to show the steps so far. |
 | `log` | Flavor text from recent choices, newest first. |
 | `event` | What to decide now. `null` once the game is over. `kind` is `problem`, `temptation`, `humor` or `finale`. |
 | `event.choices[].cost`, `days` | Always `null`: nobody tells you what a DIY fix will cost. The fields exist so a price tag can come back later. |
 | `event.advice` | Someone's opinion, about two events in three: `{ from, pick }`. They might be wrong (see below). |
-| `report` | `null` while playing. When over: the contractor's quote against what happened, overrun percentage, days, problems ("times you asked why"), stress, a one-line outcome, a closing "why" line and an achievement. `report.contractorBill` is `null` unless the player gave up. Then it is `{ rows: [{ label, cost, note }], total, quoted }`: the job at a rush price (1.35 times the quote), a `fixing your fix` row (0.3 times the quote) if the player had started, and a $250 call-out fee. |
+| `report` | `null` while playing. When over: the contractor's quote against what happened, `actualCost` (what the player spent), `totalCost` (`actualCost` plus the contractor's bill after a give-up, otherwise the same), `overrunPct` (from `totalCost`; negative when under the quote, so show "under the quote"), days, problems ("times you asked why"), stress, a one-line outcome, a closing "why" line and an achievement. `report.contractorBill` is `null` unless the player gave up. Then it is `{ rows: [{ label, cost, note }], total, quoted }`: the job at a rush price (1.35 times the quote), a `fixing your fix` row (0.3 times the quote) if the player had started, and a $250 call-out fee. |
 
 ## The cast, advice and the partner
 
