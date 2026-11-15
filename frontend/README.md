@@ -1,6 +1,6 @@
 # DIWhy: front end
 
-The game's user interface as a single self-contained page. Open `index.html` in a browser; no build step and no server needed. The character sprites, faces and texts are all built into the file.
+The game's user interface as a single self-contained page. Open `index.html` in a browser; no build step and no server needed. The texts are built into the file; the character sprites and faces load from `assets/characters/` (open it from the repo, or through the game server, so `../assets/` is there).
 
 ## What is on screen
 

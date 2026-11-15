@@ -43,7 +43,7 @@ A scene file has its own `<style id="scene-style">` and `<script id="scene">`; e
 
 | File | What it is |
 |---|---|
-| `front.svg`, `back.svg`, `left.svg`, `right.svg` | Walking, four directions. Each stands still, then walks (from 0.42s, looping). Cropped to 67×140 artwork, shown at 3× |
+| `front.svg`, `back.svg`, `left.svg`, `right.svg` | Walking, four directions, looping from the first frame. Cropped to 67×140 artwork, shown at 3×. The game uses them while a character moves |
 | `idle-front.svg`, `idle-back.svg`, `idle-left.svg`, `idle-right.svg` | Standing still and breathing, four directions (3.4s loop). Same 67×140 box as the walk, so switching between idle and walking never jumps |
 | `emote-start.svg` | The first frame of `emote.svg`, as a still (same 238×297 box). Character select shows it, then swaps to `emote.svg` when you pick them, so they never shift |
 | `reaction-start.svg` | The first frame of `reaction.svg`, as a still (same 88×123 box). The title starts from it (the picked character moves into the falling house in this pose) |
@@ -51,6 +51,7 @@ A scene file has its own `<style id="scene-style">` and `<script id="scene">`; e
 | `building.svg` | Hammering at a workbench (1.12s loop). Cropped to 276×340 (same box for everyone) |
 | `emote.svg` | Their emote: standing, then a victory pose (for character select). Plays once and holds the last pose. Cropped to 238×297 (same box for everyone) |
 | `reaction.svg` | Their reaction when the house falls (8.8 s), cropped to 88×123. Placed on top of `cinematics/falling-house.svg` (see The falling house) |
+| `face.png` | The face on the phone (192×192, about 6 KB), shown as a small circle in the game |
 | `standing.svg` | Large full-body version, transparent background, cropped tight (about 160×345) |
 | `you-won.svg`, `you-failed.svg` | The end screens: the character jumping for joy, or sitting slumped in the rubble (960×630, transparent, looping). Not used in the game yet; preview them all on [style.html](style.html) (the "End screens" section) |
 
@@ -58,7 +59,7 @@ A scene file has its own `<style id="scene-style">` and `<script id="scene">`; e
 
 **Voices** (`characters/<first-last>/voice/`): short recorded lines, trimmed and levelled. `emote.mp3` is each person's own line, played when you pick them on character select (Aidan "let's go", Fendy "ba-da-da", Gigi "lalala", Rachel "ah", Ramy "heya", Travis "hmmm", Christian "yep yep"). Everyone also has `nice`, `oops`, `oh-shit`, `success` and `hooray` (Aidan has `sweet` instead of `hooray`).
 
-**For the integration step (not done yet):** the game (`frontend/`) still uses its own built-in character sprites. When the intro and the game are joined up, switch it to these files: the walk sprites and `idle-*.svg` for moving and standing, the `actions/` (and `building.svg`) while working and when events hit, `emote.svg` for celebrating, `reaction.svg` for disasters, the `voice/` lines to go with them (`nice`/`success`/`hooray` for good moments, `oops`/`oh-shit` for bad ones), and `reaction-start.svg` / `standing.svg` for still poses. Then delete the built-in copies.
+**In the game:** `frontend/index.html` loads the walk sprites, `idle-*.svg` and `face.png` straight from these folders, so updating them here updates the game. **Not used in the game yet:** the `actions/` (and `building.svg`) while working and when events hit, `emote.svg` for celebrating, `reaction.svg` for disasters, the `voice/` lines to go with them (`nice`/`success`/`hooray` for good moments, `oops`/`oh-shit` for bad ones), `reaction-start.svg` / `standing.svg` for still poses, and `you-won.svg` / `you-failed.svg` for the end.
 
 ## Logos
 

@@ -6,6 +6,6 @@
 <clipPath id="leg0"><rect x="0" y="116" width="80" height="160"/></clipPath>
 <clipPath id="leg80"><rect x="80" y="116" width="80" height="160"/></clipPath>
 </defs>
-<g><g><animateTransform attributeName="transform" type="translate" values="0 2;0 1;0 0;0 -2;0 -6;0 -3;0 2" dur=".72s" begin=".42s" repeatCount="indefinite"/><g clip-path="url(#leg0)"><use href="#sprite"/></g></g><g><animateTransform attributeName="transform" type="translate" values="0 -2;0 -6;0 -3;0 2;0 1;0 0;0 -2" dur=".72s" begin=".42s" repeatCount="indefinite"/><g clip-path="url(#leg80)"><use href="#sprite"/></g></g><g clip-path="url(#upper)">
-<animateTransform attributeName="transform" type="translate" values="0 0;0 -1;0 0;0 -1;0 0" begin=".42s" dur=".72s" repeatCount="indefinite"/>
+<g><g><animateTransform attributeName="transform" type="translate" values="0 2;0 1;0 0;0 -2;0 -6;0 -3;0 2" dur=".72s" begin="0s" repeatCount="indefinite"/><g clip-path="url(#leg0)"><use href="#sprite"/></g></g><g><animateTransform attributeName="transform" type="translate" values="0 -2;0 -6;0 -3;0 2;0 1;0 0;0 -2" dur=".72s" begin="0s" repeatCount="indefinite"/><g clip-path="url(#leg80)"><use href="#sprite"/></g></g><g clip-path="url(#upper)">
+<animateTransform attributeName="transform" type="translate" values="0 0;0 -1;0 0;0 -1;0 0" begin="0s" dur=".72s" repeatCount="indefinite"/>
 <use href="#sprite"/></g></g></svg>

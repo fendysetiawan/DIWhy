@@ -173,14 +173,14 @@ Current team folders: `aidan-newsome`, `christian-huber`, `fendy-seitiawan`, `gi
 
 Every character has a **walk cycle** for each direction, with moving legs (from "DIWhy Walk Animations - Revised Side Views": `<Name> - Front.svg`, `- Back.svg`, `- Left.svg`, `- Right.svg`). The game shows the walk cycle **only while the character is actually moving**, and the idle sprite as soon as it stops or pushes against a wall or furniture.
 
-- Same box and placement as the idle files (160 x 160, feet at 95 %), so the swap does not jump.
+- Same box and placement as the idle files, so the swap does not jump. The files in `assets/characters/` are cropped to the character (67 x 140 of the 160 x 160 frame, from x 47, y 19); the page pads them back into the square (the CSS rule marked "cropped sprites"), feet at 95 %.
 - The legs are separate groups rotated with `animateTransform` (about 0.8 s per step cycle for the side views, 0.72 s front and back).
-- The files start their animation after `begin=".42s"`; the game rewrites that to `0s` when embedding them, so a character steps off at once. Deliver new walk cycles in the same format.
-- In `index.html` they are embedded as `window.WALK`, next to the idle `window.SPRITES`; `turn(ch, dir, walking)` picks between them.
+- The files start their animation at `begin="0s"`, so a character steps off at once. Deliver new walk cycles the same way.
+- `index.html` loads them from `assets/characters/<name>/` as `window.WALK` (`front.svg`...), next to the idle `window.SPRITES` (`idle-front.svg`...); `turn(ch, dir, walking)` picks between them. Update a sprite in `assets/` and the game has it.
 
 ### Faces (phone avatars)
 
-The phone uses square portraits (the files from "DIWhy Slide 7 Faces"), shown as circles of 32 to 52 px. They are 627 x 627 traced SVGs (about 3 MB each), so they are turned into **192 x 192 PNGs** before being built into the page. A new face should be a square head-and-shoulders portrait on a plain warm background (`#f7e5cd` family), in the same pixel style.
+The phone uses square portraits (the files from "DIWhy Slide 7 Faces"), shown as circles of 32 to 52 px. They are 627 x 627 traced SVGs (about 3 MB each), so they are turned into **192 x 192 PNGs** (`assets/characters/<name>/face.png`, about 6 KB each), which the page loads. A new face should be a square head-and-shoulders portrait on a plain warm background (`#f7e5cd` family), in the same pixel style.
 
 ---
 
