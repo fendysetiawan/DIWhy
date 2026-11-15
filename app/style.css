@@ -35,3 +35,15 @@ body[data-backdrop="black"] { background: #000; }
 /* the picked character, carried from character select into the title (screens/title.js) */
 .hero { position: fixed; z-index: 30; image-rendering: pixelated; pointer-events: none;
   transition: left 0.9s cubic-bezier(.5, 0, .2, 1), top 0.9s cubic-bezier(.5, 0, .2, 1), width 0.9s cubic-bezier(.5, 0, .2, 1), height 0.9s cubic-bezier(.5, 0, .2, 1), opacity 0.3s ease; }
+
+/* Cursors: big pixel-art ones from assets/cursors/ (48 x 48), for the intro only (the game keeps its own).
+   The numbers are the hotspot: the arrow's tip, the fingertip, the middle of the no-entry sign, the pen's nib. */
+:root {
+  --cursor: url("/assets/cursors/arrow.svg") 1 1, auto;
+  --cursor-hand: url("/assets/cursors/hand.svg") 20 1, pointer;
+  --cursor-no: url("/assets/cursors/no.svg") 24 24, not-allowed;
+  --cursor-pen: url("/assets/cursors/pen.svg") 1 46, crosshair;
+}
+html, body { cursor: var(--cursor); }
+button, a, [role="button"], .brand-button { cursor: var(--cursor-hand); }
+.brand-button:disabled { cursor: var(--cursor-no); }

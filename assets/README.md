@@ -14,7 +14,7 @@ assets/
 ├── style.html     the style guide: everything in style.css on one page
 ├── cinematics/    cut scenes, one HTML file each (contract, sold, ...) + shared/
 ├── characters/    the seven team characters and the cat, one folder each
-├── backgrounds/   character-select.svg and stars.svg
+├── backgrounds/   character-select.svg, stars.svg and sky.svg
 ├── logos/         Around The World Games logos and the team globe
 ├── effects/       small extras, like the "!" over a character
 ├── sounds/        music, the logo sound, interface sounds and sound effects, one folder each
@@ -92,7 +92,7 @@ Sounds live in `sounds/`, one folder per kind. Sound effects for things in the g
 | `sounds/music/` | `select.mp3`, `menu.mp3` | The intro music, 8-bit. `select`: upbeat and bouncy (140 bpm, drums), for character select. `menu`: calm and cosy (76 bpm, no drums), for the story after START. The app fades from one to the other |
 | `sounds/music/` (moods) | `home.mp3`, `work.mp3`, `uh-oh.mp3`, `disaster.mp3`, `temptation.mp3`, `phone.mp3`, `victory.mp3`, `defeat.mp3` | Background loops, one per mood (made from scratch, no licence needed): **home** warm and easy (walking around the house), **work** busy and upbeat (doing a job), **uh-oh** tense (a problem shows up), **disaster** fast and frantic (it's going badly wrong), **temptation** dreamy and sparkly (the shiny upgrade, the partner's idea), **phone** light and quirky (texts), **victory** happy (job done), **defeat** slow and sad (gave up or ran out of money). 6–13 s each; set `loop` |
 | `sounds/logo/` | `around-the-world-games.wav` | The logo sound (3.1 s): "Around the world games presents" sung by a vocoder (a recorded voice shaping a bright synth chord, A to B to D major), with soft echoes. Plays with the splash |
-| `sounds/narrator/` | `contract.mp3`, `contract-signed.mp3` | The real estate agent narrating (ElevenLabs, voice "Jessica"), pitched down to a deep man's voice, a little slower and muffled so it's mumbly, with a light 8-bit crunch. `contract`: "Congratulations on purchasing your first home. Are you ready? Great. Sign right here on the dotted line." (7.1 s, as the contract opens). `contract-signed`: "Now it's yours, warts and all." (2.5 s, after SIGN) |
+| `sounds/narrator/` | `contract.mp3`, `contract-signed.mp3` | The real estate agent narrating (ElevenLabs, voice "Jessica"), in her own voice, softened so she's warm rather than bright (treble and presence turned down), with a light 8-bit crunch. `contract`: "Congratulations on purchasing your first home. Are you ready? Great. Sign right here on the dotted line." (6.9 s, as the contract opens). `contract-signed`: "Now it's yours, warts and all." (2.4 s, after SIGN) |
 | `sounds/ui/` | `click.wav`, `pop.wav`, `stamp.wav`, `celebrate.wav`, `pen.wav` | Interface sounds: a button press, something appearing (narration, a button, the title), the SOLD! stamp (Kenney, CC0), and `celebrate.wav`, a champagne cork, fizz and an 8-bit ta-da for when the house is yours (made in code), and `pen.wav`, a scratchy sketching loop that plays while you sign the contract (made in code) |
 | `sounds/effects/` | 96 `.mp3` files, named for what they are (`toilet-flush`, `pipeburst`, `power-drill`, `circuit-breaker`, `wood-crack`, `carpet-ripping`, `footsteps-wood`, `grunt`, `ewww`, `house-creak`, `house-crash`...) | Real recordings of things in the house, footsteps, people's reactions and tools, processed so they sit with the 8-bit music (8-bit crunch, levelled, trimmed, at most 15 s). Where each one came from is in `effects/SOURCES.md` (most are from Pixabay). To add one, run it through the same chain: `ffmpeg -i in.mp3 -t 15 -af "aformat=channel_layouts=mono,highpass=f=70,silenceremove=start_periods=1:start_threshold=-50dB,areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse,acompressor=threshold=-20dB:ratio=3:attack=5:release=100,acrusher=bits=8:mode=lin:samples=4:mix=0.85:aa=0.3,lowpass=f=9000,loudnorm=I=-16:TP=-1.5" -ac 1 -b:a 128k effects/<name>.mp3`, then add a line to `SOURCES.md`. **Used in the intro so far:** `house-creak` and `house-crash` (the title) |
 
@@ -102,8 +102,12 @@ Sounds live in `sounds/`, one folder per kind. Sound effects for things in the g
 
 - **Colours:** blues, like an old Final Fantasy menu: navy `#0c1450` (background), blue `#2a44c0` (windows and panels), sky `#9cc3ff` (highlights), cream `#f7e8d1` (text).
 - **Font:** **Press Start 2P**, for everything, in two sizes: 32px for titles, 16px for everything else.
-- **Backgrounds:** `backgrounds/character-select.svg` is the animated background for the character selection screen (1672×941): a night-time wooden stage with a glowing circle, a toolbox and planks on the left, eyes peering out of the dark trees, and a dotted trail of sparkles. `backgrounds/stars.svg` is a full-screen (1920×1080) deep blue sky with twinkling blue pixel stars; `.brand-stars` fills the page with it.
+- **Backgrounds:** `backgrounds/sky.svg` is an animated daytime sky over grass (480 × 270, clouds and birds on a 48 s loop), behind the falling house on the title; its horizon is at y 178. `backgrounds/character-select.svg` is the animated background for the character selection screen (1672×941): a night-time wooden stage with a glowing circle, a toolbox and planks on the left, eyes peering out of the dark trees, and a dotted trail of sparkles. `backgrounds/stars.svg` is a full-screen (1920×1080) deep blue sky with twinkling blue pixel stars; `.brand-stars` fills the page with it.
 - **Ready-made styles:** `.brand-navy` (the background), `.brand-stars` (twinkling stars), `.brand-window` (a Final Fantasy-style window), `.brand-title`, `.brand-text`, `.brand-highlight`, `.brand-button`.
+
+## Cursors
+
+`cursors/`: big pixel-art mouse cursors, 48 x 48 (a 16 x 16 pixel grid at 3x), cream with a navy outline. `arrow.svg` (everywhere), `hand.svg` (anything you can click), `no.svg` (a disabled button), `pen.svg` (signing the contract). The intro uses them through `--cursor`, `--cursor-hand`, `--cursor-no` and `--cursor-pen` in `app/style.css`; the game doesn't use them yet.
 
 ## Precedents
 

@@ -1,6 +1,14 @@
 /* Screen 1: splash (screens/splash.js) */
 
-.splash { gap: clamp(16px, 3vh, 28px); cursor: pointer; }
+.splash { cursor: var(--cursor-hand); }
+
+/* first: "press any key", blinking in the middle of the stars */
+.splash-hint { margin: 0; text-align: center; color: var(--brand-sky); animation: splash-blink 1s steps(2, start) infinite; }
+@keyframes splash-blink { to { visibility: hidden; } }
+
+/* then: the logo and its line fade in */
+.splash-logo { display: flex; flex-direction: column; align-items: center; gap: clamp(16px, 3vh, 28px); animation: splash-in 0.6s ease both; }
+@keyframes splash-in { from { opacity: 0; } }
 
 .splash-globe {
   width: min(70vw, 424px);   /* 8x the 53px-wide artwork, stays crisp */
@@ -14,7 +22,3 @@
   letter-spacing: 0.04em;
   color: var(--brand-cream);
 }
-
-/* "press any key": shown only when the browser blocks the logo sound until a click */
-.splash-hint { position: absolute; bottom: 10vh; left: 0; right: 0; text-align: center; color: var(--brand-sky); animation: splash-blink 1s steps(2, start) infinite; }
-@keyframes splash-blink { to { visibility: hidden; } }

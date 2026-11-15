@@ -99,4 +99,4 @@ Each effect here is a real recording, processed to sound a bit 8-bit (see `asset
 | `oil-tank-knock.mp3` | knocking on the old oil tank | not recorded |
 | `egress-window-open.mp3` | egress window opening | not recorded |
 | `house-creak.mp3` | Kenney RPG Audio: creak1 + creak3, slowed and layered | Kenney (CC0) |
-| `house-crash.mp3` | Kenney Impact Sounds: heavy wood, plank and soft impacts layered with a dusty rumble | Kenney (CC0) |
+| `house-crash.mp3` | The wall collapsing: `hard-heavy-impact` (the thump), `wood-crack`, `object-falling` (debris), `door-slam` (a second thump) and the first Kenney crash (heavy wood, plank and soft impacts), layered and made louder | Pixabay and Kenney (CC0) |

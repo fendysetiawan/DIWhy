@@ -50,6 +50,16 @@
 .title-card { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; align-content: center; gap: 24px; background: #000; }
 /* the house fades in around the character; the whole card fades out at the end */
 .title-stage { opacity: 0; transition: opacity 0.3s ease; }
+/* The animated daytime sky (assets/backgrounds/sky.svg, 480 x 270, clouds drift on a 48 s loop). Its horizon
+   (y 178 of 270) sits on the house's ground line (y 142 of 220 in falling-house.svg), and it's scaled so it
+   still fills the window: --ground is where that line lands on screen, worked out from the stage's size below. */
+.title-card { --w: min(129vw, 119vh); --sh: calc(var(--w) * 660 / 840); --ground: calc(3vh - var(--sh) * 0.036 + var(--sh) * 142 / 220); }
+.title-sky {
+  --skyh: max(calc(var(--ground) * 270 / 178), calc((100vh - var(--ground)) * 270 / 92), calc(100vw * 270 / 480));
+  position: absolute; left: 50%; top: calc(var(--ground) - var(--skyh) * 178 / 270); height: var(--skyh); width: auto; aspect-ratio: 480 / 270;
+  transform: translateX(-50%); max-width: none; image-rendering: pixelated; opacity: 0; transition: opacity 0.3s ease;
+}
+.title-card.on .title-sky { opacity: 1; }
 .title-card.on .title-stage { opacity: 1; }
 .title-card { transition: opacity 0.6s ease; }
 .title-card.out { opacity: 0; }

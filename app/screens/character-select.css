@@ -49,7 +49,7 @@
   border: 0;
   color: var(--brand-cream);
   font: 600 18px/1 var(--font);
-  cursor: pointer;
+  cursor: var(--cursor-hand);
 }
 
 /* The sprite sits on its own layer, anchored bottom-centre, so swapping the still for the emote can never

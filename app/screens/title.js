@@ -43,9 +43,11 @@ const faster = async (url) => {
 
 export async function titleCard(root, character) {
   preloadSfx("creak", "crash", "pop");
+  new Image().src = "/assets/backgrounds/sky.svg"; // the animated daytime sky behind the house
   const box = document.createElement("div");
   box.className = "title-card";
   box.innerHTML = `
+    <img class="title-sky" src="/assets/backgrounds/sky.svg" alt="" />
     <div class="title-stage">
       <img class="title-house" alt="" style="${place(0, 0, 840, 660)}" />
       <img class="title-who" alt="" style="${place(377, 435, 88, 123)}" />

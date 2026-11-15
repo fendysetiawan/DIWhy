@@ -15,10 +15,10 @@ git checkout ac4105b -- app/screens/deed.js
 
 ### What the intro is now
 
-1. **Splash** on the stars: the logo and its sound. If the browser blocks sound, it waits on "press any key".
+1. **Splash** on the stars: it opens on "press any key" in the middle of the screen; the key press (or click) brings in the logo with its sound.
 2. **Character select** on the stage background, with upbeat music. Characters stand on the floor as a still of their emote art (`emote-start.svg`). Picking someone plays their `emote.svg` and their recorded line; START plays the line again. START is bottom centre; "watch the demo" is top left.
-3. **Title:** the music fades to a calm track. The picked character moves into the falling house, which drops on them with a creak, a crash and pixel dust, then the "!" and DIWHY?!. From here the background is black and every change fades through black.
-4. **Contract:** the real estate agent (narrator) (a deep, mumbly man's voice) welcomes you and asks you to sign; a scratchy sketching sound plays while you sign; SIGN is enabled once there's a mark; he says "Now it's yours, warts and all." The music dips while he talks.
+3. **Title:** the music fades to a calm track. The picked character moves into the falling house, standing on the grass under an animated daytime sky (clouds drifting). It drops on them with a creak, a crash and pixel dust, then the "!" and DIWHY?!. After that the background is black and every change fades through black.
+4. **Contract:** the real estate agent (narrator) welcomes you and asks you to sign; a scratchy sketching sound plays while you sign; SIGN is enabled once there's a mark; she says "Now it's yours, warts and all." The music dips while she talks.
 5. **Sold:** the house with FOR SALE, stamped SOLD!, with a stamp, a champagne pop and a ta-da. The cat narrates two short lines (whole lines, NEXT moves on), then it fades straight into the game, where the job is found at a glowing DIY spot in the house.
 
 The main button (START, SIGN, NEXT) is always bottom centre, presses down when clicked and clicks.
@@ -50,7 +50,8 @@ The main button (START, SIGN, NEXT) is always bottom centre, presses down when c
 
 - **Cinematics:** `contract.html` (11 editable lines of small print, `CONTRACT_TERMS`), `sold.html`, a scene for each of the 12 jobs in `projects/`, and `index.html` to see them all. Open any one on its own; add `?controls` for buttons.
 - **Characters:** walk sprites (revised side views) and `idle-*.svg` sharing one 67 × 140 crop; `emote-start.svg` and `reaction-start.svg` (stills); `building.svg`; 20 animated `actions/` in one shared 135 × 144 crop; `voice/` lines (an `emote.mp3` each, plus nice, oops, oh-shit, success, hooray). Emote frames re-aligned so the last pose doesn't jump. Cream background removed from between the legs of four `standing.svg`.
-- **Sounds:** `effects/` (96 real recordings, 8-bit processed; sources in `effects/SOURCES.md`), `narrator/` (the contract voice-over, ElevenLabs, pitched down to a deep, mumbly man's voice), `logo/` (the logo line sung by a vocoder), `ui/` (click, pop, stamp, celebrate, and pen: a sketching scratch while you sign), `music/` (`select`, `menu`, and eight 8-bit mood loops for the game).
+- **Sounds:** `effects/` (96 real recordings, 8-bit processed; sources in `effects/SOURCES.md`), `narrator/` (the contract voice-over, ElevenLabs, softened so it isn't too bright), `logo/` (the logo line sung by a vocoder), `ui/` (click, pop, stamp, celebrate, and pen: a sketching scratch while you sign), `music/` (`select`, `menu`, and eight 8-bit mood loops for the game).
+- **Cursors:** `assets/cursors/` has big pixel-art cursors (arrow, pointing hand, no-entry for a disabled button, pen for signing), used throughout the intro (`app/style.css`).
 - **Brand:** `.brand-next` (the one spot for the main button), a pressed look and a disabled look for `.brand-button`.
 
 ### Changed outside `app/` and `assets/`
