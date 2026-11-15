@@ -1,0 +1,12 @@
+{
+  "name": "diwhy-screenshots",
+  "private": true,
+  "type": "module",
+  "description": "Screenshots of the game (capture.ts). Separate from the game's own package.json, so the game doesn't install Playwright.",
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "playwright": "^1.65.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

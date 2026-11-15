@@ -30,6 +30,10 @@ npm run build  # check the types, then build the game into dist/
 npm start      # after a build: the game and the API on one port (http://localhost:3000)
 ```
 
+## Screenshots
+
+`screenshots/capture.ts` plays through the game and saves a screenshot of every screen, on a desktop and a phone, into `screenshots/desktop/` and `screenshots/phone/`, and both in `screenshots/diwhy-screenshots.zip` to send (none of it committed). It has its own tools, so the game doesn't install them. Once: `cd screenshots && npm install && npx playwright install chromium`. Then, with `npm run dev` running, `npx tsx capture.ts` in `screenshots/` (`--show` to watch it).
+
 ## How it's organized
 
 A Vite + TypeScript game and a small Node API. The server runs the game; the game shows it.
