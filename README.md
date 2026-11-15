@@ -12,7 +12,7 @@ By Around The World Games: Travis, Aidan, Gigi, Christian, Rachel, Ramy and Fend
 
 ## How to Play
 
-Arrow keys (or WASD) to walk, **Enter** to use what you're next to, **P** for the phone, **Esc** to put it away. Or click and tap.
+Arrow keys (or WASD) to walk, **Enter** to use what you're next to, **P** for the phone, **Esc** to put it away. Or click and tap: on a phone, arrows and **USE** appear along the bottom while you walk around.
 
 ## Run it
 

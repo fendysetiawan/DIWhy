@@ -601,6 +601,38 @@ body {
 .phone-button { position: fixed; z-index: 48; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); }
 .phone-button .badge { position: absolute; top: -10px; right: -10px; padding: 0 0.4em; background: #ef4444; color: #fff; font-style: normal; line-height: 1.5; clip-path: var(--chip); }
 .phone-button[hidden], .phone-button.up { display: none; }
+
+/* touch screens (and phone-narrow windows), walking about: a strip of its own along the bottom, the four arrows
+   sharing its width and USE at the end. The to-do list and the phone sit above it. */
+.touch-pad {
+  position: fixed;
+  z-index: 47;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+  gap: 10px;
+  align-items: center;
+  padding: 8px max(16px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: #080b1ccc;
+  border-top: 4px solid var(--navy);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+
+  .pad-arrows { flex: 1; display: flex; gap: 8px; }
+  .icon-button { flex: 1; width: auto; height: 52px; padding: 12px 0; }
+  .pad-up svg { rotate: 90deg; }
+  .pad-right svg { rotate: 180deg; }
+  .pad-down svg { rotate: -90deg; }
+  .pad-use { min-height: 0; height: 52px; padding: 0 20px; }
+}
+@media (pointer: coarse), (max-width: 600px) {
+  .touch-pad:not([hidden]) { display: flex; }
+  .with-pad :is(.todo-button, .phone-button) { bottom: calc(max(8px, env(safe-area-inset-bottom)) + 84px); }
+  .with-pad .toasts { bottom: calc(max(8px, env(safe-area-inset-bottom)) + 156px); }
+}
 .shake { animation: shake 0.35s steps(4) 2; } /* the phone hitting the floor */
 @keyframes shake { 25% { translate: -6px 2px; } 50% { translate: 5px -3px; } 75% { translate: -3px 4px; } } /* open: the button became the phone */
 

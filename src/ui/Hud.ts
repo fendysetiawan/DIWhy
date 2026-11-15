@@ -1,13 +1,16 @@
 // The HUD: what stays on top of every screen. The settings button (top right); once you're playing, the meters
-// (top), the to-do list (left) and the phone (bottom right). Every button press, anywhere, clicks and dips.
+// (top), the to-do list (left), the phone (bottom right), and on a touch screen the arrows and USE along the
+// bottom while you walk a level. Every button press, anywhere, clicks and dips.
 
 import click from '@audio/ui/click.wav';
 import type { Game } from '../engine/Game';
+import { Level } from '../engine/Level';
 import { Phone } from './Phone';
 import { Menu } from './Menu';
 import { Meters } from './Meters';
 import { Toasts } from './Toast';
 import { ToDo } from './ToDo';
+import { TouchPad } from './TouchPad';
 
 const PRESS_MS = 120;
 
@@ -16,6 +19,7 @@ export class Hud {
   readonly menu: Menu;
   private readonly meters: Meters;
   private readonly todo: ToDo;
+  private readonly pad = new TouchPad();
 
   constructor(private readonly game: Game) {
     this.menu = new Menu(game);
@@ -31,6 +35,7 @@ export class Hud {
     this.meters.setShown(playing);
     this.todo.setShown(playing);
     this.phone.setShown(playing);
+    this.pad.setShown(playing && this.game.screens.active instanceof Level && !this.isBusy);
   }
 
   /** The game waits while you use the phone, the to-do list or the menu. */
