@@ -7,10 +7,15 @@
    - index.html calls DIWHY_ELEV.draw(ctx, jobId, now) every frame, right after the job's own scene
    - a backend test loads this file and checks every CSV token against KIT, so keep KIT a plain literal
 
-   Token grammar: prop[:variant]@anchor, tokens separated by spaces.
+   Token grammar: prop[:variant]@anchor, tokens separated by spaces; each part is lowercase letters, digits, - and _
+   (the same rule as backend/src/content/csv.ts).
    Job ids are the page's: wall (kitchen wall), bath (toilet), dryer.
    Every anchor keeps a prop of about 48 x 48 px inside the canvas and out of the bottom-left corner
-   (x < 256 and y > 144), where the event card sits. Plain script, no build step. */
+   (x < 256 and y > 144), where the event card sits.
+   Some objects move as the job goes on (the dryer is pulled out and a new one wheeled in; the toilet is lifted
+   out and a new one dropped in). index.html's draw functions publish where they are now in DIWHY_ELEV.scene
+   ({ dryerX } for the dryer job, { toilet: { x, y } or null } for the bathroom) and the anchors that name
+   those objects follow them. Plain script, no build step. */
 (function () {
   'use strict';
 
@@ -27,14 +32,35 @@
       wall:  { opening: [330, 112], outlet: [484, 200], ceiling: [400, 26], floor: [330, 264], beam: [330, 58], door: [492, 226] },
       bath:  { valve: [304, 226], base: [284, 226], drain: [284, 244], tank: [284, 196], vanity: [440, 206], below: [340, 276],
                fan: [480, 26], door: [492, 226], ceiling: [400, 26], floor: [340, 264] },
-      dryer: { dryer: [340, 150], outlet: [400, 212], hose: [415, 148], vent: [447, 106], wall: [350, 190], floor: [330, 264],
+      dryer: { dryer: [340, 150], outlet: [400, 212], hose: [440, 132], vent: [447, 106], wall: [350, 84], floor: [330, 264],
                shelf: [170, 104], door: [492, 226], ceiling: [400, 26] }
     }
   };
 
   var OUT = '#2b1a12', BURST_MS = 1500;
   var current = [];            /* [{ prop, variant, anchor }] */
-  var burstState = null;       /* { kind, start } (start is set on the first draw) */
+  var burstState = null;       /* { kind, anchor, start } (start is set on the first draw) */
+  var scene = {};              /* where the moving objects are now, published by index.html's draw functions */
+  var W = 533, H = 300, FLOOR_Y = 250;
+
+  /* Where an anchor is right now. Fixed ones are as in KIT; the dryer anchor follows the dryer, and the toilet's
+     base and tank follow the toilet while one stands (a lifted-out toilet or one still dropping in leaves the
+     flange, where they sit instead). Nothing is ever left under the event card or off the canvas. */
+  function resolve(jobId, name) {
+    var table = KIT.anchors[jobId], base = table && table[name];
+    if (!base) return null;
+    var x = base[0], y = base[1], sc = scene || {};
+    if (jobId === 'dryer' && name === 'dryer' && typeof sc.dryerX === 'number') x = sc.dryerX + 42;
+    if (jobId === 'bath' && (name === 'base' || name === 'tank')) {
+      var t = sc.toilet;
+      if (t && typeof t.x === 'number' && typeof t.y === 'number') {
+        if (t.x + 56 >= 262 && t.y >= FLOOR_Y - 12) { x = t.x + 28; y = t.y - (name === 'base' ? 24 : 54); }
+        else { y = name === 'base' ? 236 : 222; } /* no toilet standing: the flange in the floor */
+      } else if (t === null) y = name === 'base' ? 236 : 222;
+    }
+    if (y > 120 && x < 280) x = 280; /* the event card covers the bottom left */
+    return [Math.max(24, Math.min(W - 24, Math.round(x))), Math.max(24, Math.min(H - 24, Math.round(y)))];
+  }
 
   function reduced() {
     try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; }
@@ -325,7 +351,7 @@
 
   /* ---------- parsing ---------- */
   function parseToken(tok) {
-    var m = /^([a-z]+)(?::([a-z]+))?@([a-z]+)$/.exec(String(tok).trim());
+    var m = /^([a-z0-9_-]+)(?::([a-z0-9_-]+))?@([a-z0-9_-]+)$/.exec(String(tok).trim());
     if (!m) return null;
     return { prop: m[1], variant: m[2] || null, anchor: m[3] };
   }
@@ -346,8 +372,10 @@
 
   function clear() { current = []; }
 
+  /* The blow-up is centred on the first picture of the card that was just answered, so call this before clear().
+     It keeps the anchor's name, not the props, so the next card's show() never cuts it short. */
   function burst(kind) {
-    burstState = { kind: kind === 'water' || kind === 'sparks' ? kind : 'dust', start: null };
+    burstState = { kind: kind === 'water' || kind === 'sparks' ? kind : 'dust', anchor: current.length ? current[0].anchor : null, start: null };
   }
 
   /* ---------- the blow-up: a screen shake and a spray of particles ---------- */
@@ -357,8 +385,8 @@
     var u = (now - burstState.start) / BURST_MS;
     if (u >= 1) { burstState = null; return; }
     var kind = burstState.kind, fade = 1 - u;
-    var cx = 340, cy = 150, anchors = KIT.anchors[jobId] || {};
-    for (var i = 0; i < current.length; i++) { if (anchors[current[i].anchor]) { cx = anchors[current[i].anchor][0]; cy = anchors[current[i].anchor][1]; break; } }
+    var cx = 340, cy = 150, at = burstState.anchor && resolve(jobId, burstState.anchor);
+    if (at) { cx = at[0]; cy = at[1]; }
     var n = still ? 10 : 26;
     for (var k = 0; k < n; k++) {
       var ang = k * 2.399 + (kind === 'water' ? -1.2 : 0), sp = 30 + (k * 53) % 90, life = u * (0.6 + (k % 5) * .1);
@@ -381,12 +409,16 @@
       if (u >= 0 && u < 1) { var amp = Math.round(6 * (1 - u)), s = Math.floor(now / 40) % 2 ? 1 : -1; ctx.drawImage(ctx.canvas, s * amp, (Math.floor(now / 55) % 2 ? 1 : -1) * Math.round(amp / 2)); }
     }
     for (var i = 0; i < current.length; i++) {
-      var c = current[i], a = anchors[c.anchor], fn = DRAWERS[c.prop];
+      var c = current[i], a = resolve(jobId, c.anchor), fn = DRAWERS[c.prop];
       if (!a || !fn) continue;
       fn(p, a[0], a[1], c.variant || (KIT.props[c.prop].variants ? KIT.props[c.prop].variants[0] : null), t);
     }
     drawBurst(ctx, p, jobId, now, still);
   }
 
-  window.DIWHY_ELEV = { KIT: KIT, show: show, burst: burst, clear: clear, draw: draw };
+  window.DIWHY_ELEV = {
+    KIT: KIT, show: show, burst: burst, clear: clear, draw: draw, resolve: resolve,
+    get scene() { return scene; },
+    set scene(v) { scene = v && typeof v === 'object' ? v : {}; }
+  };
 })();

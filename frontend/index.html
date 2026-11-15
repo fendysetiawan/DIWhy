@@ -2462,6 +2462,7 @@ const DRAW = {
     if (step >= 1 && step < 5) { fo(X + 28, FLOOR_Y - 1, 12, 3, '#3a3a3a'); fo(X + 28, FLOOR_Y - 1, 6, 1, '#151515'); }
     if (step === 3) { const y = 190 + t * (FLOOR_Y - 4 - 190); fo(X + 28, y, 9, 3, '#e0a040'); fo(X + 28, y, 4, 1, '#b07a20'); }
     if (step >= 4) { const y = step === 4 ? 40 + t * (FLOOR_Y - 40) : FLOOR_Y; toilet(X, y, '#f8f8f6', '#e4e6e2'); }
+    if (window.DIWHY_ELEV) window.DIWHY_ELEV.scene = { toilet: step <= 1 ? { x: X - (step === 1 ? t : 0) * 230, y: FLOOR_Y - (step === 1 ? t : 0) * 50 } : step >= 4 ? { x: X, y: step === 4 ? 40 + t * (FLOOR_Y - 40) : FLOOR_Y } : null };   /* INTEGRATION: where the toilet is now, so elevation.js puts its pictures on it (or on the flange when none stands) */
     if (step === 5) { const a = t * 20; for (let i = 0; i < 8; i++) fr(X + 28 + Math.cos(a + i) * 14, FLOOR_Y - 30 + Math.sin(a + i) * 3, 2, 2, '#5aa9d6'); sparkle(X - 10, FLOOR_Y - 90, 80, 80, t, 7); }
   },
   dryer(step, t) {   /* INTEGRATION: replace the smoking dryer: old one out, new one in (steps: unplug and pull, hose off, EVENT, wheel in, plug and vent, push back and test) */
@@ -2469,6 +2470,7 @@ const DRAW = {
     const E = u => { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); };
     const oldX = step === 0 ? 300 - 70 * E(t) : step < 3 ? 230 : step === 3 ? 230 - 330 * E(t / .6) : -100;
     const newX = step < 3 ? 600 : step === 3 ? 600 - 284 * E((t - .2) / .8) : step === 4 ? 316 : 316 - 16 * E(t * 3);
+    if (window.DIWHY_ELEV) window.DIWHY_ELEV.scene = { dryerX: step < 3 ? oldX : step > 3 || newX <= 450 ? newX : oldX + 84 >= 262 ? oldX : 316 };   /* INTEGRATION: where the dryer is now (the old one, then the new one; mid-swap with neither in view, the alcove it goes to), so elevation.js puts its pictures on it */
     const cord = (x0, plugged) => { if (plugged) { fr(x0, 232, 400 - x0, 2, '#2b1a12'); fr(399, 222, 2, 12, '#2b1a12'); fb(397, 215, 6, 8, '#3a3f45'); } else { fr(x0, 232, 14, 2, '#2b1a12'); fb(x0 + 13, 229, 8, 7, '#3a3f45'); } };
     if (step < 4 && oldX > -90) { /* the old foil hose: it comes off the wall and goes with the old dryer */
       const detach = step === 1 ? t : step > 1 ? 1 : 0, ex = oldX + 84, ey = 178, vx = 446, vy = 116;
