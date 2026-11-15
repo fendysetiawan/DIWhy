@@ -270,7 +270,7 @@ describe('giveUp', () => {
     expect(v.report!.contractorBill!.rows.map((r) => r.note)).toEqual(['rush job', 'you called']);
   });
 
-  it('adds a touch-up row after some work, drops a pending charge, and refuses a second call', async () => {
+  it('adds a touch-up row after some work, lets a pending charge through, and refuses a second call', async () => {
     const s = svc();
     const g = await s.createGame({ seed: 42 });
     // Pick the first choice until a charge is waiting for the bank.
@@ -280,7 +280,7 @@ describe('giveUp', () => {
     }
     expect(v.charge?.status).toBe('pending');
     const ended = await s.giveUp(g.id);
-    expect(ended.charge).toBeNull();
+    expect(ended.charge).toMatchObject({ id: v.charge!.id, status: 'confirmed' }); // a finished game has no charge left to answer
     expect(ended.report!.contractorBill!.rows.map((r) => r.note)).toContain('fixing your fix');
     await expectError(s.giveUp(g.id), 'conflict', 'game_over');
     expect((await s.getGame(g.id)).report!.contractorBill!.total).toBe(ended.report!.contractorBill!.total);

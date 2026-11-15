@@ -63,9 +63,9 @@ console.log(game.report.achievement.title);
 | `POST /api/games` | `{ seed?, project?, owner?, director? }` | `201` GameView, `Location` header | Body may be empty. |
 | `GET /api/games/:id` | none | `200` GameView | Safe to call any time, for example to resume after a reload. |
 | `POST /api/games/:id/choices` | `{ choice, eventId? }` | `200` GameView | Applies the choice, then picks the next event. |
-| `POST /api/games/:id/quote` | none | `200` GameView | The contractor re-quotes. Only ever goes up. |
+| `POST /api/games/:id/quote` | none | `200` GameView | The contractor re-quotes. Only ever goes up. Answers `409 game_over` if the game has ended. |
 | `POST /api/games/:id/giveup` | none | `200` GameView | The player gives up and the contractor takes over. The game ends as `"failed"` with `failure: "giveup"`, and `report.contractorBill` says what the contractor charges. Answers `409 game_over` if the game has already ended. |
-| `POST /api/games/:id/payments` | `{ chargeId, confirm }` | `200` GameView | Answer the bank about the latest charge. |
+| `POST /api/games/:id/payments` | `{ chargeId, confirm }` | `200` GameView | Answer the bank about the latest charge. Answers `409 game_over` if the game has ended. |
 | `POST /api/games/:id/phone` | `{ with, kind, thread? }` | `200` PhoneView | A text from someone in the cast, and reply buttons, written by the local model. Read-only: it never changes the game. See below. |
 | `DELETE /api/games/:id` | none | `204` | Throws the game away. |
 
@@ -128,7 +128,7 @@ Every endpoint that returns a game returns this shape. Trimmed:
 | `status` | `"playing"`, `"complete"` (the job got finished) or `"failed"`. |
 | `failure` | When `"failed"`: `"budget"`, `"time"`, `"stress"` or `"giveup"` (the player called the contractor in). The game ends at 2.5 times the quote's money, 3 times its days, or stress 100 (`stats.budget` and `stats.maxDays` are those limits). |
 | `stats` | The numbers to show. `eventsDone` out of `eventsMax` is how far along the work is (a game has at most 8 events plus the finale), which a front end can use to animate the job. `riskDebt` is the hidden cost of shortcuts; hide it if you want the risk to stay secret. |
-| `charge` | The latest purchase, waiting for the bank: `{ id, amount, what, status }`. `status` is `pending`, `confirmed` or `blocked`. |
+| `charge` | The latest purchase, waiting for the bank: `{ id, amount, what, status }`. `status` is `pending`, `confirmed` or `blocked`. A finished game never has a `pending` charge. |
 | `outcome` | What the last choice did: its `quality`, what it cost, whether it `blewUp`, and whether the partner nagged. Use it to have the cast react. `null` at the start. |
 | `ledger` | Every cost so far, as `{ label, cost }`. |
 | `history` | The events the player has already answered, oldest first, as `{ id, title }`. The event on the table is not in it, and an event removed from the files since then shows its id as its title. A front end can use it to show the steps so far. |
@@ -142,6 +142,7 @@ Every endpoint that returns a game returns this shape. Trimmed:
 
 - **Advice** comes from the neighbor, parent, friend or clerk, and points at one option. They are not equally trustworthy: the neighbor is a coin flip, the parent is mostly wrong, the friend usually picks the exciting option, and the clerk always points at the priciest. The player is never told whether they are right (`debug.adviceReliable` says, for tools).
 - **The partner** nags about money or time (`cast.partnerFocus`). While that thing is over the contractor's quote, every choice adds stress and `outcome.partnerNagged` is `true`.
+- **`outcome.autoConfirmed`** is the id of an earlier charge the player never answered, which the bank let through when they made their next choice. It is `null` otherwise.
 - **How good an answer is** comes from the `answer_key` in the team's event files (`good`, `ok`, `wrong`, `excessive`). Good answers cost a fair price and lower risk. Wrong ones are cheap now, raise risk, and may blow up. Excessive ones cost far more than needed. For temptations, "good" means saying no, which is free.
 
 ## The phone
@@ -172,6 +173,8 @@ Every choice that costs money becomes a `charge` with `status: "pending"`. A fro
 - `confirm: true` (**"Yes, it was me"**): nothing changes.
 - `confirm: false` (**"No, block it"**): the player blocked their own card. It costs a **day** and some stress, and the charge **still stands**. Answering the same charge twice does nothing more.
 - Only the latest charge can be answered. An older one is rejected with `stale_charge`.
+- A charge the player never answers is let through when they make their next choice. `outcome.autoConfirmed` carries its id.
+- A finished game has no charge left to answer. The choice that ends the game creates its charge already `confirmed`, giving up confirms a pending one, and `payments` on a finished game answers `409 game_over`. A won game can't be turned into a lost one by blocking a card afterwards.
 
 ## Errors
 
@@ -190,11 +193,11 @@ Every error has the same shape, and `code` is stable, so match on it and not on 
 | 400 | `director_unavailable` | `jev` requested but this server has no model configured. |
 | 400 | `invalid_project` | No such project. |
 | 400 | `invalid_owner` | Not one of the seven characters. |
-| 400 | `invalid_choice` | `choice` isn't a valid index for the current event. |
+| 400 | `invalid_choice` | `choice` isn't a valid index for the current event, or `eventId` isn't text. |
 | 400 | `invalid_role` | `with` isn't one of the six roles. |
 | 400 | `invalid_kind` | `kind` isn't `advice`, `reaction` or `reply`. |
 | 400 | `invalid_thread` | `thread` isn't a list of `{ from, text }`, or a `reply` doesn't end with a `"me"` turn. |
-| 400 | `invalid_payment` | `confirm` isn't `true` or `false`. |
+| 400 | `invalid_payment` | `confirm` isn't `true` or `false`, or `chargeId` isn't a whole number. |
 | 404 | `game_not_found` | Unknown id, or the game expired. |
 | 404 | `not_found` | No such route. |
 | 405 | `method_not_allowed` | Wrong HTTP method. The `Allow` header lists the right ones. |

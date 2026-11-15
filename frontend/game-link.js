@@ -569,7 +569,7 @@
         if (g.status !== 'playing') endGame(g);
       })
       .catch((err) => {
-        if (err.code !== 'stale_charge') fail(err); // an older, superseded charge is nothing to worry about
+        if (err.code !== 'stale_charge' && err.code !== 'game_over') fail(err); // an older charge, or a game that already ended: nothing to worry about
       });
   };
 
@@ -595,7 +595,7 @@
         syncNumbers(g);
         H.renderList();
       } catch (err) {
-        fail(err);
+        if (err.code !== 'game_over') fail(err); // the game ended meanwhile: carry on quietly
       }
     };
   }

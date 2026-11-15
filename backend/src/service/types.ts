@@ -90,6 +90,7 @@ export interface OutcomeView {
   cost: number; // dollars this choice added, including a blow-up
   days: number;
   partnerNagged: boolean; // the partner's pet peeve (money or time) is over the quote
+  autoConfirmed: number | null; // id of an earlier charge the player never answered, which the bank let through
 }
 
 /** The numbers a player sees. */

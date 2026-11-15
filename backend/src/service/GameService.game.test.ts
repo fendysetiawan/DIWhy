@@ -2,11 +2,12 @@ import { describe, expect, it } from 'vitest';
 import type { Project } from '../content/projects';
 import { makeFinale } from '../content/fromCsv';
 import type { GameEvent } from '../engine/EventEngine';
-import { realProjects } from '../testing';
+import { fakeModel, realProjects } from '../testing';
 import { adviceFor } from './advice';
 import { CHARACTER_IDS, ROLES, dealCast } from './cast';
 import { ServiceError } from './errors';
 import { GameService } from './GameService';
+import { MemoryGameStore, type GameStore } from './store';
 import type { GameView } from './types';
 
 let n = 0;
@@ -229,16 +230,16 @@ describe('what a choice does', () => {
   });
 });
 
-describe('payments (the bank texts, the player answers)', () => {
-  async function withCharge(s: GameService, seed = 12) {
-    let v = await s.createGame({ seed, project: 'wall-removal' });
-    for (let i = 0; i < 12; i++) {
-      v = await s.choose(v.id, { choice: 1, eventId: v.event!.id });
-      if (v.charge) return v;
-    }
-    throw new Error('never got a charge');
+async function withCharge(s: GameService, seed = 12) {
+  let v = await s.createGame({ seed, project: 'wall-removal' });
+  for (let i = 0; i < 12; i++) {
+    v = await s.choose(v.id, { choice: 1, eventId: v.event!.id });
+    if (v.charge) return v;
   }
+  throw new Error('never got a charge');
+}
 
+describe('payments (the bank texts, the player answers)', () => {
   it('confirming changes nothing, and answering again changes nothing more', async () => {
     const s = svc();
     const v = await withCharge(s);
@@ -347,5 +348,145 @@ describe('the partner', () => {
     expect(v.stats.spent).toBeGreaterThan(1000);
     expect(v.outcome!.partnerNagged).toBe(false);
     expect(v.stats.stress).toBe(0);
+  });
+});
+
+describe('actions are atomic and guarded', () => {
+  const eventOf = (id: string, eventId: string) => {
+    const p = projects.find((x) => x.id === id)!;
+    return p.events.find((e) => e.id === eventId) ?? p.finale;
+  };
+  const best = (v: GameView, projectId = 'wall-removal') => {
+    const e = eventOf(projectId, v.event!.id);
+    const i = e.choices.findIndex((c) => c.quality === 'good');
+    return i >= 0 ? i : 0;
+  };
+  /** Play with the best answers over many seeds until a game ends with the wanted status. */
+  async function finished(s: GameService, status: 'complete' | 'failed'): Promise<GameView> {
+    for (let seed = 0; seed < 60; seed++) {
+      let v = await s.createGame({ seed, project: 'wall-removal' });
+      for (let i = 0; i < 30 && v.status === 'playing'; i++) {
+        v = status === 'complete' ? await s.choose(v.id, { choice: best(v), eventId: v.event!.id }) : await s.choose(v.id, { choice: v.event!.choices.length - 1, eventId: v.event!.id });
+      }
+      if (v.status === status) return v;
+    }
+    throw new Error(`no game ended ${status}`);
+  }
+
+  it('a store that fails on save leaves the game as it was', async () => {
+    const real = new MemoryGameStore();
+    let failNext = false;
+    const store: GameStore = {
+      get: (id) => real.get(id),
+      delete: (id) => real.delete(id),
+      set: async (r) => {
+        if (failNext) {
+          failNext = false;
+          throw new Error('disk full');
+        }
+        return real.set(r);
+      },
+    };
+    const s = svc({ store });
+    const g = await s.createGame({ seed: 12, project: 'wall-removal' });
+    const before = await s.getGame(g.id, { debug: true });
+    failNext = true;
+    await expect(s.choose(g.id, { choice: 1, eventId: g.event!.id })).rejects.toThrow('disk full');
+    expect(await s.getGame(g.id, { debug: true })).toEqual(before);
+    const again = await s.choose(g.id, { choice: 1, eventId: g.event!.id }); // and it still plays
+    expect(again.outcome!.eventId).toBe(g.event!.id);
+  });
+
+  it('a read during a slow pick sees the old event and the old numbers', async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((r) => (release = r));
+    let slow = false;
+    const model = fakeModel();
+    const fetch = async (url: string, init: RequestInit) => {
+      if (slow) await gate;
+      return model.fetch(url, init);
+    };
+    const s = svc({ jev: { url: 'http://model', fetch: fetch as never } });
+    const g = await s.createGame({ seed: 12, project: 'wall-removal', director: 'jev' });
+    slow = true;
+    const pending = s.choose(g.id, { choice: 1, eventId: g.event!.id });
+    await new Promise((r) => setTimeout(r, 20));
+    const mid = await s.getGame(g.id);
+    expect(mid.event!.id).toBe(g.event!.id);
+    expect(mid.stats).toEqual(g.stats);
+    expect(mid.outcome).toBeNull();
+    release();
+    const done = await pending;
+    expect(done.outcome!.eventId).toBe(g.event!.id);
+    expect((await s.getGame(g.id)).stats).toEqual(done.stats);
+  });
+
+  it('deleting a game during a slow choice leaves it deleted', async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((r) => (release = r));
+    let slow = false;
+    const model = fakeModel();
+    const fetch = async (url: string, init: RequestInit) => {
+      if (slow) await gate;
+      return model.fetch(url, init);
+    };
+    const s = svc({ jev: { url: 'http://model', fetch: fetch as never } });
+    const g = await s.createGame({ seed: 12, project: 'wall-removal', director: 'jev' });
+    slow = true;
+    const pending = s.choose(g.id, { choice: 1, eventId: g.event!.id });
+    await new Promise((r) => setTimeout(r, 20));
+    const deleting = s.deleteGame(g.id);
+    release();
+    await pending;
+    await deleting;
+    expect(await code(s.getGame(g.id))).toBe('game_not_found');
+  });
+
+  it('a quote or a payment on a finished game is refused, and a completed game stays complete', async () => {
+    const s = svc();
+    const done = await finished(s, 'complete');
+    expect(await code(s.requestQuote(done.id))).toBe('game_over');
+    expect(await code(s.payment(done.id, { chargeId: done.charge?.id ?? 1, confirm: false }))).toBe('game_over');
+    const after = await s.getGame(done.id);
+    expect(after.status).toBe('complete');
+    expect(after.stats).toEqual(done.stats);
+  });
+
+  it('an unanswered charge is let through by the next choice, and says so', async () => {
+    const s = svc();
+    const v = await withCharge(s);
+    expect(v.charge!.status).toBe('pending');
+    expect(v.outcome!.autoConfirmed).toBeNull();
+    const next = await s.choose(v.id, { choice: 1, eventId: v.event!.id });
+    expect(next.outcome!.autoConfirmed).toBe(v.charge!.id);
+    expect(next.log.join('\n')).toContain('let the last charge through');
+    if (next.charge) expect(next.charge.id).toBe(v.charge!.id + 1);
+  });
+
+  it('an answered charge is not auto-confirmed', async () => {
+    const s = svc();
+    const v = await withCharge(s);
+    await s.payment(v.id, { chargeId: v.charge!.id, confirm: true });
+    const next = await s.choose(v.id, { choice: 1, eventId: v.event!.id });
+    expect(next.outcome!.autoConfirmed).toBeNull();
+  });
+
+  it('a finished game never has a pending charge', async () => {
+    const s = svc();
+    for (const status of ['complete', 'failed'] as const) {
+      const done = await finished(s, status);
+      if (done.charge) expect(done.charge.status).not.toBe('pending');
+    }
+    // Giving up with a charge waiting confirms it.
+    const v = await withCharge(s);
+    const ended = await s.giveUp(v.id);
+    expect(ended.charge).toMatchObject({ id: v.charge!.id, status: 'confirmed' });
+  });
+
+  it('refuses a charge id that is not a whole number, and an event id that is not text', async () => {
+    const s = svc();
+    const g = await s.createGame({ seed: 12, project: 'wall-removal' });
+    expect(await code(s.payment(g.id, { chargeId: 'x' as never, confirm: true }))).toBe('invalid_payment');
+    expect(await code(s.choose(g.id, { choice: 0, eventId: 5 as never }))).toBe('invalid_choice');
   });
 });

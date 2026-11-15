@@ -157,6 +157,9 @@ export class GameService {
       const rec = await this.load(id);
       const project = this.projectOf(rec);
       if (isOver(rec.state) || !rec.eventId) throw conflict('game_over', 'this game has ended');
+      if (req.eventId !== undefined && typeof req.eventId !== 'string') {
+        throw badRequest('invalid_choice', 'eventId must be text');
+      }
       if (req.eventId !== undefined && req.eventId !== rec.eventId) {
         throw conflict('stale_event', `the current event is "${rec.eventId}", not "${req.eventId}"`);
       }
@@ -182,10 +185,19 @@ export class GameService {
       }
       rec.state = next;
 
-      // Anything that cost money is a charge the bank will ask the player about.
+      // A charge the player never answered goes through when they move on.
+      let autoConfirmed: number | null = null;
+      if (rec.charge?.status === 'pending') {
+        rec.charge.status = 'confirmed';
+        autoConfirmed = rec.charge.id;
+        rec.log = ['No answer from you, so the bank let the last charge through.', ...rec.log].slice(0, 12);
+      }
+
+      // Anything that cost money is a charge the bank will ask the player about. A finished game has nobody left to ask.
       const cost = next.spent - before.spent;
       const choice = event.choices[req.choice];
-      rec.charge = cost > 0 ? { id: ++rec.chargeSeq, amount: cost, what: choice.label.toLowerCase(), status: 'pending' } : null;
+      const status = isOver(next) ? 'confirmed' : 'pending';
+      rec.charge = cost > 0 ? { id: ++rec.chargeSeq, amount: cost, what: choice.label.toLowerCase(), status } : null;
       rec.outcome = {
         eventId: event.id,
         choice: req.choice,
@@ -194,6 +206,7 @@ export class GameService {
         cost: Math.max(0, cost),
         days: next.daysElapsed - before.daysElapsed,
         partnerNagged,
+        autoConfirmed,
       };
 
       if (isOver(next)) {
@@ -209,7 +222,7 @@ export class GameService {
 
   /**
    * The player gives up and the contractor takes over. The game ends as a failure with reason
-   * "giveup", and the report carries the contractor's bill. A pending charge is dropped.
+   * "giveup", and the report carries the contractor's bill. A pending charge goes through, since nobody is left to ask.
    */
   async giveUp(id: string, opts: RequestOptions = {}): Promise<GameView> {
     return this.withLock(id, async () => {
@@ -217,7 +230,7 @@ export class GameService {
       const project = this.projectOf(rec);
       if (isOver(rec.state)) throw conflict('game_over', 'this game has ended');
       rec.state = { ...rec.state, failure: 'giveup' };
-      rec.charge = null;
+      if (rec.charge?.status === 'pending') rec.charge.status = 'confirmed';
       rec.log = ['You called the contractor. They are on their way.', ...rec.log].slice(0, 12);
       this.endGame(rec, createRng(rec.rngState));
       rec.updatedAt = this.now();
@@ -231,6 +244,7 @@ export class GameService {
     return this.withLock(id, async () => {
       const rec = await this.load(id);
       const project = this.projectOf(rec);
+      if (isOver(rec.state)) throw conflict('game_over', 'this game has ended');
       const { quote, problems } = rec.state;
       const asked: Quote = {
         budget: round50(quote.budget * (1 + 0.12 * problems)),
@@ -254,7 +268,10 @@ export class GameService {
     return this.withLock(id, async () => {
       const rec = await this.load(id);
       const project = this.projectOf(rec);
-      if (typeof req.confirm !== 'boolean') throw badRequest('invalid_payment', 'confirm must be true or false');
+      if (typeof req.confirm !== 'boolean' || !Number.isInteger(req.chargeId)) {
+        throw badRequest('invalid_payment', 'confirm must be true or false and chargeId a whole number');
+      }
+      if (isOver(rec.state)) throw conflict('game_over', 'this game has ended');
       const charge = rec.charge;
       if (!charge || charge.id !== req.chargeId) {
         throw conflict('stale_charge', 'that charge is not the latest one');
@@ -265,9 +282,8 @@ export class GameService {
         } else {
           charge.status = 'blocked';
           rec.log = ['Your bank blocked the card. Sorting it out cost a day.', ...rec.log].slice(0, 12);
-          const wasOver = isOver(rec.state);
           rec.state = checkEnd(applyEffects(rec.state, { days: 1, stress: BLOCKED_CARD_STRESS }, 'Card blocked'));
-          if (!wasOver && isOver(rec.state)) this.endGame(rec, createRng(rec.rngState));
+          if (isOver(rec.state)) this.endGame(rec, createRng(rec.rngState));
         }
       }
       rec.updatedAt = this.now();
@@ -308,7 +324,10 @@ export class GameService {
   }
 
   async deleteGame(id: string): Promise<void> {
-    if (!(await this.store.delete(id))) throw notFound('game_not_found', `no game with id "${id}"`);
+    // Under the game's lock, so a choice in flight can't save the game again after it is gone.
+    await this.withLock(id, async () => {
+      if (!(await this.store.delete(id))) throw notFound('game_not_found', `no game with id "${id}"`);
+    });
   }
 
   // ------------------------------------------------------------------ internals
@@ -316,7 +335,7 @@ export class GameService {
   private async load(id: string): Promise<GameRecord> {
     const rec = await this.store.get(id);
     if (!rec) throw notFound('game_not_found', `no game with id "${id}"`);
-    return rec;
+    return structuredClone(rec); // a copy, so an action that fails halfway leaves the stored game untouched
   }
 
   private projectOf(rec: GameRecord): Project {
