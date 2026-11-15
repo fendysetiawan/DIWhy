@@ -16,7 +16,7 @@ The game's user interface as a single self-contained page. Open `index.html` in 
 
 - **Going in:** walk up to the front door; it glows. Click it (or press **Space** or **Enter**) and the scene changes to the inside of the house.
 - **The cottage:** a Northeast-style cottage with 3 bedrooms, 2 bathrooms, two storeys and a basement. Each floor is a plan seen from above with low walls. Walls and big furniture are colliders: you walk around them, never over them.
-- **Stairs:** one staircase, in the hall on every floor (the way down runs under the way up). Walk up to it; it glows. Click it and a simple house builds up, storey by storey: your storey is dimmed with your face on it, the other two light up. Hover one to see its name, click it to go there, or **Cancel**.
+- **Stairs:** one staircase, in the hall on every floor (the way down runs under the way up). Walk up to it; it glows. Click it (or press **Space**) and a small card asks **Up** or **Down**: the up arrow (key, W, or the pad) goes one floor up, the down arrow one floor down, **Escape** cancels. On the top floor there is no Up, in the basement no Down.
 - **Fits the screen:** inside, the house and the player shrink so the plan fits between the post-its and the phone. At night the room you are in is lit.
 - **DIY potential:** walk into a room with something to fix and it glows softly; come close and it glows fully with a label. Three spots: the **wall between kitchen and living room** (ground floor; the dining room sits next to the kitchen), the **toilet** in the upstairs bathroom and the **dryer** (basement). Click one to see the cost and time, then **Take it on**.
 - **DIY projects:** the scene changes to a side view (elevation) where the job is animated step by step. Halfway through, an event card from `events/` asks how you handle a surprise; the answer changes the cost, the days and your health. At the end the payment goes through the bank's fraud check, the days are added, and some projects change the house (the kitchen wall really disappears from the plan).
@@ -25,13 +25,24 @@ The game's user interface as a single self-contained page. Open `index.html` in 
 ## People in the world
 
 - **Partner:** lives on the ground floor and roams the living room, dining room and kitchen. Never outside.
-- **Neighbor:** stands outside the bottom fence, peeping. Step out of the house and they come over to talk; every few minutes they also walk in (through the gate, the front door, or up the stairs). What visitors say appears at the bottom of the screen, in the middle, above the arrows.
+- **Neighbor:** stands outside the bottom fence, peeping. Step out of the house and they come over to talk; every few minutes they come over again, but only while you are in the yard. They never walk into the house. What visitors say appears at the bottom of the screen, in the middle, above the arrows.
 - **Friend and parent:** not around. Each minute there is a 15% chance the parent and a 15% chance the friend comes by; they walk over, say something, stay for about 30 seconds and leave. A visit that cannot start yet (in a job or the store) waits until it can.
 - **Visitors walk to where you are now**, not to where you stood when they came in.
 - **Close by, they talk:** walk near the partner or the neighbor and they come over and say something (at most every 45 seconds each). When someone in the same place as you has something to say, they say it in person instead of texting.
 - **Contractor:** only appears in person when the player answers "Give up." in the contractor's chat.
 - **Store clerk:** only appears behind the counter in the store.
 - Only the home owner is played; clicking the others does nothing.
+
+## Problems that find you
+
+- **Do nothing for a minute and a problem shows up**, one at a time, in this order:
+  1. **The monster:** the partner comes over: they saw a monster in the living room last night, and show a blurry photo. Walk up to the fireplace and you see what it is: a rat standing on its back legs, sniffing for food. New job: **Rat-proof the chimney** (quote 2 days, $850).
+  2. **The ghost:** the partner heard the ghost in the ground floor bathroom again. Walk up to the sink and it is the pipe behind it, whistling. New job: **Stop the whistling pipe** (quote 1 day, $420). Its event cards come from `events/kitchen_faucet_events.csv`.
+  3. **Hit and run:** while you are inside, a car hits the picket fence and drives off. Nobody sees it. Step outside and a stretch of the street-side fence is knocked out; the neighbor heard the bang. New job: **Fix the picket fence** (quote 1 day, $700).
+- **The contractor quotes:** for each problem the partner calls the contractor, who texts a quote. Answer **I'll do it myself.** and the contractor answers back, sarcastically. The latest quote is pinned at the top of the chat.
+- **Quick fixes bite back:** a wrong answer on an event card (duct tape, a rug over it...) can go wrong again: 40% right away, otherwise 70% within the next 1 to 5 minutes. A half-right answer: 35% within 5 minutes. Each time it adds 12 to 22% of the job's quote in money (5 to 10% for half-right) and a day (half a day), the bank texts the charge and the partner tells you. The contractor's quote stays as it was.
+- **Finished jobs can break later** (1 to 4 minutes after): 10% for a good fix, from 45% up to 75% when corners were cut (wrong or half-right answers, or the cheap version of a tool). The toilet leaks (a puddle), the dryer catches fire (smoke), the new plaster falls off (chunks on the floor), the rat comes back, the pipe whistles again, the fence leans. The partner calls the contractor, the contractor texts a quote, and the spot glows again for a repair.
+- The chimney, fence and repair event cards are drafts written in the page; they are not in `events/` yet.
 
 ## Tools and the store
 
@@ -73,6 +84,7 @@ On its own, the page runs a light demo loop: tasks get done slowly. Money only g
 
 - `index.html?over` starts a kitchen wall job already over its quote (3 days and $1,600), to show the bars running over and health dropping.
 - `index.html?crack` cracks the phone straight away.
+- In the browser console, `DIWHY_DEBUG.scen` triggers the problems: `idle()` (as if you did nothing for a minute), `car()`, `brk('bath')` (breaks a finished job: bath, dryer, wall, chimney, pipe, fence), `state()`.
 
 ## Style
 

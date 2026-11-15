@@ -319,7 +319,7 @@ A DIY spot glows softly as soon as the character enters its room. When the chara
 | Spot | Glow | Does |
 |---|---|---|
 | Front door (yard) and the door in the hall | Warm yellow | Go in or out |
-| Stairs | Teal | A simple house builds up (a terracotta roof, two cream storeys, a green ground line, a grey basement); the other storeys glow teal, hover shows the name |
+| Stairs | Teal | A small card with two round buttons, Up and Down, each with an arrow and the floor it leads to; a missing floor is greyed out |
 | DIY potential | Gold, with a gold label | Offer the project, then open the elevation view |
 
 ## 12. DIY elevation views

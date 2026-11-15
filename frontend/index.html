@@ -284,38 +284,14 @@ html[data-theme="dark"] #homeView{background:linear-gradient(165deg,#24485a 0%,#
 .floors button.here small::after{content:" (you are here)"}
 body.inside{background:#231912}
 /* the staircase: the house in section; the other storeys light up */
-.floor-pick{width:min(340px,calc(100vw - 32px))}
-/* the simple house: a roof and three plain storeys, built up one after another */
-.section.simple{width:200px;gap:4px}
-.section.simple .roof2{width:0;height:0;border-left:100px solid transparent;border-right:100px solid transparent;border-bottom:46px solid #c97a5d;margin-bottom:0}
-.section.simple .storey{width:170px;height:46px;margin:0;padding:0;background:#efe5d3;border:0;border-radius:6px}
-.section.simple .storey.under{background:#b1ada4}
-.section.simple .ground-line{width:200px;height:4px;border-radius:2px;background:#5a9737}
-.floor-pick.open .section.simple > *{animation:build .4s var(--settle) both}
-.floor-pick.open .section.simple > :nth-child(1){animation-delay:.24s}
-.floor-pick.open .section.simple > :nth-child(2){animation-delay:.16s}
-.floor-pick.open .section.simple > :nth-child(3){animation-delay:.08s}
-.floor-pick.open .section.simple > :nth-child(4),.floor-pick.open .section.simple > :nth-child(5){animation-delay:0s}
-@keyframes build{from{opacity:0;transform:translateY(14px) scale(.96)}}
-.section.simple .storey:not(.here)::after{content:"";position:absolute;inset:0;border-radius:6px;pointer-events:none;animation:storeyGlow 1.6s ease-in-out infinite}   /* the glow, on its own layer so the build-up can run too */
-.section{position:relative;width:220px;margin:4px auto 16px;display:flex;flex-direction:column;align-items:center}
-.section .roof{display:block;width:220px;height:64px;margin-bottom:-2px}
-.storey{position:relative;width:196px;height:62px;margin-top:-2px;display:flex;align-items:flex-end;justify-content:space-evenly;padding:0 10px 10px;
-  background:#e6dac1;border:2px solid #2b1a12;border-radius:2px;cursor:pointer;transition:filter .2s,box-shadow .25s,transform .3s var(--pop)}
-.storey .win{width:20px;height:22px;background:#7fb3d0;border:2px solid #6b4423;box-shadow:inset 3px 3px 0 #d6eef8}
-.storey .win.low{height:12px}
-.storey .door{width:22px;height:36px;background:#8f5a31;border:2px solid #2b1a12;border-bottom:0}
-.storey.under{background:#9f9b92}
-.grade{width:220px;height:8px;margin-top:-2px;background:repeating-linear-gradient(90deg,#5a9737 0 6px,#70b245 6px 12px);border-top:2px solid #2b1a12;border-bottom:2px solid #2b1a12;z-index:1}
-.storey:not(.here){animation:storeyGlow 1.6s ease-in-out infinite;z-index:2}
-@keyframes storeyGlow{0%,100%{box-shadow:0 0 0 2px #c9fff1,0 0 12px 3px rgba(34,195,160,.55)}50%{box-shadow:0 0 0 3px #c9fff1,0 0 22px 7px rgba(34,195,160,.9)}}
-.storey:not(.here):hover,.storey:not(.here):focus-visible{filter:brightness(1.12);transform:scale(1.03);outline:none}
-.storey.here{filter:saturate(.55) brightness(.9);cursor:default}
-.storey .nm{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:4px 11px;border-radius:999px;background:var(--glass);border:1px solid var(--btn-border);box-shadow:var(--shadow);color:var(--ink);font-size:12.5px;font-weight:650;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s}
-.storey:not(.here):hover .nm,.storey:not(.here):focus-visible .nm{opacity:1}
-.storey .me{position:absolute;right:-14px;top:-12px;width:32px;height:32px;border-radius:50%;overflow:hidden;background:#f7e5cd;border:2px solid #fff;box-shadow:var(--shadow);display:none}
-.storey .me img{display:block;width:100%;height:100%}
-.storey.here .me{display:block}
+.floor-pick{width:min(300px,calc(100vw - 32px))}
+.floor-pick .updown{display:grid;gap:8px;margin:14px 0 4px}
+.floor-pick .updown button{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font-size:14px;font-weight:650;text-align:left;transition:background .2s,transform .3s var(--pop)}
+.floor-pick .updown button:hover:not(:disabled){background:var(--btn-hover);transform:translateY(-1px)}
+.floor-pick .updown button:disabled{opacity:.4}
+.floor-pick .updown svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.floor-pick .updown b{margin-left:auto;font-weight:500;color:var(--ink-2)}
+.floor-pick kbd{margin-left:6px;padding:0 5px;border-radius:4px;border:1px solid currentColor;font:inherit;font-size:10px;opacity:.6}
 /* what people say: bottom centre, above the arrows */
 .talk{position:fixed;left:50%;bottom:132px;z-index:6;transform:translate(-50%,10px);width:min(520px,calc(100vw - 32px));display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-radius:20px;
   background:var(--glass);border:1px solid var(--btn-border);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);color:var(--ink);opacity:0;pointer-events:none;transition:opacity .3s,transform .4s var(--settle)}
@@ -325,6 +301,22 @@ body.inside{background:#231912}
 .talk i{font-style:normal;font-size:10.5px;font-weight:650;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin-left:7px}
 .talk p{margin:3px 0 0;font-size:14px;line-height:1.4}
 body.in-scene .talk{display:none}
+.talk .photo{position:relative;width:150px;margin-top:8px;border-radius:6px;overflow:hidden;background:#1a1612;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.talk .photo svg{display:block;width:100%;height:auto;filter:blur(2.2px) brightness(.85) contrast(.9)}   /* not very clear */
+.talk .photo span{position:absolute;left:6px;bottom:4px;font-size:9px;font-weight:600;color:rgba(255,255,255,.6);letter-spacing:.04em}
+.props{position:fixed;inset:0;z-index:1;pointer-events:none}
+body.in-diy .props{display:none}
+.prop{position:absolute;image-rendering:pixelated}
+.prop svg{display:block;width:100%;height:100%}
+.prop.rat{transform-origin:50% 100%;animation:sniff .5s ease-in-out infinite alternate}
+@keyframes sniff{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-6%) rotate(3deg)}}
+.prop.ghost{animation:whistle 1.8s ease-in-out infinite}
+.prop.smoke{transform-origin:50% 100%;animation:smoke 1.2s ease-in-out infinite alternate}
+@keyframes smoke{from{transform:translateY(0) scale(1)}to{transform:translateY(-8%) scale(1.06)}}
+.prop.plaster{animation:crumble 2.4s steps(4) infinite}
+@keyframes crumble{0%,70%{transform:none}80%{transform:translateY(3%)}100%{transform:none}}
+.prop.puddle{opacity:.9}
+@keyframes whistle{0%{transform:translateY(10%);opacity:0}30%{opacity:1}100%{transform:translateY(-40%);opacity:0}}
 /* the store: ask first, or leave (bottom right) */
 .store .store-card{top:68px;bottom:16px;max-height:none;display:flex;flex-direction:column;padding:0;overflow:hidden}   /* below the You chip and the theme button */
 .st-head{padding:14px 18px 6px}
@@ -460,6 +452,7 @@ html[data-theme="dark"] .ch img{filter:brightness(.8) saturate(.9)}
 @keyframes hotPulse{50%{filter:brightness(1.4)}}
 .hot .lab{position:absolute;left:50%;bottom:100%;margin-bottom:10px;transform:translateX(-50%);white-space:nowrap;padding:4px 11px;border-radius:999px;font-size:12.5px;font-weight:650;
   background:var(--glass);border:1px solid var(--btn-border);box-shadow:var(--shadow);color:var(--ink)}
+.hot .lab.r{left:100%;bottom:auto;top:50%;margin:0 0 0 10px;transform:translateY(-50%)}   /* label to the right, next to a wall */
 .hot.fix .lab{background:#facc15;color:#2b1a12;border-color:transparent}
 .hot.fix.room:not(.lit){opacity:1;animation:hotPulse 2.4s ease-in-out infinite;box-shadow:0 0 0 2px rgba(255,209,102,.75),0 0 14px 4px rgba(250,204,21,.5)}
 .hot.fix.room:not(.lit) .lab{display:none}
@@ -811,15 +804,12 @@ html[data-theme="dark"] .diy-sprite,html[data-theme="dark"] .diy canvas{filter:b
   <div class="modal" id="eventCard"><div class="eyebrow"></div><h3></h3><p></p><div class="prep"></div><div class="opts"></div><div class="res"></div></div>
 </div>
 <div class="modal" id="diyAsk"><div class="eyebrow"></div><h3></h3><p></p><div class="est"></div><div class="prepline"></div><div class="row"><button class="yes">Take it on</button><button class="no">Not now</button></div></div>
-<div class="modal floor-pick" id="floorAsk"><div class="eyebrow">Stairs</div><h3>Where to?</h3>
-  <div class="section simple" aria-label="The house">
-    <div class="roof2" aria-hidden="true"></div>
-    <button class="storey" data-f="upper"><span class="nm">Upstairs</span><span class="me"></span></button>
-    <button class="storey" data-f="ground"><span class="nm">Ground floor</span><span class="me"></span></button>
-    <div class="ground-line" aria-hidden="true"></div>
-    <button class="storey under" data-f="basement"><span class="nm">Basement</span><span class="me"></span></button>
+<div class="modal floor-pick" id="floorAsk"><div class="eyebrow">Stairs</div><h3 id="floorHere">Ground floor</h3>
+  <div class="updown">
+    <button class="go-up" data-way="1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg><span>Up</span><b></b></button>
+    <button class="go-down" data-way="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><span>Down</span><b></b></button>
   </div>
-  <div class="row"><button class="no">Cancel</button></div></div>
+  <div class="row"><button class="no">Cancel <kbd>Esc</kbd></button></div></div>
 <!-- ============ the hardware store: the clerk behind the counter ============ -->
 <div class="store" id="store">
   <canvas id="storeBack" width="533" height="300"></canvas>
@@ -1378,8 +1368,10 @@ function openChat(id) {
 }
 $('#backBtn').onclick = e => { e.stopPropagation(); setApp('messages'); };
 /* the contractor's quote: pinned on top of the chat, Update asks for a new one */
+let lastQuote = null;   /* the contractor's latest repair quote, shown while no job is running */
 function renderQuote() {
-  $('#quoteVal').textContent = plan.days + ' days, ' + money(plan.budget);
+  const q = lastQuote && (!job || job.done) ? lastQuote : plan;
+  $('#quoteVal').textContent = q.days + ' day' + (q.days > 1 ? 's' : '') + ', ' + money(q.budget);
   $('#quoteBar').style.display = current === 'contractor' ? 'flex' : 'none';
 }
 $('#quoteBtn').onclick = e => {
@@ -1412,7 +1404,8 @@ function renderReplies() {
     $('#msgs').appendChild(d); $('#msgs').scrollTop = 1e6;
     renderList();
     if (r.act) { settle(r.act === 'confirm'); renderReplies(); }
-    if (current === 'contractor' && r.red) setTimeout(() => contractorArrives(), 1200);   /* "Give up.": the contractor shows up in person */
+    if (current === 'contractor' && r.red) setTimeout(() => contractorArrives(), 1200);
+    if (current === 'contractor' && !r.red && typeof saidMyself === 'function') saidMyself();   /* "Give up.": the contractor shows up in person */
   });
 }
 
@@ -1601,6 +1594,7 @@ const bgCanvas = document.createElement('canvas');
 bgCanvas.width = PW; bgCanvas.height = PH; bgCanvas.className = 'pix'; bgCanvas.setAttribute('aria-hidden', 'true');
 document.body.prepend(bgCanvas);
 const bgCtx = bgCanvas.getContext('2d');
+let fenceGap = false;   /* a stretch of the street-side fence knocked out (hit and run) */
 const yardImg = paintYard();
 let sceneImg = yardImg;   /* the yard, or a floor of the house */
 function showYard() { bgCtx.putImageData(root.dataset.theme === 'dark' ? sceneImg.night : sceneImg.day, 0, 0); }
@@ -1820,8 +1814,9 @@ function paintYard() {
   const railH = (xa, xb, y) => { [y-9, y-5].forEach(ry => { rect(xa, ry-1, xb-xa, 4, OUT); rect(xa, ry, xb-xa, 2, '#ddb57e'); rect(xa, ry+1, xb-xa, 1, '#b48a55'); }); for (let x = xa; x < xb; x++) shade(x, y+1, .22); };
   const railV = (x, ya, yb) => { rect(x-2, ya, 5, yb-ya, OUT); rect(x-1, ya, 3, yb-ya, '#ddb57e'); rect(x+1, ya, 1, yb-ya, '#b48a55'); };
   railV(fx0, fy0-8, fy1-8); railV(fx1, fy0-8, fy1-8);
-  railH(fx0, fx1, fy0); railH(fx0, gx0, fy1); railH(gx1, fx1, fy1);
-  for (let x = fx0; x <= fx1; x += 13) { post(x, fy0); if (x <= gx0 || x >= gx1) post(x, fy1); }
+  const ga = S(505), gb = S(645), inGap = x => fenceGap && x > ga && x < gb;
+  railH(fx0, fx1, fy0); if (fenceGap) { railH(fx0, ga, fy1); railH(gb, gx0, fy1); } else railH(fx0, gx0, fy1); railH(gx1, fx1, fy1);
+  for (let x = fx0; x <= fx1; x += 13) { post(x, fy0); if ((x <= gx0 || x >= gx1) && !inGap(x)) post(x, fy1); }
   for (let y = fy0 + 13; y < fy1; y += 13) { post(fx0, y); post(fx1, y); }
   post(gx0, fy1); post(gx1, fy1);
   box(gx1 + 6, fy1 - 30, 3, 30, '#3d434a'); box(gx1 + 4, fy1 - 36, 7, 6, '#2b2f34'); rect(gx1 + 5, fy1 - 35, 5, 4, '#fff1c2');
@@ -2181,8 +2176,9 @@ function buildHots() {
   hotLayer.innerHTML = ''; hotEls = [];
   (SPOTS[scene] || []).forEach(sp => {
     if (sp.project && doneProjects[sp.project]) return;
+    if (sp.when && !sp.when()) return;   /* appears with its scenario */
     const el = document.createElement('button'); el.className = 'hot ' + (sp.k === 'diy' ? 'fix' : sp.k);   /* not 'diy': that class is the DIY overlay */ el.type = 'button';
-    el.innerHTML = `<span class="lab">${sp.label}${sp.project ? ': ' + PROJECTS[sp.project].short : ''}<small>Space</small></span>`;
+    el.innerHTML = `<span class="lab${sp.side === 'r' ? ' r' : ''}">${sp.label}${sp.project ? ': ' + PROJECTS[sp.project].short : ''}<small>Space</small></span>`;
     el.addEventListener('click', e => { e.stopPropagation(); if (el.classList.contains('lit')) useSpot(sp); });
     hotLayer.appendChild(el); hotEls.push([sp, el]);
   });
@@ -2253,18 +2249,31 @@ function travel(name, x, y, dir) {
     fadeEl.classList.remove('on'); frozen = false; updateHotspots(chars[selected]);
   }, 320);
 }
-/* one staircase: ask which floor */
-const floorAsk = $('#floorAsk');
+/* one staircase: Up goes one floor up, Down one floor down (the arrow keys, W/S or the pad), Escape cancels */
+const floorAsk = $('#floorAsk'), FLOOR_STACK = ['basement', 'ground', 'upper'], FLOOR_NAME = { basement:'Basement', ground:'Ground floor', upper:'Upstairs' };
+function floorBy(way) { return FLOOR_STACK[FLOOR_STACK.indexOf(scene) + way] || null; }
+function closeFloor() { floorAsk.classList.remove('open'); frozen = false; }
+function takeStairs(way) { const f = floorBy(way); if (!f || !floorAsk.classList.contains('open')) return; closeFloor(); travel(f, 900, 372, 'front'); }
 function askFloor() {
   frozen = true; held.length = 0; syncPad();
-  floorAsk.querySelectorAll('button[data-f]').forEach(b => {
-    const here = b.dataset.f === scene; b.disabled = here; b.classList.toggle('here', here);
-    b.onclick = e => { e.stopPropagation(); floorAsk.classList.remove('open'); frozen = false; travel(b.dataset.f, 900, 372, 'front'); };
+  $('#floorHere').textContent = FLOOR_NAME[scene];
+  floorAsk.querySelectorAll('button[data-way]').forEach(b => {
+    const f = floorBy(+b.dataset.way); b.disabled = !f; b.querySelector('b').textContent = f ? FLOOR_NAME[f] : 'No floor';
+    b.onclick = e => { e.stopPropagation(); takeStairs(+b.dataset.way); };
   });
-  floorAsk.querySelector('.no').onclick = e => { e.stopPropagation(); floorAsk.classList.remove('open'); frozen = false; };
-  floorAsk.querySelectorAll('.me').forEach(m => { m.innerHTML = face(owner); });   /* you are here */
+  floorAsk.querySelector('.no').onclick = e => { e.stopPropagation(); closeFloor(); };
   floorAsk.classList.add('open');
 }
+addEventListener('keydown', e => {
+  if (!floorAsk.classList.contains('open')) return;
+  const way = { ArrowUp:1, KeyW:1, ArrowDown:-1, KeyS:-1 }[e.code];
+  if (way) { e.preventDefault(); e.stopImmediatePropagation(); if (!e.repeat) takeStairs(way); }   /* a held key from walking up does not count */
+  else if (e.key === 'Escape') { e.preventDefault(); closeFloor(); }
+}, true);
+document.querySelectorAll('.dpad .up, .dpad .down').forEach(btn => btn.addEventListener('pointerdown', e => {
+  if (!floorAsk.classList.contains('open')) return;
+  e.preventDefault(); e.stopImmediatePropagation(); takeStairs(btn.classList.contains('up') ? 1 : -1);
+}, true));
 /* night: light the room the player is in */
 let litRoom = null;
 function roomRect(x, y) {
@@ -2458,7 +2467,7 @@ const VIDEOS = [
 let playing = false;
 function renderYT() {
   const box = $('#ytList');
-  box.innerHTML = VIDEOS.map((v, i) => `<button class="vid${v.watched ? ' watched' : ''}" data-i="${i}">
+  box.innerHTML = VIDEOS.map((v, i) => (v.when && !v.when()) ? '' : `<button class="vid${v.watched ? ' watched' : ''}" data-i="${i}">
       <span class="thumb" style="background:repeating-linear-gradient(135deg,${v.c[0]} 0 10px,${v.c[1]} 10px 20px)"><span class="play"></span><span class="state">${v.watched ? 'Watched' : 'Watching...'}</span><span class="len">${v.len}</span><span class="bar" style="width:${v.watched ? 100 : 0}%"></span></span>
       <span class="vt">${v.title}</span><span class="vm">${v.ch} · ${v.project ? 'how-to' : 'just for fun'}</span></button>`).join('');
   box.querySelectorAll('.vid').forEach(b => b.onclick = e => {
@@ -2486,7 +2495,7 @@ const GPT = {
 let typing = false;
 function renderChips() {
   const box = $('#gptChips');
-  box.innerHTML = Object.entries(GPT).filter(([id]) => !PREP[id].gpt).map(([id, g]) => `<button data-id="${id}">${g.q}</button>`).join('');
+  box.innerHTML = Object.entries(GPT).filter(([id]) => !PREP[id].gpt && (!GPT[id].when || GPT[id].when())).map(([id, g]) => `<button data-id="${id}">${g.q}</button>`).join('');
   box.querySelectorAll('button').forEach(b => b.onclick = e => { e.stopPropagation(); if (!typing) askGPT(b.dataset.id); });
 }
 function askGPT(id) {
@@ -2532,10 +2541,11 @@ function askProject(id) {
 function startProject(id) {
   if (LIVE && window.DIWHY_HOOKS && window.DIWHY_HOOKS.onStartProject) { frozen = false; window.DIWHY_HOOKS.onStartProject(id); return; }   /* INTEGRATION: the backend plays this job */
   const p = PROJECTS[id];
-  run = { id, p, step:0, t:0, cost:p.cost, days:p.days, health:-.04, paused:false, last:performance.now() };
+  run = { id, p, step:0, t:0, cost:p.cost, days:p.days, health:-.04, paused:false, last:performance.now(), small:0 };   /* small: corners cut */
   job = { id, start:S.time * PLAN_DAYS, spent:0, done:false };   /* the post-it now measures this job */
   plan.days = p.quote.days; plan.budget = p.quote.budget; told.budget = told.time = false; render(); renderQuote();
   setTimeout(() => receive('contractor'), 2500);   /* word gets around */
+  document.querySelectorAll('.diy-need').forEach(x => x.remove());   /* nothing left over from a job you walked away from */
   $('#diyTitle').textContent = p.title;
   $('#diySteps').innerHTML = p.steps.map(s => `<li>${s[0] === 'EVENT' ? 'Surprise!' : s[0]}</li>`).join('');
   run.px = 1460; run.face = null; run.atWork = false; diySprite.src = SPRITES[owner].left;   /* walks in from the right */
@@ -2587,6 +2597,8 @@ function showEvent() {
     run.days += o.days; run.health += o.health;   /* surprises cost time and nerves; money only at the store */
     opts.querySelectorAll('button').forEach(x => { x.disabled = true; x.classList.toggle('picked', x === b); });
     res.textContent = o.text; res.className = 'res ' + key;
+    if (key === 'wrong' || key === 'ok') run.small++;
+    if (key === 'wrong' || key === 'ok') { const bb = biteBack(ev, ev.options[+b.dataset.i], key); if (bb) { bb.fire(); res.textContent += ` It already did: +${bb.days === 1 ? '1 day' : 'half a day'}, +${money(bb.cost)}.`; } }
     const go = document.createElement('button'); go.className = 'cont'; go.textContent = 'Keep going';
     go.onclick = ev2 => { ev2.stopPropagation(); evEl.classList.remove('open'); run.paused = false; run.step++; run.t = 0; run.last = performance.now(); };
     res.appendChild(go);
@@ -2608,11 +2620,13 @@ function leaveProject(r, finished) {
     if (finished) {
       doneProjects[r.id] = true;
       S.time += r.days / PLAN_DAYS; applyFx({ health:r.health });
+      if (r.id === 'fence' && typeof setFenceGap === 'function') setFenceGap(false);   /* the fence is whole again */
       if (r.id === 'wall') { FLOORS.ground.walls.find(w => w.id === 'diyWall').off = true; SCENES.ground.img = paintFloor('ground'); if (scene === 'ground') { sceneImg = SCENES.ground.img; showYard(); } }
       buildHots();
       job.done = true; render();   /* the money was spent at the store; nothing more to pay */
       setTimeout(() => receive('partner'), 6000); if (r.id === 'wall') setTimeout(() => receive('neighbor'), 9000);
-      if (r.p.quote.budget >= 900 && Math.random() < .1) setTimeout(crackPhone, 1400);   /* a big fix: sometimes the phone hits the floor */
+      if (r.p.quote.budget >= 900 && Math.random() < .1) setTimeout(crackPhone, 1400);
+      mayBreak(r);   /* good fixes rarely break, quick fixes more often */   /* a big fix: sometimes the phone hits the floor */
     }
     frozen = false; fadeEl.classList.remove('on'); updateHotspots(chars[selected]);
   }, 320);
@@ -2713,6 +2727,7 @@ function routeVia(sc, px, py) {
 function canVisit() { return !visitor && !frozen && !!ENTRY[scene] && !document.body.classList.contains('in-scene'); }
 function visit(role, line, stay) {
   if (!canVisit()) return false;
+  if (role === 'neighbor' && scene !== 'yard') return false;   /* the neighbor only comes to you outside */
   const c = C.find(x => x.id === role); if (!c || c.name === owner) return false;
   const n = NPCS[role], ch = chars[c.name], p = chars[selected];
   const start = role === 'neighbor' && scene === 'yard' ? n.pos : ENTRY[scene];
@@ -2738,7 +2753,8 @@ function endVisits() {
 const talkEl = $('#talk');
 function talk(role, text, ms) {
   const c = C.find(x => x.id === role); if (!c) return;
-  talkEl.innerHTML = `<span class="av">${face(c.name)}</span><div><b>${c.name}</b><i>${c.role}</i><p>${text}</p></div>`;
+  const extra = talkExtraFor && talkExtraFor.role === role ? talkExtraFor.html : ''; if (extra) talkExtraFor = null;
+  talkEl.innerHTML = `<span class="av">${face(c.name)}</span><div><b>${c.name}</b><i>${c.role}</i><p>${text}</p>${extra}</div>`;
   talkEl.classList.add('show'); clearTimeout(talkEl._t); talkEl._t = setTimeout(hideTalk, ms || 6000);
 }
 function hideTalk() { clearTimeout(talkEl._t); talkEl.classList.remove('show'); }
@@ -2748,7 +2764,7 @@ travel = (name, x, y, dir) => {
   const from = scene; baseTravel(name, x, y, dir);
   if (name === 'yard' && from !== 'yard') setTimeout(() => {
     const n = NPCS.neighbor;
-    if (n.scene === 'yard' && !n.path.length && !visitor) visit('neighbor', oneOf(TEXTS.neighbor), 7000);
+    if (n.scene === 'yard' && !n.path.length && !visitor) visit('neighbor', (typeof neighborNews === 'function' && neighborNews()) || oneOf(TEXTS.neighbor), 7000);
   }, 1100);
 };
 /* the neighbor drops in every few minutes; the friend or a parent sometimes (10 % a minute) */
@@ -2824,7 +2840,7 @@ function needsTool() {
   return true;
 }
 function showNeed(tool) {
-  run.waitTool = tool;
+  run.waitTool = tool; document.querySelectorAll('.diy-need').forEach(x => x.remove());
   const box = document.createElement('div'); box.className = 'diy-need'; box.id = 'diyNeed';
   box.innerHTML = `<b>You need a ${tool}.</b> You do not have one.<button>Go buy it</button>`;
   $('#diyCard').appendChild(box);
@@ -2972,7 +2988,7 @@ function buyAll() {
   const best = {};   /* the best version bought of each tool decides how it goes */
   const rank = { cheap:0, right:1, premium:2 };
   items.forEach(([t, i]) => { const q = SHOP[t].opts[i][2]; if (best[t] == null || rank[q] > rank[best[t]]) best[t] = q; INV.add(t); });
-  Object.values(best).forEach(q => { if (q === 'cheap') run.health -= .04; });
+  Object.values(best).forEach(q => { if (q === 'cheap') { run.health -= .04; run.small++; } });
   pay(total, items.map(([t, i]) => SHOP[t].opts[i][0].toLowerCase()).join(', '));
   const qs = Object.values(best);
   stNote = `Bought ${items.length} item${items.length === 1 ? '' : 's'} for ${money(total)}. ` + (qs.includes('cheap') ? PICKED.cheap : qs.includes('premium') ? PICKED.premium : PICKED.right);
@@ -3058,6 +3074,321 @@ function diyMove(dt) {
   run.atWork = false; run.px += Math.sign(dx) * Math.min(Math.abs(dx), 260 * dt); diyFace(dx < 0 ? 'left' : 'right');
   diyTool.innerHTML = ''; diyTool.dataset.t = '';
   diyPlace(); return false;
+}
+/* ===================================================================================== */
+/* =====================================================================================
+   SCENARIOS: problems that show up when the player does nothing for a minute
+   1. The rat: the partner saw "a monster" in the living room at night (blurry photo). It is a rat by the
+      fireplace, standing on its back legs, sniffing for food. New job: rat-proof the chimney.
+   2. The ghost: the partner heard "the ghost" in the downstairs bathroom again. It is a pipe whistling
+      behind the sink. New job: stop the whistling pipe.
+   Plus: stupid answers on event cards bite back, at once or later (within 5 minutes), adding days and
+   money to the job. The contractor's quote stays as it was.
+   ===================================================================================== */
+const SCEN = {
+  rat:   { project:'chimney', active:false, revealed:false, photo:true,
+           line:'I saw a monster in the living room last night! By the fireplace. Look, I got a picture.',
+           reveal:'That is no monster. It is a rat, standing on its back legs, sniffing for food. It gets in through the chimney.',
+           prop:{ scene:'ground', x:322, y:668, kind:'rat' } },
+  ghost: { project:'pipe', active:false, revealed:false, photo:false,
+           line:'I heard the ghost in the downstairs bathroom again last night. Whistling, behind the sink. I am not going in there.',
+           reveal:'That is no ghost. The pipe behind the sink whistles every time the water runs.',
+           prop:{ scene:'ground', x:1060, y:205, kind:'ghost' } },
+};
+const scenQueue = ['rat', 'ghost', 'car'];
+let lastInput = performance.now();
+['keydown', 'pointerdown', 'wheel'].forEach(ev => addEventListener(ev, () => { lastInput = performance.now(); }, { passive:true }));
+
+/* the blurry photo the partner shows */
+const PHOTO = `<div class="photo"><svg viewBox="0 0 40 26" aria-hidden="true"><rect width="40" height="26" fill="#1a1612"/><rect x="5" y="4" width="13" height="18" fill="#3a2a22"/><ellipse cx="25" cy="17" rx="4" ry="6" fill="#6d665c"/><circle cx="26" cy="9.5" r="3" fill="#6d665c"/><circle cx="24.5" cy="6.5" r="1.3" fill="#6d665c"/><circle cx="28" cy="6.8" r="1.3" fill="#6d665c"/><circle cx="27.4" cy="9.2" r=".5" fill="#ffd27a"/><path d="M21 22c-4 1-6 2-9 1" stroke="#6d665c" fill="none"/></svg><span>IMG_0412.JPG</span></div>`;
+let talkExtraFor = null;   /* { role, html }: extra content for that person's next words */
+function talkAs(name, label, text, ms) {
+  talkEl.innerHTML = `<span class="av">${face(name)}</span><div><b>${name}</b><i>${label}</i><p>${text}</p></div>`;
+  talkEl.classList.add('show'); clearTimeout(talkEl._t); talkEl._t = setTimeout(hideTalk, ms || 7000);
+}
+
+/* the rat and the "ghost" in the plan */
+const propsEl = document.createElement('div'); propsEl.className = 'props'; yard.after(propsEl);   /* above the plan, under the labels */
+const PROP_HTML = {
+  rat:'<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="#2b1a12" d="M6 3h4v1h1v3h-1v1h1v5h1v1h1v1H4v-1h1V8h1V7H5V4h1z"/><path fill="#8b8378" d="M7 4h2v3H7zM6 8h4v5H6z"/><path fill="#a59c90" d="M7 9h2v3H7z"/><path fill="#e8a0a0" d="M5 3h1v1H5zM10 3h1v1h-1zM7 13h1v1H7zM9 13h1v1H9z"/><path fill="#111" d="M8 5h1v1H8z"/><path fill="#b8a99a" d="M12 13h2v1h-2zM14 12h1v1h-1z"/></svg>',
+  ghost:'<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="#cfe8f5" d="M3 9h1v5H3zM4 8h3v1H4zM6 9h1v3H6zM2 13h2v2H2zM5 12h2v2H5zM10 3h1v6h-1zM11 2h3v1h-3zM13 3h1v4h-1zM9 8h2v2H9zM12 6h2v2h-2z"/></svg>',
+};
+const propEls = {};
+Object.entries(SCEN).forEach(([key, s]) => { const el = document.createElement('span'); el.className = 'prop ' + s.prop.kind; el.style.display = 'none'; el.innerHTML = PROP_HTML[s.prop.kind]; propsEl.appendChild(el); propEls[key] = el; });
+function layoutProps() {
+  Object.entries(SCEN).forEach(([key, s]) => {
+    const el = propEls[key], on = s.active && !doneProjects[s.project] && scene === s.prop.scene;
+    el.style.display = on ? '' : 'none'; if (!on) return;
+    const k = view.k, sz = 64 * k;
+    Object.assign(el.style, { width:sz + 'px', height:sz + 'px', left:(view.ox + s.prop.x * k - sz / 2) + 'px', top:(view.oy + s.prop.y * k - sz) + 'px' });
+  });
+}
+const fitBeforeProps = fit;
+fit = () => { fitBeforeProps(); layoutProps(); };
+
+/* doing nothing for a minute: the partner comes over with the next problem */
+setInterval(() => {
+  if (LIVE || frozen || document.body.classList.contains('in-scene') || !scenQueue.length || visitor) return;
+  if (performance.now() - lastInput < 60000) return;
+  if (scenQueue[0] === 'car') { if (scene === 'yard') return; scenQueue.shift(); lastInput = performance.now(); carCrash(); return; }   /* it happens while the player is inside */
+  const key = scenQueue[0], s = SCEN[key];
+  talkExtraFor = s.photo ? { role:'partner', html:PHOTO } : null;
+  const ok = NPCS.partner.scene === scene ? comeOver('partner', s.line) : visit('partner', s.line, 12000);
+  if (!ok) { talkExtraFor = null; return; }
+  scenQueue.shift(); lastInput = performance.now();
+  s.active = true; buildHots(); layoutProps(); renderYT(); renderChips();
+  setTimeout(() => contractorQuote(key === 'rat' ? 'the rat in the chimney' : 'the whistling pipe', PROJECTS[s.project].quote), 6000);
+}, 2000);
+/* walk close: the player sees what it really is */
+setInterval(() => {
+  if (frozen || document.body.classList.contains('in-scene')) return;
+  const p = chars[selected];
+  Object.values(SCEN).forEach(s => {
+    if (!s.active || s.revealed || scene !== s.prop.scene || doneProjects[s.project]) return;
+    if (Math.hypot(p.x - s.prop.x, p.y - s.prop.y) < 120 && !talkEl.classList.contains('show')) { s.revealed = true; talkAs(owner, 'You', s.reveal, 8000); }
+  });
+}, 300);
+
+/* the two new jobs */
+SPOTS.ground.push(
+  { k:'diy', r:Rc(266,510,44,150), label:'DIY potential', project:'chimney', side:'r', when:() => SCEN.rat.active },
+  { k:'diy', r:Rc(1006,136,100,60), label:'DIY potential', project:'pipe', when:() => SCEN.ghost.active });
+Object.assign(PROJECTS, {
+  chimney: { short:'chimney', title:'Rat-proof the chimney', where:'Living room fireplace', cost:300, days:1, quote:{ days:2, budget:850 }, events:'chimney',
+             blurb:'A rat comes in through the chimney at night, looking for food. Time to close it off.',
+             steps:[['Find where it gets in', 3], ['Clear out the nest', 3], ['EVENT'], ['Fit a chimney cap and mesh', 3], ['Seal the gaps with mortar', 3], ['Set a humane trap', 2.6]] },
+  pipe:    { short:'whistling pipe', title:'Stop the whistling pipe', where:'Ground floor bathroom', cost:120, days:1, quote:{ days:1, budget:420 }, events:'faucet',
+             blurb:'The "ghost" in the bathroom is a pipe whistling behind the sink.',
+             steps:[['Shut off the water', 2.6], ['Find the whistling pipe', 3], ['EVENT'], ['Swap the worn valve washer', 2.8], ['Fit a water hammer arrestor', 3], ['Turn the water on and listen', 3]] },
+});
+Object.assign(DIY_EVENTS, {
+  faucet: [{"event": "Shutoff valve seizes", "description": "Oh no! The shutoff under the sink won't budge, and now it's dripping down your wrist.", "options": ["Repipe the whole kitchen", "Shut off the main and replace the shutoff", "Crank harder with a pipe wrench"], "keys": ["excessive", "good", "wrong"]}, {"event": "Main valve fails", "description": "You closed the main, but water is still trickling. The main valve has given up on life.", "options": ["Replace every valve in the house", "Call the water utility to shut off at the street", "Work fast with a bucket and hope"], "keys": ["excessive", "good", "wrong"]}, {"event": "Mounting nuts seize", "description": "Ugh! The faucet nuts are rusted solid, and you're upside down in the cabinet with a flashlight in your mouth.", "options": ["Cut the old faucet out with an oscillating tool", "Pull the whole sink out of the countertop", "Use penetrating oil and a basin wrench"], "keys": ["ok", "excessive", "good"]}, {"event": "Supply line cracks", "description": "Yikes! The old supply line snaps the moment you bend it.", "options": ["Reuse the old line very gently", "Install new braided supply lines", "Wrap it in duct tape"], "keys": ["wrong", "good", "wrong"]}, {"event": "Faucet holes don't match", "description": "Surprise! Your new faucet needs one hole. Your sink has three.", "options": ["Replace the sink and countertop", "Cover the extra holes with a deck plate", "Fill the extra holes with caulk"], "keys": ["excessive", "good", "wrong"]}, {"event": "Cabinet floor rots", "description": "Squish. The cabinet floor is soft and smells like a swamp. Years of slow leaks, finally revealed.", "options": ["Lay a plastic mat over it", "Remodel the whole kitchen", "Cut out and replace the cabinet floor"], "keys": ["wrong", "excessive", "good"]}, {"event": "New sink doesn't fit", "description": "The new sink is one inch too wide for the countertop cutout. Of course it is.", "options": ["Return it for a sink that fits", "Force it in with a rubber mallet", "Replace the countertop"], "keys": ["good", "wrong", "excessive"]}, {"event": "Pipe stub is too short", "description": "You cut off the old valve, and now there's barely half an inch of pipe left to grab.", "options": ["Use a push-fit valve made for short stubs", "Open the wall and repipe the run", "Solder on a pipe extension"], "keys": ["good", "excessive", "ok"]}, {"event": "Water utility is delayed", "description": "The water utility can shut off the street valve... on Monday. It's Friday night.", "options": ["Turn the street valve yourself with a broom handle", "Cap the sink lines and wait until Monday", "Hire an emergency plumber to freeze the pipe"], "keys": ["wrong", "good", "ok"]}, {"event": "Blade nicks the sink", "description": "The oscillating tool slips. There's now a shiny scratch across your stainless sink.", "options": ["Color it in with a silver marker", "Replace the sink", "Buff it out with a scratch repair kit"], "keys": ["wrong", "excessive", "good"]}, {"event": "Fittings don't fit", "description": "The new supply lines are 3/8 inch. Your valves are 1/2 inch. The hardware store closes in 20 minutes.", "options": ["Wrap the threads in tape until it holds", "Grab the right adapters before close", "Buy one of every fitting in the aisle"], "keys": ["wrong", "good", "excessive"]}, {"event": "Countertop chips", "description": "Crack! A chunk of laminate pops off while you're widening the cutout.", "options": ["Replace the entire countertop", "Superglue the chip back on", "Fill it with a color-matched repair kit"], "keys": ["excessive", "ok", "good"]}, {"event": "Mold hides under cabinet", "description": "Under the rotten cabinet floor: fuzzy black spots. Mold has moved in and stopped paying rent.", "options": ["Gut the kitchen to the studs", "Clean, dry, and treat the area", "Paint right over it"], "keys": ["excessive", "good", "wrong"]}],   /* from events/kitchen_faucet_events.csv */
+  chimney: [   /* draft events for the chimney (not in events/ yet) */
+    { event:'The rat brought a friend', description:'The rat is back, and this time it brought a friend. They look comfortable.', options:['Stuff the hole with an old sock', 'Seal it with steel wool and mortar', 'Rebuild the whole chimney'], keys:['wrong', 'good', 'excessive'] },
+    { event:'Bird nest in the flue', description:'An old bird nest is wedged in the flue. Possibly the rat\'s summer house.', options:['Light a fire to burn it out', 'Pull it out from the top with a sweep brush', 'Hire a crane for the roof'], keys:['wrong', 'good', 'excessive'] },
+    { event:'The crown is cracked', description:'The chimney crown is cracked. Rain gets in, and so do rats.', options:['Cover it with a tarp and a brick', 'Patch it with crown sealant', 'Replace the whole chimney stack'], keys:['wrong', 'good', 'excessive'] },
+    { event:'Droppings everywhere', description:'Droppings behind the grate. Lots of them. Lovely.', options:['Sweep it into the fireplace and light it', 'Clean it with gloves, a mask and disinfectant', 'Rip out the fireplace'], keys:['wrong', 'good', 'excessive'] },
+  ],
+});
+PREP.chimney = { yt:false, gpt:false }; PREP.pipe = { yt:false, gpt:false };
+Object.assign(TOOLS_NEEDED, { chimney:{ 0:'flashlight', 3:'chimney cap' }, pipe:{ 3:'valve washer kit', 4:'water hammer arrestor' } });
+Object.assign(SHOP, {
+  'flashlight':            { opts:[['Keychain light', 4, 'cheap'], ['LED work flashlight', 18, 'right'], ['Thermal imaging camera', 249, 'premium']], gpt:0 },
+  'chimney cap':           { opts:[['Chicken wire and zip ties', 9, 'cheap'], ['Stainless chimney cap with mesh', 79, 'right'], ['Custom copper chimney cap', 389, 'premium']], gpt:0 },
+  'valve washer kit':      { opts:[['A washer from the junk drawer', 2, 'cheap'], ['Faucet valve washer kit', 8, 'right'], ['Brand new designer faucet', 240, 'premium']], gpt:2 },
+  'water hammer arrestor': { opts:[['Wrap the pipe in a towel', 3, 'cheap'], ['Water hammer arrestor', 24, 'right'], ['Whole-house pressure system', 420, 'premium']], gpt:0 },
+});
+Object.assign(WORK_X, { chimney:[810, 810, null, 810, 760, 740], pipe:[700, 930, null, 940, 940, 820] });
+Object.assign(STEP_TOOL, { chimney:['flashlight', 'brush', null, 'hands', 'trowel', 'hands'], pipe:['wrench', 'hands', null, 'wrench', 'wrench', 'hands'] });
+Object.assign(TOOL_SVG, {
+  flashlight:'<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="#2b1a12" d="M5 2h6v4h-1v9H6V6H5z"/><path fill="#3d434a" d="M6 3h4v2H6zM7 6h2v8H7z"/><path fill="#fff3b0" d="M6 1h4v1H6z"/></svg>',
+  trowel:'<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="#2b1a12" d="M3 2h9v1l-1 5H8v7H7V8H4L3 3z"/><path fill="#c4d0d6" d="M4 3h7l-1 4H5z"/><path fill="#8a5a30" d="M7 9h1v5H7z"/></svg>',
+});
+VIDEOS.push(
+  { project:'chimney', title:'Rats in the chimney? Seal it like this', ch:'Critter Proof', len:'14:20', min:90, c:['#8b8378', '#6d665c'], when:() => SCEN.rat.active },
+  { project:'pipe', title:'Why your pipes whistle, and how to stop it', ch:'Plumb Simple', len:'16:05', min:100, c:['#7fb3d0', '#4f7fa3'], when:() => SCEN.ghost.active });
+Object.assign(GPT, {
+  chimney: { q:'How do I keep a rat out of my chimney?', when:() => SCEN.rat.active,
+             a:"Easy! Here's what to do:\n1. Put some peppermint oil by the fireplace.\n2. Rats hate the smell.\n3. Done!",
+             skip:'It skipped finding the gap, the chimney cap and sealing the cracks.' },
+  pipe:    { q:'Why does the pipe behind my sink whistle?', when:() => SCEN.ghost.active,
+             a:"That's just air in the pipes!\n1. Open all the taps for a minute.\n2. Problem solved!",
+             skip:'It skipped the worn valve washer and the water hammer arrestor.' },
+});
+
+/* elevation views for the two jobs */
+(function addElevations() {
+  let P = makePainter(EW, EH);
+  elevBase(P, (i, j) => P.hash(i >> 1, j >> 1, 9) < .5 ? '#e9dcc0' : '#e2d4b6', woodFloor(P));
+  P.rect(180, 45, 180, 205, (i, j) => { const row = Math.floor((j - 45) / 7), o = (row % 2) * 9; return ((i + o) % 18 === 0 || (j - 45) % 7 === 0) ? '#d6c1a5' : (P.hash(Math.floor((i + o) / 18), row, 11) < .3 ? '#93472f' : '#a3533b'); });
+  P.rect(179, 45, 1, 205, '#2b1a12'); P.rect(360, 45, 1, 205, '#2b1a12');
+  P.box(160, 138, 220, 10, '#8a5a30'); P.rect(160, 138, 220, 2, '#b37a45');
+  P.box(220, 160, 100, 84, '#1e1410'); P.rect(222, 162, 96, 6, '#2c1f16');
+  P.box(190, 244, 160, 6, '#8e8a82');
+  EBG.chimney = toCanvas(P.img);
+  P = makePainter(EW, EH);
+  elevBase(P, (i, j) => { const row = Math.floor((j - 45) / 9), o = (row % 2) * 9; return ((i + o) % 18 === 0 || (j - 45) % 9 === 0) ? '#b8c8cf' : '#f2f7f8'; },
+    (i, j) => (((i % 12) === 0 || ((j - FLOOR_Y) % 12) === 0) ? '#8fa3ad' : ((Math.floor(i / 12) + Math.floor((j - FLOOR_Y) / 12)) % 2 ? '#c9d6dc' : '#b7c7ce')));
+  P.box(200, 60, 140, 70, '#c9d2d8'); P.rect(204, 64, 132, 62, (i, j) => (i + j) % 23 < 3 ? '#e6f4fa' : '#b4d4e2');
+  P.box(170, 150, 200, 10, '#e4d8bf'); P.oval(270, 152, 34, 4, '#f4f4f0', '#8f8f8a'); P.box(266, 136, 8, 14, '#b9c2c8');
+  P.box(176, 160, 188, 90, '#9a6236'); P.rect(182, 164, 176, 82, '#3a2a1e');
+  P.box(146, 162, 26, 84, '#a8703f'); P.box(368, 162, 26, 84, '#a8703f');   /* the doors, open */
+  P.rect(230, 166, 4, 56, '#c4d0d6'); P.rect(310, 166, 4, 56, '#c4d0d6');
+  P.box(224, 222, 16, 8, '#b9c2c8'); P.box(304, 222, 16, 8, '#b9c2c8');
+  P.rect(268, 160, 8, 44, '#e8e8e8'); P.box(256, 204, 32, 8, '#e8e8e8'); P.rect(282, 204, 8, 40, '#e8e8e8');
+  EBG.pipe = toCanvas(P.img);
+})();
+const rat = (x, y, bob) => { fo(x, y - 9 - bob, 5, 8, '#7d7468'); fo(x + 1, y - 19 - bob, 4, 4, '#8b8378'); fr(x - 2, y - 24 - bob, 2, 3, '#e8a0a0'); fr(x + 3, y - 24 - bob, 2, 3, '#e8a0a0'); fr(x + 3, y - 20 - bob, 1, 1, '#111'); fr(x + 4, y - 2, 10, 1, '#b8a99a'); };
+const note = (x, y, c) => { fr(x + 3, y - 9, 1, 9, c); fo(x + 1, y, 2, 2, c); fr(x + 3, y - 9, 4, 2, c); };
+DRAW.chimney = (step, t) => {
+  dg.drawImage(EBG.chimney, 0, 0);
+  if (step === 0) {
+    rat(300, 246, Math.abs(Math.sin(t * 18)) * 2);
+    const cx = 230 + t * 80; dg.fillStyle = 'rgba(255,240,170,.22)'; dg.beginPath(); dg.moveTo(470, 150); dg.lineTo(cx - 20, 250); dg.lineTo(cx + 30, 250); dg.closePath(); dg.fill();
+  }
+  if (step === 1) { rat(300 + t * 320, 246, Math.abs(Math.sin(t * 40)) * 2); for (let i = 0; i < 9; i++) { const d = i / 9 * .8; if (t > d) fb(230 + (i * 37) % 80, 168 + Math.min(70, ((t - d) / .25) ** 2 * 70), 6, 4, i % 2 ? '#5a4030' : '#8a7a60'); } }
+  if (step >= 3) { const hgt = step === 3 ? t * 30 : 30; for (let x = 222; x < 318; x += 6) fr(x, 162, 1, hgt, '#9aa6ad'); for (let y = 162; y < 162 + hgt; y += 6) fr(222, y, 96, 1, '#9aa6ad'); }
+  if (step === 4) { for (let i = 0; i < Math.floor(t * 50); i++) fr(184 + (i * 53) % 170, 50 + (i * 29) % 190, 6, 1, '#efe9dd'); }
+  if (step >= 5) { const a = step === 5 ? t : 1; if (a > .2) { fb(246, 232, 26, 12, '#5a8a6f'); fr(246, 232, 26, 2, '#8fc4a6'); } sparkle(200, 140, 140, 100, t, 6); }
+};
+DRAW.pipe = (step, t) => {
+  dg.drawImage(EBG.pipe, 0, 0);
+  const wheel = step === 0 ? (t * 8 | 0) % 2 : 0; fr(229 + (wheel ? 3 : 0), 219, wheel ? 3 : 8, wheel ? 14 : 3, '#d13a2a');
+  if (step < 5) { const strong = step === 1 ? 1 : .6, n = step === 1 ? 4 : 2; for (let k = 0; k < n; k++) { const ph = (t * 1.6 + k / n) % 1; note(318 + Math.sin(ph * 6 + k) * 6, 200 - ph * 60, `rgba(60,90,120,${(1 - ph) * strong})`); } }
+  if (step === 3) fo(312, 160 + t * 60, 4, 2, '#3a3a3a');
+  if (step >= 4) { const hgt = step === 4 ? t * 22 : 22; fb(305, 222 - hgt, 14, hgt, '#d9b25a'); }
+  if (step === 5) sparkle(220, 160, 120, 80, t, 6);
+};
+
+/* =====================================================================================
+   THINGS BREAK
+   - A finished job can break later on: small odds for a good fix, bigger odds when the fix cut corners
+     (wrong or half-right answers on the event card, or the cheap version of a tool).
+     The toilet leaks, the dryer catches fire, the new plaster falls off, the rat comes back...
+   - The partner notices first and calls the contractor, who texts a quote. The player usually answers
+     "I'll do it myself." and the spot glows again.
+   - Doing nothing for a minute (third problem): a car drives into the picket fence and takes off.
+   ===================================================================================== */
+const partnerName = () => (C.find(x => x.id === 'partner') || {}).name || 'Your partner';
+const BREAKS = {
+  bath:    { what:'a leaking toilet', partner:'The toilet upstairs is leaking! There is a puddle all over the bathroom floor. I called the contractor.',
+             title:'Fix the leaking toilet', short:'leaking toilet', quote:{ days:1, budget:380 },
+             steps:['Shut off the water', 'Lift the toilet off again', 'EVENT', 'Fit a new seal', 'Set the toilet back down', 'Flush and check for drips'],
+             prop:{ scene:'upper', x:1175, y:236, kind:'puddle' } },
+  dryer:   { what:'a dryer fire', partner:'The dryer caught fire! I put it out, but the whole basement smells like smoke. I called the contractor.',
+             title:'Fix the burnt dryer vent', short:'burnt dryer vent', quote:{ days:1, budget:560 },
+             steps:['Unplug it and pull it out', 'Take off the burnt vent', 'EVENT', 'Clean the soot out of the duct', 'Fit a new metal vent', 'Push it back and test'],
+             prop:{ scene:'basement', x:929, y:770, kind:'smoke' } },
+  wall:    { what:'plaster falling off the new opening', partner:'The plaster around the new opening is falling off in chunks. One nearly landed in my soup. I called the contractor.',
+             title:'Patch the falling plaster', short:'falling plaster', quote:{ days:2, budget:1400 },
+             steps:['Find the loose plaster', 'Cut back to solid plaster', 'Scrape off the loose bits', 'EVENT', 'Fix new lath', 'Skim a new coat', 'Paint it again'],
+             prop:{ scene:'ground', x:615, y:452, kind:'plaster' } },
+  chimney: { what:'the rat coming back', partner:'The monster is back. It chewed right through your mesh. I called the contractor.',
+             title:'Rat-proof the chimney, again', short:'chimney, again', quote:{ days:1, budget:600 } },
+  pipe:    { what:'the pipe whistling again', partner:'The ghost is back. The bathroom pipe is whistling again. I called the contractor.',
+             title:'Stop the whistling pipe, again', short:'whistling pipe, again', quote:{ days:1, budget:300 } },
+  fence:   { what:'the fence falling over', partner:'The fence you fixed is leaning onto the sidewalk. People are taking pictures. I called the contractor.',
+             title:'Straighten the picket fence', short:'leaning fence', quote:{ days:1, budget:520 },
+             steps:['Pull out the loose pickets', 'Set the post in concrete', 'EVENT', 'Nail the pickets back on', 'Touch up the paint', 'Check the gate swings'] },
+};
+/* the contractor's answer to "I'll do it myself." */
+const MYSELF = ['Sure you will. My number is on your fridge.', 'Of course. Same as last time?', 'Great. I will keep your evening free for the emergency call.',
+  'Brave. Send me a picture when it gets worse.', 'Okay. My quote is good for a week. You will need it in about two days.'];
+let contractorWaiting = false;
+function saidMyself() { if (!contractorWaiting) return; contractorWaiting = false; setTimeout(() => deliver('contractor', oneOf(MYSELF)), 1600); }
+function contractorQuote(what, q) {
+  setTimeout(() => {
+    deliver('contractor', `${partnerName()} called me about ${what}. I can sort it out: ${q.days} day${q.days > 1 ? 's' : ''}, ${money(q.budget)}. Or you try it yourself again. I will wait.`);
+    contractorWaiting = true; lastQuote = { ...q }; renderQuote();
+  }, 5000);
+}
+function partnerSays(line) { if (!inPerson('partner', line)) deliver('partner', line); }
+
+/* props for the broken things, the fence and the car */
+Object.assign(PROP_HTML, {
+  puddle:'<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="#5d9fc4" d="M3 11h9v1h2v2h-3v1H4v-1H1v-2h2z"/><path fill="#9fd0ea" d="M4 12h3v1H4zM9 12h2v1H9z"/><path fill="#5d9fc4" d="M7 6h1v2H7zM11 8h1v1h-1z"/></svg>',
+  smoke:'<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="#8a8a8a" d="M5 9h4v1h1v3H4v-3h1zM7 5h3v1h1v2H6V6h1zM9 1h3v3H9z"/><path fill="#b4b4b4" d="M5 10h3v2H5zM8 6h2v1H8z"/><path fill="#e8622a" d="M5 13h1v2H5zM8 13h2v2H8z"/><path fill="#ffc23a" d="M6 14h2v1H6z"/></svg>',
+  plaster:'<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="#efe9dd" d="M2 12h4v2H2zM8 13h3v2H8zM12 11h2v2h-2zM6 6h2v2H6zM10 3h2v2h-2z"/><path fill="#b8ab96" d="M2 14h4v1H2zM8 15h3v1H8zM12 13h2v1h-2z"/></svg>',
+  fence:'<svg viewBox="0 0 32 16" shape-rendering="crispEdges"><path fill="#2b1a12" d="M1 6h3v9H1zM6 9h3v6H6zM11 4h3v11h-3zM19 11h3v4h-3zM24 3h3v12h-3z"/><path fill="#f6f0e4" d="M2 7h1v7H2zM7 10h1v4H7zM12 5h1v9h-1zM20 12h1v2h-1zM25 4h1v10h-1z"/><path fill="#f6f0e4" d="M14 13l4-2v1l-4 2zM15 15h5v1h-5z"/><path fill="#5a4636" d="M16 14h2v1h-2z"/></svg>',
+});
+function addProp(key, s) { SCEN[key] = s; const el = document.createElement('span'); el.className = 'prop ' + s.prop.kind; el.style.display = 'none'; el.innerHTML = PROP_HTML[s.prop.kind]; propsEl.appendChild(el); propEls[key] = el; }
+Object.entries(BREAKS).forEach(([id, b]) => { if (b.prop) addProp('brk_' + id, { project:id, active:false, revealed:true, prop:b.prop }); });
+addProp('car', { project:'fence', active:false, revealed:true, prop:{ scene:'yard', x:575, y:872, kind:'fence' } });
+const layoutPropsBase = layoutProps;
+layoutProps = () => { layoutPropsBase(); const s = SCEN.car, el = propEls.car; if (el.style.display !== 'none') { const k = view.k; el.style.width = 120 * k + 'px'; el.style.height = 60 * k + 'px'; el.style.left = (view.ox + (s.prop.x - 60) * k) + 'px'; el.style.top = (view.oy + (s.prop.y - 60) * k) + 'px'; } };
+
+/* hit and run: the third problem when the player does nothing. It happens while they are inside;
+   nobody sees it. They step outside and the picket fence is broken. */
+let carSeen = false, carToldByNeighbor = false;
+const HIT_AND_RUN = 'Hit and run! I heard the bang. Red car. Or maroon. Possibly a van. I would know it anywhere.';
+function neighborNews() { if (!SCEN.car.active || carToldByNeighbor || doneProjects.fence) return null; carToldByNeighbor = true; return HIT_AND_RUN; }
+function setFenceGap(on) { fenceGap = on; SCENES.yard.img = paintYard(); if (scene === 'yard') { sceneImg = SCENES.yard.img; showYard(); } }
+function carCrash() { setFenceGap(true); SCEN.car.active = true; buildHots(); layoutProps(); renderYT(); renderChips(); }
+setInterval(() => {
+  if (!SCEN.car.active || carSeen || scene !== 'yard' || frozen || doneProjects.fence) return;
+  carSeen = true;
+  setTimeout(() => talkAs(owner, 'You', 'What happened to the fence?! Somebody drove right into it. And just left.', 6000), 1200);
+  setTimeout(() => { if (carToldByNeighbor) return; carToldByNeighbor = true; if (!comeOver('neighbor', HIT_AND_RUN)) deliver('neighbor', HIT_AND_RUN); }, 9000);   /* unless they already said it on the way over */
+  setTimeout(() => { partnerSays('The neighbor told me about the fence. I already called the contractor.'); contractorQuote('your fence', PROJECTS.fence.quote); }, 18000);
+}, 500);
+
+/* ---------- a finished job may break later ---------- */
+function mayBreak(r) {
+  if (LIVE || !r || !r.id || !BREAKS[r.id]) return;
+  const odds = r.small ? Math.min(.75, .35 + .1 * r.small) : .1;   /* small for a good fix, bigger when corners were cut */
+  if (Math.random() < odds) setTimeout(() => breakJob(r.id), 60000 + Math.random() * 180000);
+}
+function breakJob(id) {
+  if (frozen || document.body.classList.contains('in-scene') || run) { setTimeout(() => breakJob(id), 20000); return; }   /* not in the middle of something */
+  const b = BREAKS[id], p = PROJECTS[id];
+  PROJECTS[id] = Object.assign({}, p, { title:b.title, short:b.short, quote:{ ...b.quote },
+    steps:b.steps ? b.steps.map((s, i) => s === 'EVENT' ? ['EVENT'] : [s, p.steps[i][1] || 3]) : p.steps });
+  doneProjects[id] = false; if (SCEN['brk_' + id]) SCEN['brk_' + id].active = true;
+  if (id === 'fence') setFenceGap(true);
+  buildHots(); layoutProps(); updateHotspots(chars[selected]);
+  partnerSays(b.partner);
+  contractorQuote(b.what, b.quote);
+}
+
+/* ---------- the picket fence job ---------- */
+SPOTS.yard.push({ k:'diy', r:Rc(500,792,150,30), label:'DIY potential', project:'fence', when:() => SCEN.car.active });
+PROJECTS.fence = { short:'picket fence', title:'Fix the picket fence', where:'Front yard', cost:150, days:1, quote:{ days:1, budget:700 }, events:'fence',
+  blurb:'Someone drove into the fence and took off. Hit and run.',
+  steps:[['Pull out the broken pickets', 3], ['Reset the leaning post', 3.2], ['EVENT'], ['Nail on new pickets', 3], ['Paint them white', 3], ['Check the gate swings', 2.6]] };
+DIY_EVENTS.fence = [   /* draft events for the fence (not in events/ yet) */
+  { event:'The post is rotten', description:'The post the car hit is rotten at the bottom. It was only standing out of habit.', options:['Prop it up with a brick', 'Set a new post in concrete', 'Replace every post on the street side'], keys:['wrong', 'good', 'excessive'] },
+  { event:'A piece of the car', description:'There is a piece of red bumper stuck in the fence. Evidence!', options:['Glue it on as decoration', 'Take a photo for the police and pull it out', 'Hire a private detective'], keys:['wrong', 'good', 'excessive'] },
+  { event:'The paint does not match', description:'The new pickets are a whiter white than the old ones.', options:['Leave it, nobody will notice', 'Paint the whole street side', 'Repaint the house to match'], keys:['wrong', 'good', 'excessive'] },
+  { event:'The neighbor supervises', description:'The neighbor pulled up a chair to watch and has opinions about your nails.', options:['Use the neighbor\'s nails to save money', 'Smile, nod and keep nailing', 'Build a privacy wall'], keys:['wrong', 'good', 'excessive'] },
+];
+PREP.fence = { yt:false, gpt:false };
+TOOLS_NEEDED.fence = { 0:'pry bar', 3:'fence pickets' };
+SHOP['fence pickets'] = { opts:[['Scrap wood from the garage', 6, 'cheap'], ['Pack of pressure-treated pickets', 45, 'right'], ['Vinyl fence panels for the whole side', 520, 'premium']], gpt:0 };
+WORK_X.fence = [700, 820, null, 840, 860, 760];
+STEP_TOOL.fence = ['pry bar', 'hands', null, 'hammer', 'roller', 'hands'];
+VIDEOS.push({ project:'fence', title:'Fix a broken picket fence in an afternoon', ch:'Yard Weekend', len:'11:48', min:80, c:['#f6f0e4', '#9fbf7a'], when:() => SCEN.car.active });
+GPT.fence = { q:'How do I fix a fence after a car hit it?', when:() => SCEN.car.active,
+  a:"Simple!\n1. Push the fence back up.\n2. Tie it to the nearest tree.\n3. Done!", skip:'It skipped the rotten post and the new pickets.' };
+(function fenceElevation() {
+  const P = makePainter(EW, EH);
+  P.rect(0, 0, EW, FLOOR_Y, (i, j) => j < 120 ? '#bfe0f0' : '#cfe8f3');
+  P.rect(0, 170, EW, FLOOR_Y - 170, (i, j) => P.hash(i >> 2, j >> 2, 5) < .5 ? '#7fae5a' : '#74a352');
+  P.rect(0, FLOOR_Y, EW, EH - FLOOR_Y, (i, j) => (i % 30 === 0 || (j - FLOOR_Y) % 12 === 0) ? '#8c8c86' : '#a7a7a0');   /* the sidewalk */
+  P.rect(0, FLOOR_Y, EW, 1, '#2b1a12');
+  P.box(60, 192, EW - 120, 6, '#e8dfcc'); P.box(60, 222, EW - 120, 6, '#e8dfcc');   /* rails */
+  EBG.fence = toCanvas(P.img);
+})();
+const picket = (x, top, c, lean) => { fb(x + (lean || 0), top, 12, FLOOR_Y - top, c); fr(x + 4 + (lean || 0), top - 4, 4, 4, c); };
+DRAW.fence = (step, t) => {
+  dg.drawImage(EBG.fence, 0, 0);
+  for (let x = 66; x < EW - 70; x += 22) {
+    const hit = x > 190 && x < 340, k = (x - 190) / 22 | 0;
+    if (!hit) { picket(x, 172, '#f6f0e4'); continue; }
+    if (step === 0 && k / 7 > t) picket(x, 182, '#e8dfcc', (k % 2 ? 9 : -7));   /* broken, leaning, being pulled out */
+    if (step >= 3) { const shown = step === 3 ? k / 7 < t : true; if (shown) picket(x, 172, step < 4 ? '#d9c49a' : step === 4 && k / 7 > t ? '#d9c49a' : '#f6f0e4'); }
+  }
+  const lean = step === 0 ? 14 : step === 1 ? 14 * (1 - t) : 0;   /* the post the car hit */
+  fb(262 + lean, 160, 14, FLOOR_Y - 160, '#cfc4ad');
+  if (step === 1 && t > .5) fb(250, FLOOR_Y - 8, 40, 8, '#9a9a94');
+  if (step === 5) sparkle(80, 150, 380, 90, t, 7);
+};
+/* ===================================================================================== */
+window.DIWHY_DEBUG.scen = { idle:() => { lastInput = performance.now() - 61000; }, travel:(f) => travel(f, 900, 600, 'front'), state:() => ({ scene, q:scenQueue.slice(), rat:SCEN.rat, ghost:SCEN.ghost, talk:talkEl.textContent, photo:!!talkEl.querySelector('.photo'), job, run:run && run.id, spent:job && job.spent }), go:(x, y) => { chars[selected].x = x; chars[selected].y = y; }, start:(id) => startProject(id), bite:biteBack, brk:(id) => breakJob(id), car:() => carCrash() };   /* for testing */
+/* ---------- stupid answers bite back: at once, or later (within 5 minutes) ---------- */
+function biteBack(ev, optText, key) {
+  if (LIVE || !run) return null;
+  const jid = run.id, sev = key === 'wrong' ? 1 : .5, base = PROJECTS[jid].quote.budget;
+  const cost = Math.round(base * (sev === 1 ? .12 + Math.random() * .1 : .05 + Math.random() * .05) / 10) * 10, days = sev === 1 ? 1 : .5;
+  const fire = () => {
+    if (job && job.id === jid) job.spent += cost;   /* on top of the job; the quote stays */
+    S.time += days / PLAN_DAYS; S.health = clamp(S.health - .05 * sev, .05, 1); render();
+    deliver('bank', `Charged ${cents(cost)} for fixing what "${optText.toLowerCase()}" broke.`);
+    const line = `Remember "${optText}"? It did not hold. Sorting it out cost ${money(cost)} and ${days === 1 ? 'a whole day' : 'half a day'}.`;
+    if (!inPerson('partner', line)) deliver('partner', line);
+  };
+  if (key === 'wrong' && Math.random() < .4) return { cost, days, fire };   /* it bites back right away */
+  if (Math.random() < (key === 'wrong' ? .7 : .35)) setTimeout(fire, 60000 + Math.random() * 240000);   /* or later */
+  return null;
 }
 /* ===================================================================================== */
 /* Arrow keys, WASD or the pad move the selected character (the home owner unless you click someone else) */
