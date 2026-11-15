@@ -18,11 +18,23 @@ const ID_PATTERN = /^[A-Za-z0-9_-]{1,80}$/;
 const FORMAT_VERSION = 1;
 const SWEEP_EVERY = 50; // sets between housekeeping sweeps
 const STALE_TMP_MS = 60_000;
-const RENAME_RETRY_MS = [20, 50, 100];
+const RETRY_MS = [20, 50, 100, 250, 500]; // for a file another process (a virus scanner, an editor) holds for a moment
 const TRANSIENT = new Set(['EPERM', 'EBUSY', 'EACCES']);
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 const code = (e: unknown) => (e as NodeJS.ErrnoException | undefined)?.code;
+
+/** Run a file operation again, with a growing pause, while the file is only busy. */
+async function retrying<T>(op: () => Promise<T>): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await op();
+    } catch (err) {
+      if (!TRANSIENT.has(code(err) ?? '') || attempt >= RETRY_MS.length) throw err;
+      await sleep(RETRY_MS[attempt]);
+    }
+  }
+}
 
 export class FileGameStore implements GameStore {
   private dir: string;
@@ -31,6 +43,7 @@ export class FileGameStore implements GameStore {
   private now: () => number;
   private sets = 0;
   private swept = false;
+  private sweeping: Promise<void> | null = null;
   private warned = new Set<string>();
 
   constructor(opts: FileStoreOptions) {
@@ -64,7 +77,7 @@ export class FileGameStore implements GameStore {
       await rm(tmp, { force: true });
       throw err;
     }
-    if (++this.sets % SWEEP_EVERY === 0) await this.sweep();
+    if (++this.sets % SWEEP_EVERY === 0) this.sweepInBackground(); // housekeeping never holds up a request
   }
 
   async delete(id: string): Promise<boolean> {
@@ -78,29 +91,41 @@ export class FileGameStore implements GameStore {
     return true;
   }
 
-  /** Delete expired games, stale temp files and the oldest games beyond the cap. */
+  /** Delete expired games, stale temp files and the oldest games beyond the cap. Goes by file times, so no game is parsed. */
   async sweep(): Promise<void> {
+    if (this.sweeping) return this.sweeping; // one at a time
+    this.sweeping = this.doSweep().finally(() => (this.sweeping = null));
+    return this.sweeping;
+  }
+
+  private sweepInBackground(): void {
+    this.sweep().catch((err) => console.warn(`[fileStore] sweep failed: ${String(err)}`));
+  }
+
+  private async doSweep(): Promise<void> {
     let names: string[];
     try {
       names = await readdir(this.dir);
     } catch {
       return;
     }
-    const now = this.now();
-    const games: { file: string; updatedAt: number }[] = [];
+    const now = Date.now(); // file times are the real clock's
+    const games: { file: string; at: number }[] = [];
     for (const name of names) {
+      const isTmp = name.endsWith('.tmp');
+      if (!isTmp && !/^game-.+\.json$/.test(name)) continue;
       const file = join(this.dir, name);
-      if (name.endsWith('.tmp')) {
-        const st = await stat(file).catch(() => undefined);
-        if (st && Date.now() - st.mtimeMs > STALE_TMP_MS) await rm(file, { force: true });
-      } else if (/^game-.+\.json$/.test(name)) {
-        const rec = await this.read(file);
-        if (!rec) continue; // unreadable files are left alone (and warned about once)
-        if (now - rec.updatedAt > this.ttlMs) await rm(file, { force: true });
-        else games.push({ file, updatedAt: rec.updatedAt });
+      const st = await stat(file).catch(() => undefined);
+      if (!st) continue;
+      if (isTmp) {
+        if (now - st.mtimeMs > STALE_TMP_MS) await rm(file, { force: true });
+      } else if (now - st.mtimeMs > this.ttlMs) {
+        await rm(file, { force: true });
+      } else {
+        games.push({ file, at: st.mtimeMs });
       }
     }
-    games.sort((a, b) => a.updatedAt - b.updatedAt);
+    games.sort((a, b) => a.at - b.at || (a.file < b.file ? -1 : 1));
     for (const g of games.slice(0, Math.max(0, games.length - this.maxGames))) await rm(g.file, { force: true });
   }
 
@@ -121,10 +146,10 @@ export class FileGameStore implements GameStore {
   private async read(file: string): Promise<GameRecord | undefined> {
     let text: string;
     try {
-      text = await readFile(file, 'utf8');
+      text = await this.readWithRetry(file);
     } catch (err) {
-      if (code(err) !== 'ENOENT') this.warnOnce(file, String(err));
-      return undefined;
+      if (code(err) === 'ENOENT') return undefined;
+      throw err; // a file we could not read is not a game that is gone: the caller gets a 500 and can try again
     }
     try {
       const data = JSON.parse(text) as { v?: unknown; record?: GameRecord };
@@ -142,15 +167,11 @@ export class FileGameStore implements GameStore {
     console.warn(`[fileStore] ignoring ${file}: ${why}`);
   }
 
-  private async renameWithRetry(from: string, to: string): Promise<void> {
-    for (let attempt = 0; ; attempt++) {
-      try {
-        await rename(from, to);
-        return;
-      } catch (err) {
-        if (!TRANSIENT.has(code(err) ?? '') || attempt >= RENAME_RETRY_MS.length) throw err;
-        await sleep(RENAME_RETRY_MS[attempt]);
-      }
-    }
+  private renameWithRetry(from: string, to: string): Promise<void> {
+    return retrying(() => rename(from, to));
+  }
+
+  private readWithRetry(file: string): Promise<string> {
+    return retrying(() => readFile(file, 'utf8'));
   }
 }

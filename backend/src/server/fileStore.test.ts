@@ -1,4 +1,4 @@
-import { mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readdir, rm, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -7,6 +7,20 @@ import { GameService } from '../service/GameService';
 import type { GameRecord } from '../service/store';
 import type { GameView } from '../service/types';
 import { FileGameStore } from './fileStore';
+
+// Reads can be made to fail on demand: `readFailures` lists the error codes the next reads throw, in order.
+const readFailures = vi.hoisted(() => [] as string[]);
+vi.mock('node:fs/promises', async (importOriginal) => {
+  const real = await importOriginal<typeof import('node:fs/promises')>();
+  return {
+    ...real,
+    readFile: (async (...args: Parameters<typeof real.readFile>) => {
+      const code = readFailures.shift();
+      if (code) throw Object.assign(new Error(code), { code });
+      return real.readFile(...args);
+    }) as typeof real.readFile,
+  };
+});
 
 let dir: string;
 let counter = 0;
@@ -101,7 +115,10 @@ describe('FileGameStore', () => {
 
   it('keeps only the newest games beyond the cap', async () => {
     const store = new FileGameStore({ dir, maxGames: 3, now: () => 10_000 });
-    for (let i = 1; i <= 5; i++) await store.set(record(`g${i}`, 1000 + i));
+    for (let i = 1; i <= 5; i++) {
+      await store.set(record(`g${i}`, 1000 + i));
+      await utimes(join(dir, `game-g${i}.json`), new Date(Date.now() - (10 - i) * 1000), new Date(Date.now() - (10 - i) * 1000));
+    }
     await store.sweep();
     expect(await files()).toEqual(['game-g3.json', 'game-g4.json', 'game-g5.json']);
   });
@@ -112,5 +129,58 @@ describe('FileGameStore', () => {
     expect(await store.delete('a')).toBe(true);
     expect(await store.delete('a')).toBe(false);
     expect(await store.get('a')).toBeUndefined();
+  });
+
+  it('retries a read that is only busy for a moment', async () => {
+    const store = new FileGameStore({ dir });
+    await store.set(record('a', Date.now()));
+    readFailures.push('EBUSY', 'EPERM');
+    expect((await store.get('a'))?.id).toBe('a');
+  });
+
+  it('fails loudly, not "not found", when a read keeps failing', async () => {
+    const store = new FileGameStore({ dir });
+    await store.set(record('a', Date.now()));
+    readFailures.push(...Array(20).fill('EACCES'));
+    await expect(store.get('a')).rejects.toThrow();
+    readFailures.length = 0;
+    expect((await store.get('a'))?.id).toBe('a'); // nothing was deleted or forgotten
+    readFailures.push('EIO');
+    await expect(store.get('a')).rejects.toThrow();
+    readFailures.length = 0;
+  });
+
+  it('still reads a missing file as missing', async () => {
+    expect(await new FileGameStore({ dir }).get('nobody')).toBeUndefined();
+  });
+
+  it('sweeps by file time without opening any game', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const store = new FileGameStore({ dir, ttlMs: 60_000 });
+    await writeFile(join(dir, 'game-old.json'), '{ not json');
+    await writeFile(join(dir, 'game-new.json'), '{ not json either');
+    const longAgo = new Date(Date.now() - 120_000);
+    await utimes(join(dir, 'game-old.json'), longAgo, longAgo);
+    await store.sweep();
+    expect(await files()).toEqual(['game-new.json']);
+    expect(warn).not.toHaveBeenCalled(); // nothing was parsed
+  });
+
+  it('does not make a request wait for the housekeeping sweep', async () => {
+    const store = new FileGameStore({ dir });
+    await store.set(record('first', Date.now())); // the first-use sweep happens here
+    const sweep = vi.spyOn(store, 'sweep').mockImplementation(() => new Promise<void>(() => undefined)); // never ends
+    for (let i = 0; i < 50; i++) await store.set(record('a', Date.now())); // would hang on the 50th if it waited
+    expect(sweep).toHaveBeenCalledTimes(1);
+  });
+
+  it('warns, and keeps serving, when a background sweep fails', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const store = new FileGameStore({ dir });
+    await store.set(record('first', Date.now()));
+    vi.spyOn(store, 'sweep').mockRejectedValue(new Error('disk gone'));
+    for (let i = 0; i < 50; i++) await store.set(record('a', Date.now()));
+    await new Promise((r) => setTimeout(r, 10));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('sweep failed'));
   });
 });
