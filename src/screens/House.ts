@@ -2,7 +2,6 @@
 
 import fallingHouse from '@art/cinematics/falling-house.svg';
 import exclamation from '@art/effects/exclamation.svg';
-import sky from '@art/backgrounds/sky.svg';
 import houseCrash from '@audio/effects/house-crash.mp3';
 import houseCreak from '@audio/effects/house-creak.mp3';
 import music from '@audio/music/menu.mp3';
@@ -31,7 +30,6 @@ export class House extends Screen {
 
     this.el.classList.add('house');
     this.el.innerHTML = `
-      <img class="sky" src="${sky}" alt="" />
       <div class="frame">
         <img class="fall" alt="" style="${placeInFrame(0, 0, 840, 660)}" />
         <img class="who" alt="" style="${placeInFrame(377, 435, 88, 123)}" />

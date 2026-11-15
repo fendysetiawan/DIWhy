@@ -344,35 +344,24 @@ body {
 
 /* ─── house: it falls ─── */
 
-/* the artwork (840 x 660) as big as it fits; the sky's horizon (y 178 of 270) sits on the house's ground line
-   (y 142 of 220), and the sky always fills the window. Then "!", then DIWHY?! */
+/* the artwork (840 x 660) as big as it fits, on its own grass, which fills the window (a 64-pixel tile, at the
+   artwork's scale, lined up with it). Then "!", then DIWHY?! */
 .house {
   --w: min(129vw, 119dvh);
   --sh: calc(var(--w) * 660 / 840);
   --top: max(3dvh, calc((100dvh - 160px - var(--sh)) / 2)); /* tall screens: in the middle, above DIWHY?! */
-  --ground: calc(var(--top) - var(--sh) * 0.036 + var(--sh) * 142 / 220);
   overflow: hidden;
-  background: #000;
+  background: url("@art/backgrounds/grass.svg") calc(50vw - var(--w) / 2) calc(var(--top) - var(--sh) * 0.036) / calc(var(--w) * 64 / 280) repeat #7eaf4e;
+  image-rendering: pixelated;
 
-  .sky {
-    --skyh: max(calc(var(--ground) * 270 / 178), calc((100dvh - var(--ground)) * 270 / 92), calc(100vw * 270 / 480));
-    position: absolute;
-    left: 50%;
-    top: calc(var(--ground) - var(--skyh) * 178 / 270);
-    height: var(--skyh);
-    aspect-ratio: 480 / 270;
-    max-width: none;
-    transform: translateX(-50%);
-    image-rendering: pixelated;
-  }
   .frame { position: absolute; left: 50%; top: calc(var(--top) - var(--sh) * 0.036); width: var(--w); aspect-ratio: 840 / 660; transform: translateX(-50%); }
   .frame img { position: absolute; image-rendering: pixelated; }
-  .sky, .frame { opacity: 0; transition: opacity 0.3s; }
-  &.on .sky, &.on .frame { opacity: 1; }
+  .frame { opacity: 0; transition: opacity 0.3s; }
+  &.on .frame { opacity: 1; }
   .exclaim { visibility: hidden; }
   &.bang .exclaim { visibility: visible; }
 
-  /* the game's name, like a logo: orange, a thick navy outline and a hard shadow, so it reads on any sky */
+  /* the game's name, like a logo: orange, a thick navy outline and a hard shadow, so it reads on the grass */
   .name {
     position: absolute;
     left: 0;
