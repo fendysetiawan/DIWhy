@@ -469,6 +469,7 @@
     const e = g.event;
     presented = e.id;
     showWork(g); // the step list gains this event as the card comes up
+    if (window.DIWHY_ELEV) window.DIWHY_ELEV.show(e.visual || []); // the elevation view draws what the event says (elevation.js)
     noteEvent(g);
     const el = card();
     const token = ++cardToken;
@@ -543,6 +544,12 @@
     const before = game;
     game = g;
     hideCard();
+    if (window.DIWHY_ELEV) {
+      window.DIWHY_ELEV.clear();
+      // A blow-up shakes the picture before the next card: water, sparks or dust by the kind of trouble.
+      const cat = before.event && before.event.category;
+      if (g.outcome && g.outcome.blewUp) window.DIWHY_ELEV.burst(cat === 'plumbing' || cat === 'envelope' ? 'water' : cat === 'electrical' ? 'sparks' : 'dust');
+    }
 
     const fresh = g.charge && g.charge.status === 'pending' && !(before.charge && before.charge.id === g.charge.id);
     syncNumbers(g, fresh ? g.charge.amount : 0);
@@ -636,6 +643,7 @@
 
   function endGame(g) {
     hideCard();
+    if (window.DIWHY_ELEV) window.DIWHY_ELEV.clear();
     if (finishRow && g.status === 'complete') tickOff(finishRow);
     const r = g.report;
     if (!r) return;

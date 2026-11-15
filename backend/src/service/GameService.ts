@@ -438,6 +438,7 @@ export class GameService {
           title: event.title,
           description: event.description,
           category: event.category ?? null,
+          visual: event.visual ?? [],
           choices: event.choices.map((c, index) => ({ index, label: c.label, cost: null, days: null })),
           advice: advice ? { from: advice.from, pick: advice.pick } : null,
         }

@@ -15,7 +15,7 @@ const target = () => (ducked ? VOLUME * 0.35 : VOLUME);
 function fade(a, to, ms, then) {
   const from = a.volume, t0 = performance.now();
   const step = (now) => {
-    const k = Math.min(1, (now - t0) / ms);
+    const k = Math.max(0, Math.min(1, (now - t0) / ms)); // a frame time can precede t0
     a.volume = from + (to - from) * k;
     if (k < 1) requestAnimationFrame(step); else then?.();
   };

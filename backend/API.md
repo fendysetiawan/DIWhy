@@ -115,6 +115,7 @@ Every endpoint that returns a game returns this shape. Trimmed:
       { "index": 1, "label": "Unplug it and start the replacement", "cost": null, "days": null },
       { "index": 2, "label": "Gut the laundry room and start over", "cost": null, "days": null }
     ],
+    "visual": ["smoke@dryer"],
     "advice": { "from": "neighbor", "pick": 1 }
   },
   "report": null
@@ -136,6 +137,7 @@ Every endpoint that returns a game returns this shape. Trimmed:
 | `log` | Flavor text from recent choices, newest first. |
 | `event` | What to decide now. `null` once the game is over. `kind` is `problem`, `temptation`, `humor` or `finale`. |
 | `event.choices[].cost`, `days` | Always `null`: nobody tells you what a DIY fix will cost. The fields exist so a price tag can come back later. |
+| `event.visual` | What the elevation picture shows for this event: tokens like `hole@wall` or `thought:stack@ceiling` (`prop[:variant]@anchor`), from the optional `visual` column of the event file. `[]` when the event has none (the finale, the bathroom job). The names live in `frontend/elevation.js`. |
 | `event.advice` | Someone's opinion, about two events in three: `{ from, pick }`. They might be wrong (see below). |
 | `report` | `null` while playing. When over: the contractor's quote against what happened, `actualCost` (what the player spent), `totalCost` (`actualCost` plus the contractor's bill after a give-up, otherwise the same), `overrunPct` (from `totalCost`; negative when under the quote, so show "under the quote"), days, problems ("times you asked why"), stress, a one-line outcome, a closing "why" line and an achievement. `report.contractorBill` is `null` unless the player gave up. Then it is `{ rows: [{ label, cost, note }], total, quoted }`: the job at a rush price (1.35 times the quote), a `fixing your fix` row (0.3 times the quote) if the player had started, and a $250 call-out fee. |
 

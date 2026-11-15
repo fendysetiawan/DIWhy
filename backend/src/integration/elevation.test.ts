@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { parseCsv } from '../content/csv';
+import { PROJECT_DEFS } from '../content/projects';
 
 const FRONTEND = join(process.cwd(), '..', 'frontend'); // tests run from backend/
 const EVENTS = join(process.cwd(), '..', 'events');
@@ -146,11 +147,15 @@ describe('the prop kit', () => {
 });
 
 describe('the visual column of the event files', () => {
-  const FILES: Array<[string, string]> = [
-    ['wall_removal_events.csv', 'wall'],
-    ['toilet_replace_events.csv', 'bath'],
-    ['dryer_replace_events.csv', 'dryer'],
-  ];
+  // The page's spots (the elevation job ids) -> the project each one starts: SPOT_PROJECT in game-link.js.
+  const spotProject: Record<string, string> = JSON.parse(
+    /const SPOT_PROJECT = (\{[^}]*\})/.exec(readFileSync(join(FRONTEND, 'game-link.js'), 'utf8'))![1].replace(/(\w+):/g, '"$1":').replace(/'/g, '"'),
+  );
+  const FILES: Array<[string, string]> = Object.entries(spotProject).map(([job, project]) => [PROJECT_DEFS.find((d) => d.id === project)!.file!, job]);
+
+  it('covers the three reachable jobs', () => {
+    expect(FILES.map(([, job]) => job).sort()).toEqual(['bath', 'dryer', 'wall']);
+  });
 
   for (const [file, job] of FILES) {
     it(`${file}: every row names props the kit can draw for ${job}`, () => {

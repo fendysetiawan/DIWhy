@@ -46,6 +46,8 @@ export interface GameEvent {
   description: string;
   /** What kind of trouble this is: "plumbing", "structural", ... Optional for older events. */
   category?: string;
+  /** What the elevation view draws: tokens like `hole@wall`. Data only; the engine never reads it. */
+  visual?: string[];
   /** Hard rule: can this event happen right now? (Prerequisites live here.) */
   eligible: (state: GameState) => boolean;
   /** Soft rule: how likely is it relative to other eligible events? (Risk debt lives here.) */

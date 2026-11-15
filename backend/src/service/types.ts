@@ -53,6 +53,7 @@ export interface EventView {
   title: string;
   description: string;
   category: string | null; // "plumbing", "structural", ...
+  visual: string[]; // picture tokens for the elevation view ("hole@wall"); [] when the event has none
   choices: ChoiceView[];
   advice: AdviceView | null; // not every event comes with an opinion
 }

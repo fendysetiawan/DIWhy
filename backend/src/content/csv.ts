@@ -7,6 +7,8 @@
 //
 // Optional columns, ignored when absent: cost_1..3 and days_1..3. If a file provides them for an
 // option, that number replaces the derived consequence (see consequences.ts).
+// Also optional: visual, space-separated tokens prop[:variant]@anchor that say what the elevation view
+// draws for the event. Only the grammar is checked here; frontend/elevation.js owns the names (a test checks).
 //
 // Pure: takes text, returns rows. Reading the files from disk happens in the server layer.
 
@@ -25,9 +27,12 @@ export interface CsvEventRow {
   /** Hand-set numbers from optional columns. `undefined` means "derive it". */
   costs: [number | undefined, number | undefined, number | undefined];
   days: [number | undefined, number | undefined, number | undefined];
+  /** Picture tokens from the optional `visual` column, e.g. `hole@wall`. Empty when absent. */
+  visual: string[];
 }
 
 const QUALITIES: readonly Quality[] = ['good', 'ok', 'wrong', 'excessive'];
+const VISUAL_TOKEN = /^[a-z0-9_-]+(:[a-z0-9_-]+)?@[a-z0-9_-]+$/;
 const REQUIRED = ['id', 'event', 'kind', 'category', 'description', 'option_1', 'option_2', 'option_3', 'answer_key'];
 
 /** RFC 4180 style: quoted fields, "" for a quote inside one, commas and newlines inside quotes. */
@@ -100,6 +105,10 @@ export function parseEventRows(text: string, source: string): CsvEventRow[] {
         throw new Error(`${where} (${id}): "${k}" is not a quality (use good, ok, wrong or excessive)`);
       }
     }
+    const visual = header.includes('visual') ? at(row, 'visual').split(/\s+/).filter(Boolean) : [];
+    for (const tok of visual) {
+      if (!VISUAL_TOKEN.test(tok)) throw new Error(`${where} (${id}): visual token "${tok}" must look like prop@anchor or prop:variant@anchor (lowercase letters, digits, - and _)`);
+    }
     const col = (name: string, n: number) => (header.includes(`${name}_${n}`) ? num(at(row, `${name}_${n}`)) : undefined);
     return {
       id,
@@ -111,6 +120,7 @@ export function parseEventRows(text: string, source: string): CsvEventRow[] {
       qualities: keys as CsvEventRow['qualities'],
       costs: [col('cost', 1), col('cost', 2), col('cost', 3)],
       days: [col('days', 1), col('days', 2), col('days', 3)],
+      visual,
     };
   });
 }

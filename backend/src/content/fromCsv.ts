@@ -52,6 +52,7 @@ export function buildEvents(
       title: row.title,
       description: row.description,
       category: row.category,
+      visual: row.visual ?? [], // rows frozen before the column existed have none
       // A temptation shows up once the work is under way. A follow-up needs one of its parents.
       eligible: temptation
         ? (s) => s.eventHistory.length >= 2

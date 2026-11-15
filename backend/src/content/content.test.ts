@@ -62,6 +62,29 @@ describe('parseEventRows', () => {
   });
 });
 
+describe('the optional visual column', () => {
+  const head = 'id,event,kind,category,description,option_1,option_2,option_3,answer_key,visual\n';
+  const line = (visual: string) => `e1,E,snowball,plumbing,d,a,b,c,"good,ok,wrong",${visual}\n`;
+
+  it('splits tokens on whitespace; empty or absent gives none', () => {
+    expect(parseEventRows(head + line('"hole@wall  bees@wall thought:stack@ceiling"'), 'f.csv')[0].visual).toEqual(['hole@wall', 'bees@wall', 'thought:stack@ceiling']);
+    expect(parseEventRows(head + line(''), 'f.csv')[0].visual).toEqual([]);
+    expect(parseEventRows(head.replace(',visual', '') + 'e1,E,snowball,plumbing,d,a,b,c,"good,ok,wrong"\n', 'f.csv')[0].visual).toEqual([]);
+  });
+
+  it.each(['smoke', 'Smoke@dryer', 'smoke@', '@dryer', 'a:b:c@x', 'sm oke@dry er@'])('names the file, row and id for the token %s', (tok) => {
+    expect(() => parseEventRows(head + line(`"${tok}"`), 'wall.csv')).toThrow(/wall\.csv row 2 \(e1\).*visual/);
+  });
+
+  it('survives JSON in a frozen project source', () => {
+    const rows = parseEventRows(head + line('smoke@dryer'), 'f.csv');
+    const def = { id: 'x', title: 't', job: 'j', blurb: 'b', fromPlan: false, quote: { budget: 1000, days: 5 } };
+    const p = projectFromSource(JSON.parse(JSON.stringify({ def, rows, links: {} })));
+    expect(p.events[0].visual).toEqual(['smoke@dryer']);
+    expect(p.finale.visual ?? []).toEqual([]);
+  });
+});
+
 describe("the team's real event files", () => {
   it('build into every project without errors', () => {
     expect(projects.map((p) => p.id)).toEqual(PROJECT_DEFS.map((d) => d.id));

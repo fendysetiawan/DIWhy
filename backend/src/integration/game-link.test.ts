@@ -614,3 +614,58 @@ describe('game-link: when things go wrong', () => {
     await waitForOptions();
   });
 });
+
+describe('game-link: the elevation view follows the event', () => {
+  const recorder = () => {
+    const calls: Array<[string, ...unknown[]]> = [];
+    const elev = { show: (t: string[]) => calls.push(['show', t]), burst: (k: string) => calls.push(['burst', k]), clear: () => calls.push(['clear']), draw: () => undefined };
+    (window as any).DIWHY_ELEV = elev;
+    return calls;
+  };
+  afterEach(() => delete (window as any).DIWHY_ELEV);
+
+  it('shows the picture tokens of each card', async () => {
+    const calls = recorder();
+    await boot({ project: 'dryer-replacement' });
+    const g = (window as any).DIWHY_LINK.game();
+    expect(g.event.visual.length).toBeGreaterThan(0);
+    expect(calls.find((c) => c[0] === 'show')).toEqual(['show', g.event.visual]);
+  });
+
+  it('bursts when an answer blows up, by the kind of trouble, then clears at the report', async () => {
+    const calls = recorder();
+    const kindOf = (c: string | null) => (c === 'plumbing' || c === 'envelope' ? 'water' : c === 'electrical' ? 'sparks' : 'dust');
+    let blew = 0;
+    for (const seed of [1, 2, 3, 4, 5, 6]) {
+      calls.length = 0;
+      document.body.innerHTML = '';
+      delete (window as any).DIWHY_LINK;
+      await boot({ seed, project: 'wall-removal' });
+      for (let i = 0; i < 9 && !document.querySelector('.dw-report'); i++) {
+        await vi.waitFor(() => expect(options().length >= 2 || document.querySelector('.dw-report')).toBeTruthy(), { timeout: WAIT });
+        if (document.querySelector('.dw-report')) break;
+        const asked = (window as any).DIWHY_LINK.game().event;
+        options()[options().length - 1].click();
+        await vi.waitFor(() => expect((window as any).DIWHY_LINK.game().event?.id !== asked.id || (window as any).DIWHY_LINK.game().status !== 'playing').toBe(true), { timeout: WAIT });
+        const o = (window as any).DIWHY_LINK.game().outcome;
+        if (o.blewUp) {
+          blew++;
+          await vi.waitFor(() => expect(calls.some((c) => c[0] === 'burst')).toBe(true));
+          expect(calls.filter((c) => c[0] === 'burst').at(-1)).toEqual(['burst', kindOf(asked.category)]);
+        }
+      }
+      await vi.waitFor(() => expect(document.querySelector('.dw-report')).toBeTruthy(), { timeout: WAIT });
+      expect(calls.at(-1)).toEqual(['clear']); // nothing is left on the picture at the report
+      if (blew) break;
+    }
+    expect(blew).toBeGreaterThan(0);
+  });
+
+  it('works without the prop kit on the page', async () => {
+    delete (window as any).DIWHY_ELEV;
+    await boot({ project: 'dryer-replacement' });
+    await waitForOptions();
+    options()[0].click();
+    await vi.waitFor(() => expect(document.querySelectorAll('.dw-option[disabled]').length).toBe(0), { timeout: WAIT });
+  });
+});
