@@ -70,7 +70,7 @@ describe('end report for every job', () => {
       const text = [r.outcome, r.whyLine, r.achievement.title, r.achievement.text].join(' ');
       for (const noun of NOUNS) {
         if (def.job.toLowerCase().includes(noun.toLowerCase())) continue;
-        expect(text, `${def.id}/${name} mentions "${noun}"`).not.toMatch(new RegExp(`\b${noun}`, noun === 'TV' ? '' : 'i'));
+        expect(text, `${def.id}/${name} mentions "${noun}"`).not.toMatch(new RegExp(`\\b${noun}`, noun === 'TV' ? '' : 'i'));
       }
       expect(text, `${def.id}/${name}`).not.toMatch(/month|one day/i);
     }
