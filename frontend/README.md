@@ -35,8 +35,9 @@ The game's user interface as a single self-contained page. Open `index.html` in 
 
 - Each DIY job needs a couple of tools (`TOOLS_NEEDED` in `index.html`; the event files don't list tools yet). The player starts with a hammer, a screwdriver and a tape measure.
 - When a step needs a tool the player doesn't have, the job stops: **"Go buy it"**. The player walks out through the gate and appears in the store, in front of the counter, with the clerk behind it.
-- Each tool comes in three versions (cheap, right, fancy). Next to them: **the clerk recommends** the fancy one, **YouTube recommends** the right one (if the player watched that job's video), **ChatGPT recommends** whatever it read first (if asked; sometimes wrong). The cheap one costs a little health. Every purchase goes through `pay()`.
-- **Bottom right in the store:** **Watch YouTube first** (2 to 3 hours) or **Ask ChatGPT first** (20 minutes) to get their picks next to the items before buying, or **Leave the store** (the job keeps waiting for the tool).
+- The store window sits on the right, below the "You" chip and the theme button. It lists the tools this job needs first, then everything else. Each tool comes in three versions (cheap, right, fancy), with a line of recommendations: **the clerk** always (the fancy one), **YouTube** (the right one) once watched, **ChatGPT** (whatever it read first, sometimes wrong) once asked.
+- Click items to put them in the **cart** (click again to take them out); **Buy all** pays for everything at once in one charge through `pay()`. Anything can be bought. A tool bought only in its cheap version costs a little health.
+- **At the bottom of the store window:** **Watch YouTube first** (2 to 3 hours) or **Ask ChatGPT first** (20 minutes) adds their picks to each tool's recommendations, and **Leave the store** (the job keeps waiting for the tool) turns into **Back to the job** once you have what you need.
 - **Back to the job** jumps straight back into the fixing scene, which carries on.
 
 ## In a DIY scene

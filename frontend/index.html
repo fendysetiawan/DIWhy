@@ -313,7 +313,35 @@ body.inside{background:#231912}
 .talk p{margin:3px 0 0;font-size:14px;line-height:1.4}
 body.in-scene .talk{display:none}
 /* the store: ask first, or leave (bottom right) */
-.store-card{max-height:calc(100vh - 190px)}
+.store .store-card{top:68px;bottom:16px;max-height:none;display:flex;flex-direction:column;padding:0;overflow:hidden}   /* below the You chip and the theme button */
+.st-head{padding:14px 18px 6px}
+.st-list{flex:1;min-height:0;overflow-y:auto;padding:0 18px 8px;scrollbar-width:thin}
+.st-sep{margin:16px 0 2px;font-size:11px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.tname i.later{color:#b45309}
+.recs{display:flex;flex-wrap:wrap;gap:4px;margin:-2px 0 6px}
+.rec{padding:2px 8px;border-radius:8px;font-size:11px;background:var(--soft);border:1px solid var(--line);color:var(--ink-2)}
+.rec b{font-weight:700;margin-right:3px}
+.rec.clerk b{color:#b45309}.rec.yt b{color:#cc0029}.rec.gpt b{color:var(--ink)}
+.rec.new{animation:recNew 1.6s var(--settle)}
+@keyframes recNew{0%{background:#fff3b0;transform:scale(1.08)}100%{background:var(--soft);transform:none}}
+.opt .pr{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.opt .ck{font-size:10.5px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--trough);color:var(--ink-2)}
+.opt.incart{border-color:var(--teal);background:rgba(34,195,160,.1)}
+.opt.incart .ck{background:var(--teal);color:#fff}
+.st-cart{border-top:1px solid var(--line);padding:10px 18px 14px;display:flex;flex-direction:column;gap:8px}
+.cart-line{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:650}
+.cart-line b{margin-left:auto;font-variant-numeric:tabular-nums}
+#stBuy{padding:8px 18px;border-radius:999px;font-size:13px;font-weight:650;background:#facc15;color:#2b1a12}
+#stBuy:disabled{opacity:.4;cursor:default}
+.st-note{font-size:12.5px;font-weight:600;color:#0f8a70}
+.st-note:empty{display:none}
+.store-card .ask-out{box-shadow:none;background:var(--soft);-webkit-backdrop-filter:none;backdrop-filter:none}
+.store-card .ask-row{display:flex;flex-wrap:wrap;gap:6px}
+.store-card .ask-row button{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:999px;font-size:12.5px;font-weight:650;background:var(--btn-bg);border:1px solid var(--btn-border);color:var(--ink)}
+.store-card .ask-row button:disabled{opacity:.55;cursor:default}
+.store-card #askGPT{background:#111;color:#fff;border-color:#111}
+.store-card #stLeave{margin-left:auto;background:var(--soft)}
+.store-card #stLeave.go{background:var(--teal);color:#fff;border-color:transparent}
 .store-ask{position:absolute;right:16px;bottom:16px;width:min(400px,calc(100vw - 32px));display:flex;flex-direction:column;gap:8px;align-items:flex-end}
 .ask-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
 .ask-row button{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;font-size:13px;font-weight:650;background:var(--btn-bg);border:1px solid var(--btn-border);box-shadow:var(--shadow);color:var(--ink);transition:background .2s,transform .3s var(--pop)}
@@ -776,10 +804,6 @@ html[data-theme="dark"] .diy-sprite,html[data-theme="dark"] .diy canvas{filter:b
   <img id="storePlayer" alt="">
   <div class="say store-say" id="storeSay"></div>
   <div class="store-card" id="storeCard"></div>
-  <div class="store-ask" id="storeAsk">
-    <div class="ask-out" id="askOut"></div>
-    <div class="ask-row"><button id="askYT"><span class="yt-mark"><i></i></span>Watch YouTube first</button><button id="askGPT">Ask ChatGPT first</button><button id="storeLeave">Leave the store</button></div>
-  </div>
 </div>
 <div class="fade" id="fade"></div>
 <div class="dpad" id="dpad" aria-label="Move">
@@ -2769,35 +2793,100 @@ function goBuy() {
 function openStore() {
   const clerk = C.find(x => x.id === 'clerk');
   stClerk.src = SPRITES[clerk.name].front; stPlayer.src = SPRITES[owner].back;
-  storeEl.classList.add('open'); fitStore(); renderStore(); askOut.innerHTML = ''; updAsk();
+  cart.clear(); askMsg = ''; stNote = ''; freshRec = null;
+  storeEl.classList.add('open'); fitStore(); renderStore();
   stSay.textContent = oneOf(TEXTS.clerk); stSay.classList.add('show');
   fadeEl.classList.remove('on');
 }
 function renderStore() {
   const clerk = C.find(x => x.id === 'clerk'), prep = PREP[run.id] || {};
-  const tools = Object.values(TOOLS_NEEDED[run.id] || {}).filter(t => !INV.has(t) || t === run.waitTool);
-  const row = tool => {
-    const s = SHOP[tool], owned = INV.has(tool);
-    return `<div class="tool"><div class="tname">${tool[0].toUpperCase() + tool.slice(1)}${tool === run.waitTool ? '<i>needed now</i>' : '<i>needed later</i>'}${owned ? '<em>in your toolbox</em>' : ''}</div>` +
+  const need = Object.values(TOOLS_NEEDED[run.id] || {});
+  const others = Object.keys(SHOP).filter(t => !need.includes(t));
+  const cap = s => s[0].toUpperCase() + s.slice(1);
+  const block = tool => {
+    const s = SHOP[tool], mine = need.includes(tool);
+    /* who recommends what: the clerk always; YouTube and ChatGPT once you asked them (for this job's tools) */
+    const recs = [`<span class="rec clerk"><b>${clerk.name}</b> ${s.opts[2][0]}</span>`];
+    if (mine && prep.yt) recs.push(`<span class="rec yt${freshRec === 'yt' ? ' new' : ''}"><b>YouTube</b> ${s.opts.find(o => o[2] === 'right')[0]}</span>`);
+    if (mine && prep.gpt) recs.push(`<span class="rec gpt${freshRec === 'gpt' ? ' new' : ''}"><b>ChatGPT</b> ${s.opts[s.gpt][0]}</span>`);
+    const label = tool === run.waitTool ? '<i>needed now</i>' : mine ? '<i class="later">needed later</i>' : '';
+    return `<div class="tool"><div class="tname">${cap(tool)}${label}${INV.has(tool) ? '<em>in your toolbox</em>' : ''}</div><div class="recs">${recs.join('')}</div>` +
       s.opts.map(([name, price, q], i) => {
-        const tags = [];
-        if (q === 'premium') tags.push('<span class="tag clerk">' + clerk.name + ' recommends</span>');
-        if (prep.yt && q === 'right') tags.push('<span class="tag yt">YouTube recommends</span>');
-        if (prep.gpt && i === s.gpt) tags.push('<span class="tag gpt">ChatGPT recommends</span>');
-        return `<button class="opt${s.bought === i ? ' picked' : ''}" data-tool="${tool}" data-i="${i}"${owned ? ' disabled' : ''}><span class="on">${name}<span class="tags">${tags.join('')}</span></span><span class="pr">${money(price)}</span></button>`;
+        const key = tool + '|' + i, inCart = cart.has(key), tags = [];
+        if (q === 'premium') tags.push(`<span class="tag clerk">${clerk.name} recommends</span>`);
+        if (mine && prep.yt && q === 'right') tags.push('<span class="tag yt">YouTube recommends</span>');
+        if (mine && prep.gpt && i === s.gpt) tags.push('<span class="tag gpt">ChatGPT recommends</span>');
+        return `<button class="opt${inCart ? ' incart' : ''}" data-key="${key}"><span class="on">${name}<span class="tags">${tags.join('')}</span></span><span class="pr">${money(price)}<span class="ck">${inCart ? 'In cart' : 'Add'}</span></span></button>`;
       }).join('') + '</div>';
   };
-  stCard.innerHTML = `<div class="eyebrow">The hardware store</div><h3>You need: ${run.waitTool}</h3>
-    <p class="who">${clerk.name}, the store clerk, is happy to help. Very happy.</p>${tools.map(row).join('')}
-    <div class="st-foot"><span id="stNote"></span><button id="stBackBtn"${INV.has(run.waitTool) ? '' : ' disabled'}>Back to the job</button></div>`;
-  stCard.querySelectorAll('.opt').forEach(b => b.onclick = e => {
-    e.stopPropagation();
-    const tool = b.dataset.tool, i = +b.dataset.i, [name, price, q] = SHOP[tool].opts[i];
-    INV.add(tool); SHOP[tool].bought = i; pay(price, name.toLowerCase());
-    if (q === 'cheap') run.health -= .04;
-    renderStore(); $('#stNote').textContent = PICKED[q];
+  const total = [...cart.values()].reduce((a, [t, i]) => a + SHOP[t].opts[i][1], 0);
+  const done = INV.has(run.waitTool);
+  stCard.innerHTML = `
+    <div class="st-head"><div class="eyebrow">The hardware store</div><h3>${done ? 'You have what you need' : 'You need: ' + run.waitTool}</h3>
+      <p class="who">${clerk.name}, the store clerk, is happy to help. Very happy.</p></div>
+    <div class="st-list">${need.map(block).join('')}<div class="st-sep">Everything else</div>${others.map(block).join('')}</div>
+    <div class="st-cart">
+      <div class="cart-line"><span>Cart: ${cart.size} item${cart.size === 1 ? '' : 's'}</span><b>${money(total)}</b><button id="stBuy"${cart.size ? '' : ' disabled'}>Buy all</button></div>
+      <div class="st-note">${stNote}</div>
+      <div class="ask-out">${askMsg}</div>
+      <div class="ask-row">
+        <button id="askYT"${prep.yt ? ' disabled' : ''}><span class="yt-mark"><i></i></span>${prep.yt ? 'Watched on YouTube' : 'Watch YouTube first'}</button>
+        <button id="askGPT"${prep.gpt ? ' disabled' : ''}>${prep.gpt ? 'Asked ChatGPT' : 'Ask ChatGPT first'}</button>
+        <button id="stLeave" class="${done ? 'go' : ''}">${done ? 'Back to the job' : 'Leave the store'}</button>
+      </div>
+    </div>`;
+  freshRec = null;
+  stCard.querySelectorAll('.opt').forEach(b => b.onclick = e => {   /* click: into the cart, click again: out */
+    e.stopPropagation(); const key = b.dataset.key, [tool, i] = key.split('|');
+    if (cart.has(key)) cart.delete(key); else cart.set(key, [tool, +i]);
+    const keep = stCard.querySelector('.st-list').scrollTop; renderStore(); stCard.querySelector('.st-list').scrollTop = keep;
   });
-  $('#stBackBtn').onclick = e => { e.stopPropagation(); backToJob(); };
+  $('#stBuy').onclick = e => { e.stopPropagation(); buyAll(); };
+  $('#askYT').onclick = e => { e.stopPropagation(); askYouTube(); };
+  $('#askGPT').onclick = e => { e.stopPropagation(); askChatGPT(); };
+  $('#stLeave').onclick = e => { e.stopPropagation(); backToJob(); };
+}
+/* the store window: a cart, Buy all, and YouTube or ChatGPT before buying */
+const cart = new Map();   /* "tool|option" -> [tool, option] */
+let askMsg = '', stNote = '', freshRec = null, askBusy = false;
+function setAsk(html) { askMsg = html; const el = stCard.querySelector('.ask-out'); if (el) el.innerHTML = html; }
+function buyAll() {
+  if (!cart.size) return;
+  const items = [...cart.values()], total = items.reduce((a, [t, i]) => a + SHOP[t].opts[i][1], 0);
+  const best = {};   /* the best version bought of each tool decides how it goes */
+  const rank = { cheap:0, right:1, premium:2 };
+  items.forEach(([t, i]) => { const q = SHOP[t].opts[i][2]; if (best[t] == null || rank[q] > rank[best[t]]) best[t] = q; INV.add(t); });
+  Object.values(best).forEach(q => { if (q === 'cheap') run.health -= .04; });
+  pay(total, items.map(([t, i]) => SHOP[t].opts[i][0].toLowerCase()).join(', '));
+  const qs = Object.values(best);
+  stNote = `Bought ${items.length} item${items.length === 1 ? '' : 's'} for ${money(total)}. ` + (qs.includes('cheap') ? PICKED.cheap : qs.includes('premium') ? PICKED.premium : PICKED.right);
+  cart.clear(); renderStore();
+}
+function askYouTube() {
+  if (!run || PREP[run.id].yt || askBusy) return;
+  const v = VIDEOS.find(x => x.project === run.id); askBusy = true;
+  setAsk(`<b>YouTube</b> Watching "${v.title}"... <span class="pbar"><i style="width:0%"></i></span>`);
+  let t = 0;
+  const iv = setInterval(() => {
+    t += .08; const bar = stCard.querySelector('.ask-out .pbar i'); if (bar) bar.style.width = Math.min(100, t * 100) + '%';
+    askMsg = stCard.querySelector('.ask-out').innerHTML;
+    if (t < 1) return;
+    clearInterval(iv); askBusy = false;
+    v.watched = true; PREP[run.id].yt = true; spend('yt', v.min); renderYT();
+    const picks = Object.values(TOOLS_NEEDED[run.id] || {}).map(tl => SHOP[tl].opts.find(o => o[2] === 'right')[0].toLowerCase());
+    askMsg = `<b>YouTube</b> Get the ${picks.join(' and the ')}. Skip the fancy stuff. <small>(${fmtMin(v.min)} of video)</small>`;
+    freshRec = 'yt'; renderStore();
+  }, 100);
+}
+function askChatGPT() {
+  if (!run || PREP[run.id].gpt || askBusy) return;
+  askBusy = true; setAsk('<b>ChatGPT</b> <span class="dots"><i></i><i></i><i></i></span>');
+  setTimeout(() => {
+    askBusy = false; PREP[run.id].gpt = true; spend('gpt', 20); renderChips();
+    const picks = Object.values(TOOLS_NEEDED[run.id] || {}).map(tl => SHOP[tl].opts[SHOP[tl].gpt][0].toLowerCase());
+    askMsg = `<b>ChatGPT</b> Great question! You just need the ${picks.join(' and the ')}. That is it! <small>(20 min)</small>`;
+    freshRec = 'gpt'; renderStore();
+  }, 1100);
 }
 function backToJob() {
   fadeEl.classList.add('on');
@@ -2811,40 +2900,6 @@ function backToJob() {
     fadeEl.classList.remove('on');
   }, 320);
 }
-/* in the store: ask YouTube or ChatGPT for their pick before buying (it costs time, like in the phone apps) */
-const askOut = $('#askOut');
-const storeTools = () => Object.values(TOOLS_NEEDED[run.id] || {}).filter(t => !INV.has(t));
-function updAsk() {
-  const p = PREP[run.id] || {};
-  $('#askYT').disabled = !!p.yt; $('#askYT').lastChild.textContent = p.yt ? 'Watched on YouTube' : 'Watch YouTube first';
-  $('#askGPT').disabled = !!p.gpt; $('#askGPT').textContent = p.gpt ? 'Asked ChatGPT' : 'Ask ChatGPT first';
-}
-$('#askYT').onclick = e => {
-  e.stopPropagation(); if (!run || PREP[run.id].yt || askOut.dataset.busy) return;
-  const v = VIDEOS.find(x => x.project === run.id); askOut.dataset.busy = '1';
-  askOut.innerHTML = `<b>YouTube</b> Watching "${v.title}"... <span class="pbar"><i></i></span>`;
-  const bar = askOut.querySelector('i'); let t = 0;
-  const iv = setInterval(() => {
-    t += .08; bar.style.width = Math.min(100, t * 100) + '%';
-    if (t < 1) return;
-    clearInterval(iv); delete askOut.dataset.busy;
-    v.watched = true; PREP[run.id].yt = true; spend('yt', v.min); renderYT();
-    const picks = storeTools().map(tl => SHOP[tl].opts.find(o => o[2] === 'right')[0].toLowerCase());
-    askOut.innerHTML = `<b>YouTube</b> ${picks.length ? 'Get the ' + picks.join(' and the ') + '. Skip the fancy stuff.' : 'You already have what you need.'} <small>(${fmtMin(v.min)})</small>`;
-    renderStore(); updAsk();
-  }, 100);
-};
-$('#askGPT').onclick = e => {
-  e.stopPropagation(); if (!run || PREP[run.id].gpt || askOut.dataset.busy) return;
-  askOut.dataset.busy = '1'; askOut.innerHTML = '<b>ChatGPT</b> <span class="dots"><i></i><i></i><i></i></span>';
-  setTimeout(() => {
-    delete askOut.dataset.busy; PREP[run.id].gpt = true; spend('gpt', 20); renderChips();
-    const picks = storeTools().map(tl => SHOP[tl].opts[SHOP[tl].gpt][0].toLowerCase());
-    askOut.innerHTML = `<b>ChatGPT</b> ${picks.length ? 'Great question! You just need the ' + picks.join(' and the ') + '. That is it!' : 'Looks like you are all set!'} <small>(20 min)</small>`;
-    renderStore(); updAsk();
-  }, 1100);
-};
-$('#storeLeave').onclick = e => { e.stopPropagation(); backToJob(); };
 /* ---------- in the DIY scene the player walks to each work spot, back to the camera, and works with a tool ---------- */
 const WORK_X = {   /* where to stand for each step, in scene units (null for the event card) */
   wall:  [700, 810, 810, null, 810, 810, 810],
