@@ -3,6 +3,13 @@
 
 import { flagCount, type GameState } from './GameState';
 
+/** What the contractor charges to take over. Only set when the player gave up. */
+export interface ContractorBill {
+  rows: { label: string; cost: number; note: string }[];
+  total: number;
+  quoted: number; // the original quote, for comparison
+}
+
 export interface Report {
   estimate: number;
   actualCost: number;
@@ -14,9 +21,25 @@ export interface Report {
   outcome: string; // one line: how it ended
   whyLine: string; // the DIWhy closer: "Why did you do it yourself?" and the answer
   achievement: { title: string; text: string };
+  contractorBill: ContractorBill | null; // null unless the player gave up
 }
 
 const money = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
+
+const RUSH_FACTOR = 1.35;
+const TOUCH_UP_FACTOR = 0.3;
+const CALL_OUT_FEE = 250;
+const toTens = (n: number) => Math.round(n / 10) * 10;
+
+/** The contractor's bill: the job at a rush price, a touch-up if the player started it, and a call-out fee. */
+function contractorBill(s: GameState): ContractorBill {
+  const rows: ContractorBill['rows'] = [{ label: s.job, cost: toTens(s.quote.budget * RUSH_FACTOR), note: 'rush job' }];
+  if (s.eventHistory.length > 0) {
+    rows.push({ label: s.job, cost: toTens(s.quote.budget * TOUCH_UP_FACTOR), note: 'fixing your fix' });
+  }
+  rows.push({ label: 'Call-out fee', cost: CALL_OUT_FEE, note: 'you called' });
+  return { rows, total: rows.reduce((t, r) => t + r.cost, 0), quoted: s.quote.budget };
+}
 
 export function buildReport(s: GameState): Report {
   const quote = s.quote;
@@ -27,7 +50,14 @@ export function buildReport(s: GameState): Report {
   let why: string;
   let achievement: Report['achievement'];
 
-  if (s.failure === 'stress') {
+  if (s.failure === 'giveup') {
+    outcome = 'You called the contractor. They sighed loudly and fixed it all.';
+    why = 'It looked easier in the video.';
+    achievement = {
+      title: 'The contractor fixed everything',
+      text: `You gave up, and the contractor's bill came to ${money(contractorBill(s).total)}.`,
+    };
+  } else if (s.failure === 'stress') {
     outcome = 'You hit 100 stress and walked out of the bathroom for good.';
     why = 'Nobody knows. Least of all you.';
     achievement = {
@@ -89,5 +119,6 @@ export function buildReport(s: GameState): Report {
     outcome,
     whyLine: `Why did you do it yourself? ${why}`,
     achievement,
+    contractorBill: s.failure === 'giveup' ? contractorBill(s) : null,
   };
 }

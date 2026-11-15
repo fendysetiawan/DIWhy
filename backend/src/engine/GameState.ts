@@ -19,7 +19,7 @@ export interface Quote {
   days: number;
 }
 
-export type FailureReason = 'budget' | 'time' | 'stress';
+export type FailureReason = 'budget' | 'time' | 'stress' | 'giveup'; // giveup: the player called the contractor in
 
 export interface LedgerEntry {
   label: string;

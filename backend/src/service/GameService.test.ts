@@ -233,3 +233,41 @@ describe('the jev director through the service', () => {
     expect(v.debug!.last.info?.fallback).toBe(true);
   });
 });
+
+describe('giveUp', () => {
+  it('ends a fresh game as a failure with the contractor bill', async () => {
+    const s = svc();
+    const g = await s.createGame({ seed: 42 });
+    const v = await s.giveUp(g.id);
+    expect(v.status).toBe('failed');
+    expect(v.failure).toBe('giveup');
+    expect(v.event).toBeNull();
+    expect(v.report!.contractorBill!.total).toBeGreaterThan(0);
+    expect(v.report!.contractorBill!.rows.map((r) => r.note)).toEqual(['rush job', 'you called']);
+  });
+
+  it('adds a touch-up row after some work, drops a pending charge, and refuses a second call', async () => {
+    const s = svc();
+    const g = await s.createGame({ seed: 42 });
+    // Pick the first choice until a charge is waiting for the bank.
+    let v = g;
+    for (let i = 0; i < 10 && !(v.charge && v.charge.status === 'pending'); i++) {
+      v = await s.choose(g.id, { choice: 0, eventId: v.event!.id });
+    }
+    expect(v.charge?.status).toBe('pending');
+    const ended = await s.giveUp(g.id);
+    expect(ended.charge).toBeNull();
+    expect(ended.report!.contractorBill!.rows.map((r) => r.note)).toContain('fixing your fix');
+    await expectError(s.giveUp(g.id), 'conflict', 'game_over');
+    expect((await s.getGame(g.id)).report!.contractorBill!.total).toBe(ended.report!.contractorBill!.total);
+  });
+
+  it('cannot give up a game that is already over, or one that does not exist', async () => {
+    const s = svc();
+    const g = await s.createGame({ seed: 7 });
+    const done = await playOut(s, g.id);
+    expect(done.status).not.toBe('playing');
+    await expectError(s.giveUp(g.id), 'conflict', 'game_over');
+    await expectError(s.giveUp('nope'), 'not_found', 'game_not_found');
+  });
+});

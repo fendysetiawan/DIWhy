@@ -7,6 +7,7 @@ export interface GameClient {
   createGame(req?: CreateGameRequest, opts?: RequestOptions): Promise<GameView>;
   getGame(id: string, opts?: RequestOptions): Promise<GameView>;
   choose(id: string, req: ChooseRequest, opts?: RequestOptions): Promise<GameView>;
+  giveUp(id: string, opts?: RequestOptions): Promise<GameView>;
   deleteGame(id: string): Promise<void>;
 }
 
@@ -58,6 +59,7 @@ export function createHttpClient(opts: HttpClientOptions = {}): GameClient {
     createGame: (req = {}, ro) => call('POST', '/games', req, ro),
     getGame: (id, ro) => call('GET', `/games/${encodeURIComponent(id)}`, undefined, ro),
     choose: (id, req, ro) => call('POST', `/games/${encodeURIComponent(id)}/choices`, req, ro),
+    giveUp: (id, ro) => call('POST', `/games/${encodeURIComponent(id)}/giveup`, {}, ro),
     deleteGame: (id) => call('DELETE', `/games/${encodeURIComponent(id)}`),
   };
 }

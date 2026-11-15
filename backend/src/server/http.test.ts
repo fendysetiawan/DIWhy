@@ -27,6 +27,19 @@ describe('routes', () => {
     });
   });
 
+  it('POST /api/games/:id/giveup ends the game with the contractor bill', async () => {
+    const { handler } = createApp();
+    const g = (await (await call(handler, 'POST', '/api/games', { seed: 42 })).json()) as { id: string };
+    const r = await call(handler, 'POST', `/api/games/${g.id}/giveup`);
+    expect(r.status).toBe(200);
+    const v = await view(r);
+    expect(v.status).toBe('failed');
+    expect(v.report!.contractorBill!.total).toBeGreaterThan(0);
+    expect((await err(await call(handler, 'POST', `/api/games/${g.id}/giveup`))).code).toBe('game_over');
+    expect((await call(handler, 'GET', `/api/games/${g.id}/giveup`)).status).toBe(405);
+    expect((await call(handler, 'POST', '/api/games/nope/giveup')).status).toBe(404);
+  });
+
   it('POST /api/games/:id/phone answers, and says what is wrong with a bad request', async () => {
     const { handler } = createApp();
     const g = (await (await call(handler, 'POST', '/api/games', { seed: 42 })).json()) as { id: string };

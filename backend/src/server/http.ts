@@ -101,13 +101,14 @@ export function createHttpHandler(service: GameService, opts: HttpOptions = {}):
         return error(405, 'method_not_allowed', 'use GET or DELETE', { Allow: 'GET, DELETE, OPTIONS' });
       }
 
-      const action = path.match(/^\/api\/games\/([^/]+)\/(choices|quote|payments|phone)$/);
+      const action = path.match(/^\/api\/games\/([^/]+)\/(choices|quote|payments|phone|giveup)$/);
       if (action) {
         if (method !== 'POST') return error(405, 'method_not_allowed', 'use POST', { Allow: 'POST, OPTIONS' });
         const id = decodeURIComponent(action[1]);
         const body = await readBody(req);
         if (action[2] === 'choices') return json(await service.choose(id, body as unknown as ChooseRequest, { debug }));
         if (action[2] === 'phone') return json(await service.phone(id, body as unknown as PhoneRequest));
+        if (action[2] === 'giveup') return json(await service.giveUp(id, { debug }));
         if (action[2] === 'quote') return json(await service.requestQuote(id, { debug }));
         return json(await service.payment(id, body as unknown as PaymentRequest, { debug }));
       }

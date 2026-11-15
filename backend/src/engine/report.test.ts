@@ -24,4 +24,23 @@ describe('end report', () => {
   it('computes the cost overrun against the $250 estimate', () => {
     expect(buildReport(done({ spent: 1250 })).overrunPct).toBe(400);
   });
+
+  it('a give-up report carries the contractor bill, and no other ending does', () => {
+    const fresh = createInitialState({ job: 'wall removal', quote: { budget: 10000, days: 14 } });
+    const r = buildReport({ ...fresh, failure: 'giveup' });
+    expect(r.outcome).toMatch(/contractor/i);
+    expect(r.contractorBill).toEqual({
+      rows: [
+        { label: 'wall removal', cost: 13500, note: 'rush job' },
+        { label: 'Call-out fee', cost: 250, note: 'you called' },
+      ],
+      total: 13750,
+      quoted: 10000,
+    });
+    const started = buildReport({ ...fresh, failure: 'giveup', eventHistory: ['a'] });
+    expect(started.contractorBill!.rows.map((x) => x.note)).toEqual(['rush job', 'fixing your fix', 'you called']);
+    expect(started.contractorBill!.rows[1].cost).toBe(3000);
+    expect(buildReport({ ...fresh, failure: 'budget' }).contractorBill).toBeNull();
+    expect(buildReport({ ...fresh, completed: true }).contractorBill).toBeNull();
+  });
 });

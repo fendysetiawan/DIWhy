@@ -207,6 +207,25 @@ export class GameService {
     });
   }
 
+  /**
+   * The player gives up and the contractor takes over. The game ends as a failure with reason
+   * "giveup", and the report carries the contractor's bill. A pending charge is dropped.
+   */
+  async giveUp(id: string, opts: RequestOptions = {}): Promise<GameView> {
+    return this.withLock(id, async () => {
+      const rec = await this.load(id);
+      const project = this.projectOf(rec);
+      if (isOver(rec.state)) throw conflict('game_over', 'this game has ended');
+      rec.state = { ...rec.state, failure: 'giveup' };
+      rec.charge = null;
+      rec.log = ['You called the contractor. They are on their way.', ...rec.log].slice(0, 12);
+      this.endGame(rec, createRng(rec.rngState));
+      rec.updatedAt = this.now();
+      await this.store.set(rec);
+      return this.toView(rec, project, opts);
+    });
+  }
+
   /** The contractor re-quotes. They only ever go up, as problems turn up. The original never changes. */
   async requestQuote(id: string, opts: RequestOptions = {}): Promise<GameView> {
     return this.withLock(id, async () => {

@@ -7,9 +7,9 @@
 import type { DirectorInfo } from '../directors/types';
 import type { EventKind } from '../engine/EventEngine';
 import type { FailureReason, GameState, LedgerEntry, Quote } from '../engine/GameState';
-import type { Report } from '../engine/report';
+import type { ContractorBill, Report } from '../engine/report';
 
-export type { DirectorInfo, EventKind, FailureReason, LedgerEntry, Quote, Report };
+export type { ContractorBill, DirectorInfo, EventKind, FailureReason, LedgerEntry, Quote, Report };
 
 /** Who picks which event happens next. `jev` is a local decision model. */
 export type DirectorName = 'random' | 'jev';
