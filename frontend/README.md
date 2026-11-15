@@ -27,6 +27,7 @@ The game's user interface as a single self-contained page. Open `index.html` in 
 - **Partner:** lives on the ground floor and roams the living room, dining room and kitchen. Never outside.
 - **Neighbor:** stands outside the bottom fence, peeping. Step out of the house and they come over to talk; every few minutes they also walk in (through the gate, the front door, or up the stairs). What visitors say appears at the bottom of the screen, in the middle, above the arrows.
 - **Friend and parent:** not around. Each minute there is a 15% chance the parent and a 15% chance the friend comes by; they walk over, say something, stay for about 30 seconds and leave. A visit that cannot start yet (in a job or the store) waits until it can.
+- **Visitors walk to where you are now**, not to where you stood when they came in.
 - **Close by, they talk:** walk near the partner or the neighbor and they come over and say something (at most every 45 seconds each). When someone in the same place as you has something to say, they say it in person instead of texting.
 - **Contractor:** only appears in person when the player answers "Give up." in the contractor's chat.
 - **Store clerk:** only appears behind the counter in the store.
@@ -36,7 +37,7 @@ The game's user interface as a single self-contained page. Open `index.html` in 
 
 - Each DIY job needs a couple of tools (`TOOLS_NEEDED` in `index.html`; the event files don't list tools yet). The player starts with a hammer, a screwdriver and a tape measure.
 - When a step needs a tool the player doesn't have, the job stops: **"Go buy it"**. The player walks out through the gate and appears in the store, in front of the counter, with the clerk behind it.
-- The store window sits on the right, below the "You" chip and the theme button. It lists the tools this job needs first, then everything else. Each tool comes in three versions (cheap, right, fancy), with a line of recommendations: **the clerk** always (the fancy one), **YouTube** (the right one) once watched, **ChatGPT** (whatever it read first, sometimes wrong) once asked.
+- The store window sits on the right, below the "You" chip and the theme button. It shows only what this job needs, and for each tool only what is suggested: the clerk's pick, plus YouTube's and ChatGPT's once you asked them. **Show all products** opens the whole store (and switches back). Each tool comes in three versions (cheap, right, fancy), with a line of recommendations: **the clerk** always (the fancy one), **YouTube** (the right one) once watched, **ChatGPT** (whatever it read first, sometimes wrong) once asked.
 - Click items to put them in the **cart**; click again ("Remove") or use the × on an item in the cart list to take it out; **Buy all** pays for everything at once in one charge through `pay()`. Anything can be bought. A tool bought only in its cheap version costs a little health.
 - **At the bottom of the store window:** **Watch YouTube first** (2 to 3 hours) or **Ask ChatGPT first** (20 minutes) adds their picks to each tool's recommendations, and **Leave the store** (the job keeps waiting for the tool) turns into **Back to the job** once you have what you need.
 - **Back to the job** jumps straight back into the fixing scene, which carries on.
@@ -84,3 +85,8 @@ The interface uses the system font, dark grey ink with few colours (teal, gold a
 Open the page as `/frontend/?game=<id>` and the backend runs the game: `game-link.js` casts the characters from the backend, drives the Time, Budget and Health bars, keeps the tasks post-it going with this page's own rows (one per event from the events list, ticked off when answered, above a "Finish the job" row), shows each event as a card (with advice texts from the cast), sends every purchase through `pay()`, and shows the end report. The demo loop is switched off in that mode. The glowing DIY spots are how you find the job: with `?owner=<character>` (what the front door sends) the house opens with no job yet, and saying "Take it on" at the kitchen wall, the bathroom or the dryer starts the backend game for that job (then the page reloads as `?game=<id>`, and the other spots go quiet: one job per game). **Without `?game` or `?owner` the page runs on its own, exactly as described above.** Start from the front door at `/app/`, or see [`../INTEGRATION.md`](../INTEGRATION.md).
 
 The few lines in `index.html` that make this work are marked `INTEGRATION`.
+
+## Easter eggs
+
+- A tiny model of the Equitable Building (120 Broadway) stands among the plants in the top-left garden bed.
+- A sheet on the office desk has the AEC Tech logo on it, in light grey.
