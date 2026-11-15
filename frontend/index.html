@@ -1310,8 +1310,13 @@ unread.contractor = 1; unread.partner = 1;
 /* ---------------- game state ---------------- */
 const PLAN_DAYS = 30, PLAN_BUDGET = 24000;
 const plan = { days:PLAN_DAYS, budget:PLAN_BUDGET };   /* the contractor's current quote */
+/* On its own, the page measures the job you took on: its days against the contractor's days, and what you
+   spent at the hardware store against the contractor's price. Before a job there is nothing to measure.
+   (With a backend game, the backend sets the numbers as before.) */
+let job = null;   /* { id, start (game day), spent, done } */
+const jobDay = () => job ? S.time * PLAN_DAYS - job.start : 0;
 const S = { time:.6, budget:.68, health:.78 };
-if (/[?&]over/.test(location.search)) { S.time = 1.12; S.budget = 1.25; S.health = .41; } /* ?over starts past the contractor's plan */
+if (/[?&]over/.test(location.search)) { if (LIVE) { S.time = 1.12; S.budget = 1.25; } else { plan.days = 6; plan.budget = 6500; job = { id:'wall', start:S.time * PLAN_DAYS - 8, spent:8100, done:false }; } S.health = .41; } /* ?over starts past the contractor's quote */
 const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 const money = n => '$' + Math.round(n).toLocaleString('en-US');
 
@@ -1323,15 +1328,16 @@ function setBar(id, v) {
   el.classList.toggle('over', v > 1);
 }
 function render() {
-  const day = S.time*PLAN_DAYS, spent = S.budget*PLAN_BUDGET;
+  const own = !LIVE;   /* on its own: the current job; with a backend: the backend's numbers */
+  const day = own ? jobDay() : S.time*PLAN_DAYS, spent = own ? (job ? job.spent : 0) : S.budget*PLAN_BUDGET;
   setBar('time', day/plan.days); setBar('budget', spent/plan.budget); setBar('health', S.health);
-  $('#v-time').textContent = 'Day ' + Math.floor(day) + ' of ' + plan.days;
-  $('#v-budget').textContent = money(spent) + ' of ' + money(plan.budget);
-  $('#p-time').textContent = 'Contractor: ' + plan.days + ' days';
+  $('#v-time').textContent = own && !job ? 'No job yet' : 'Day ' + (own ? Math.floor(day) + 1 : Math.floor(day)) + ' of ' + plan.days;
+  $('#v-budget').textContent = own && !job ? 'Nothing spent' : money(spent) + ' of ' + money(plan.budget);
+  $('#p-time').textContent = own && !job ? 'Pick a glowing DIY spot' : 'Contractor: ' + plan.days + ' days';
   const held = heldTotal();
-  $('#p-budget').textContent = 'Contractor: ' + money(plan.budget) + (held ? ' · ' + money(held) + ' on hold' : '');
-  $('#d-time').textContent = day > plan.days ? '+' + Math.ceil(day-plan.days) + ' days over' : Math.ceil(plan.days-day) + ' days left';
-  $('#d-budget').textContent = spent > plan.budget ? '+' + money(spent-plan.budget) + ' over' : money(plan.budget-spent) + ' left';
+  $('#p-budget').textContent = own && !job ? 'The quote shows up here' : 'Contractor: ' + money(plan.budget) + (held ? ' · ' + money(held) + ' on hold' : '');
+  $('#d-time').textContent = own && !job ? '' : day > plan.days ? '+' + Math.ceil(day-plan.days) + ' days over' : Math.ceil(plan.days-day) + ' days left';
+  $('#d-budget').textContent = own && !job ? '' : spent > plan.budget ? '+' + money(spent-plan.budget) + ' over' : money(plan.budget-spent) + ' left';
   $('#v-health').textContent = Math.round(S.health*100) + '%';
   $('#s-health').style.setProperty('--h', Math.round(S.health*120));
 }
@@ -1450,7 +1456,6 @@ function receive(id) {
   deliver(id, text);
   if (id !== 'clerk') applyFx(FX[id]);
   /* the clerk's upsell sometimes turns into a purchase, which goes through pay() */
-  if (id === 'clerk' && Math.random() < .45) setTimeout(() => pay(Math.round(20 + Math.random()*380), oneOf(STORE_ITEMS)), 1800);
 }
 /* put a message in a chat and notify the player */
 function deliver(id, text) {
@@ -1503,7 +1508,7 @@ const CLERK_BLOCKED = [
 function pay(amount, what) {
   /* No fraud check any more: the money goes out at once and the bank texts what was charged.
      (pending stays empty, so heldTotal() is 0 and the bank chat shows no answer buttons.) */
-  if (!LIVE) applyFx({ budget:amount / PLAN_BUDGET });
+  if (!LIVE) { if (job) job.spent += amount; else S.budget += amount / PLAN_BUDGET; }   /* counts against the current job */
   render();
   deliver('bank', `Charged ${cents(amount)} at ${STORE} (${what}).`);
   if (window.DIWHY_HOOKS && window.DIWHY_HOOKS.onSettle) window.DIWHY_HOOKS.onSettle(true, { amount, what });   /* INTEGRATION: the backend link hears "approved" straight away */
@@ -1565,7 +1570,6 @@ function completeTask(t) {
   t.done = true; t.prog = 1;
   const el = taskEl(t); el.classList.add('done'); el.querySelector('.prog i').style.width = '100%';
   applyFx({ health:.05 });
-  if (t.cost) pay(t.cost, t.t.toLowerCase());   /* the money only leaves once the bank alert is confirmed */
   if ((t.cost >= 300 || t.p === 'urgent') && Math.random() < .1) setTimeout(crackPhone, 900);   /* a big fix: sometimes the phone hits the floor */
   markActive();
   setTimeout(() => {
@@ -2307,13 +2311,13 @@ const OUTCOME = {
   excessive: { text:'Well, that escalated. Your budget felt that one.', cost:1.2, days:2, health:-.02 },
 };
 const PROJECTS = {
-  wall:  { short:'kitchen wall', title:'Open up the kitchen wall', where:'Ground floor', cost:2400, days:3, events:'wall',
+  wall:  { short:'kitchen wall', title:'Open up the kitchen wall', where:'Ground floor', cost:2400, days:3, quote:{ days:6, budget:6500 }, events:'wall',
            blurb:'Take out the wall between the kitchen and the living room for an open plan.',
            steps:[['Find the studs and wires', 3.2], ['Cut the drywall', 3], ['Pull the drywall off', 3.2], ['EVENT'], ['Put in a header beam', 3.4], ['Take out the studs', 3], ['Patch, trim and paint', 3]] },
-  bath:  { short:'bathroom', title:'Replace the upstairs toilet', where:'Upstairs bathroom', cost:450, days:1, events:'toilet',
+  bath:  { short:'bathroom', title:'Replace the upstairs toilet', where:'Upstairs bathroom', cost:450, days:1, quote:{ days:2, budget:950 }, events:'toilet',
            blurb:'The old toilet runs all night. Time for a new one.',
            steps:[['Shut off the water', 2.6], ['Unbolt and lift out the old toilet', 3.4], ['EVENT'], ['Fit a new wax ring', 2.6], ['Set the new toilet', 3], ['Reconnect and test the flush', 3]] },
-  dryer: { short:'dryer', title:'Fix the dryer vent', where:'Basement laundry', cost:140, days:1, events:'dryer',
+  dryer: { short:'dryer', title:'Fix the dryer vent', where:'Basement laundry', cost:140, days:1, quote:{ days:1, budget:320 }, events:'dryer',
            blurb:'The clothes come out damp and the laundry smells hot. The vent is clogged.',
            steps:[['Unplug and pull the dryer out', 2.8], ['Take off the old vent', 3], ['EVENT'], ['Clean out the duct', 3.2], ['Fit a new metal vent', 3], ['Push it back and test', 3.4]] },
 };
@@ -2505,8 +2509,9 @@ setInterval(() => { $('#homeTime').textContent = $('#clock').textContent; $('#ho
 const told = {};
 setInterval(() => {
   if (LIVE) return;   /* INTEGRATION: the backend drives budget and time */
-  if (!told.budget && S.budget * PLAN_BUDGET > plan.budget) { told.budget = true; receive('partner'); }
-  if (!told.time && S.time * PLAN_DAYS > plan.days) { told.time = true; receive('contractor'); }
+  if (!job || job.done) return;
+  if (!told.budget && job.spent > plan.budget) { told.budget = true; receive('partner'); }
+  if (!told.time && jobDay() > plan.days) { told.time = true; receive('contractor'); }
 }, 2000);
 /* =============================================================================== */
 
@@ -2518,7 +2523,7 @@ function askProject(id) {
   askEl.querySelector('.eyebrow').textContent = 'DIY potential · ' + p.where;
   askEl.querySelector('h3').textContent = p.title;
   askEl.querySelector('p').textContent = p.blurb;
-  askEl.querySelector('.est').textContent = `About ${money(p.cost)} and ${p.days} day${p.days > 1 ? 's' : ''} if nothing goes wrong.`;
+  askEl.querySelector('.est').textContent = `The contractor quotes ${money(p.quote.budget)} and ${p.quote.days} day${p.quote.days > 1 ? 's' : ''}. Doing it yourself, you only pay for what you buy at the hardware store.`;
   askEl.querySelector('.prepline').textContent = prepLine(id);
   askEl.classList.add('open');
   askEl.querySelector('.yes').onclick = e => { e.stopPropagation(); askEl.classList.remove('open'); startProject(id); };
@@ -2528,6 +2533,8 @@ function startProject(id) {
   if (LIVE && window.DIWHY_HOOKS && window.DIWHY_HOOKS.onStartProject) { frozen = false; window.DIWHY_HOOKS.onStartProject(id); return; }   /* INTEGRATION: the backend plays this job */
   const p = PROJECTS[id];
   run = { id, p, step:0, t:0, cost:p.cost, days:p.days, health:-.04, paused:false, last:performance.now() };
+  job = { id, start:S.time * PLAN_DAYS, spent:0, done:false };   /* the post-it now measures this job */
+  plan.days = p.quote.days; plan.budget = p.quote.budget; told.budget = told.time = false; render(); renderQuote();
   setTimeout(() => receive('contractor'), 2500);   /* word gets around */
   $('#diyTitle').textContent = p.title;
   $('#diySteps').innerHTML = p.steps.map(s => `<li>${s[0] === 'EVENT' ? 'Surprise!' : s[0]}</li>`).join('');
@@ -2539,7 +2546,7 @@ function diyCard() {
   const p = run.p;
   $('#diySteps').querySelectorAll('li').forEach((li, i) => { li.className = i < run.step ? 'done' : i === run.step ? 'now' : ''; });
   const total = p.steps.length; $('#diyProg').style.width = Math.min(100, (run.step + (p.steps[run.step] && p.steps[run.step][0] !== 'EVENT' ? run.t : 0)) / total * 100) + '%';
-  $('#diyCost').textContent = `${money(run.cost)} · ${run.days} day${run.days > 1 ? 's' : ''}`;
+  $('#diyCost').textContent = `Spent at the store: ${money(job ? job.spent : 0)} of ${money(plan.budget)}`;
 }
 function diyTick() {
   if (!run) return;
@@ -2577,7 +2584,7 @@ function showEvent() {
   opts.querySelectorAll('button').forEach(b => b.onclick = e => {
     e.stopPropagation();
     const key = ev.keys[+b.dataset.i] || 'ok', o = OUTCOME[key] || OUTCOME.ok;
-    run.cost = Math.round(run.cost * (1 + o.cost) / 10) * 10; run.days += o.days; run.health += o.health;
+    run.days += o.days; run.health += o.health;   /* surprises cost time and nerves; money only at the store */
     opts.querySelectorAll('button').forEach(x => { x.disabled = true; x.classList.toggle('picked', x === b); });
     res.textContent = o.text; res.className = 'res ' + key;
     const go = document.createElement('button'); go.className = 'cont'; go.textContent = 'Keep going';
@@ -2590,7 +2597,7 @@ function finishProject() {
   const r = run; run = null;
   diySprite.classList.remove('work');
   const card = $('#diyCard'), done = document.createElement('div'); done.className = 'diy-done';
-  done.innerHTML = `<b>Done!</b> ${money(r.cost)}, ${r.days} day${r.days > 1 ? 's' : ''}. The bank will want a word.<button>Back to the house</button>`;
+  done.innerHTML = `<b>Done!</b> ${r.days} day${r.days > 1 ? 's' : ''} of work, ${money(job ? job.spent : 0)} spent at the store.<button>Back to the house</button>`;
   card.appendChild(done);
   done.querySelector('button').onclick = e => { e.stopPropagation(); done.remove(); leaveProject(r, true); };
 }
@@ -2603,9 +2610,9 @@ function leaveProject(r, finished) {
       S.time += r.days / PLAN_DAYS; applyFx({ health:r.health });
       if (r.id === 'wall') { FLOORS.ground.walls.find(w => w.id === 'diyWall').off = true; SCENES.ground.img = paintFloor('ground'); if (scene === 'ground') { sceneImg = SCENES.ground.img; showYard(); } }
       buildHots();
-      setTimeout(() => pay(r.cost, r.p.title.toLowerCase()), 600);
+      job.done = true; render();   /* the money was spent at the store; nothing more to pay */
       setTimeout(() => receive('partner'), 6000); if (r.id === 'wall') setTimeout(() => receive('neighbor'), 9000);
-      if (r.cost >= 300 && Math.random() < .1) setTimeout(crackPhone, 1400);
+      if (r.p.quote.budget >= 900 && Math.random() < .1) setTimeout(crackPhone, 1400);   /* a big fix: sometimes the phone hits the floor */
     }
     frozen = false; fadeEl.classList.remove('on'); updateHotspots(chars[selected]);
   }, 320);
@@ -2875,6 +2882,7 @@ function fitStore() {
 function goBuy() {
   if (!run || !run.waitTool) return;
   storeReturn = { scene, x:chars[selected].x, y:chars[selected].y };
+  S.time += 1.5 / 24 / PLAN_DAYS;   /* the drive to the store and back */
   fadeEl.classList.add('on');
   setTimeout(() => {
     diyEl.classList.remove('open'); document.body.classList.remove('in-diy');
@@ -3123,8 +3131,11 @@ function tick() {
   if (document.hidden) return;
   /* time runs with the day and night cycle (6 minutes a day); the date only turns over at dawn */
   S.time = Math.min(S.time + .9 / 360 / PLAN_DAYS, (Math.floor(S.time * PLAN_DAYS + 1e-6) + .999) / PLAN_DAYS);
-  S.budget += .00004;   /* small running costs; real spending goes through pay() */
-  S.health = clamp(S.health - .0003, .05, 1);
+  /* the job's health suffers while it runs over budget or over time */
+  if (!LIVE && job && !job.done) {
+    if (job.spent > plan.budget) S.health = clamp(S.health - .0025, .05, 1);
+    if (jobDay() > plan.days) S.health = clamp(S.health - .0025, .05, 1);
+  }
   const a = tasks.find(t => !t.done);
   if (a) {
     a.prog = Math.min(1, a.prog + .004 + Math.random()*.008);

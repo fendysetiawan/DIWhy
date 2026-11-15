@@ -4,7 +4,7 @@ The game's user interface as a single self-contained page. Open `index.html` in 
 
 ## What is on screen
 
-- **Two to-do post-its (left).** The current tasks with their priority at the top; Time, Budget and Health at the bottom, compared with the contractor's quote: a dashed tick marks the quote, a white line marks where you are, and the bar runs past the note in red when you go over.
+- **Two to-do post-its (left).** The current tasks with their priority at the top; Time, Budget and Health at the bottom. On its own, the bottom post-it measures **the job you took on**: its days against the contractor's days and what you spent at the hardware store against the contractor's price (wall $6,500 and 6 days, toilet $950 and 2 days, dryer vent $320 and 1 day). Before a job it reads "No job yet". Health drops while the job runs over budget or over time. Compared with the contractor's quote: a dashed tick marks the quote, a white line marks where you are, and the bar runs past the note in red when you go over.
 - **The yard.** Pixel art drawn on a canvas at the same pixel size as the character sprites, with a day and a night (dark mode) version.
 - **The seven characters.** Animated four-direction sprites. Arrow keys, WASD or the round arrow pad move the selected character. Your home owner is selected by default; click anyone else to move them.
 - **The phone (right).** Always on. The home screen has three apps: **Messages** (six contacts plus the bank; tap one to read and answer), **YouTube** and **ChatGPT**. The bar at the bottom of the screen goes back home. The unread count sits next to the clock.
@@ -69,9 +69,9 @@ All texts are in `character-texts.txt`: 40 per character, plus 40 overconfident 
 
 ## Demo and test switches
 
-On its own, the page runs a light demo loop: tasks get done slowly and budget and health drift a little. People only text when something happens: a new day, a project starts or ends, you go over budget or behind schedule, or you pay for something.
+On its own, the page runs a light demo loop: tasks get done slowly. Money only goes out at the hardware store (nothing is charged for tasks or for finishing a job), and a trip to the store takes an hour and a half. People only text when something happens: a new day, a project starts or ends, you go over budget or behind schedule, or you pay for something.
 
-- `index.html?over` starts past the contractor's quote, to show the bars running over.
+- `index.html?over` starts a kitchen wall job already over its quote (3 days and $1,600), to show the bars running over and health dropping.
 - `index.html?crack` cracks the phone straight away.
 
 ## Style
