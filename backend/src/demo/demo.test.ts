@@ -33,6 +33,7 @@ interface DemoConfig {
   spotAt: [number, number];
   policy: string[];
   finalePick: string;
+  blockTheCardOnCharge: number;
   story: { mustSee: string[]; minEvents: number; minBlowups: number; overrun: [number, number] };
 }
 
@@ -89,6 +90,11 @@ describe('demo: its settings are valid', () => {
     for (const q of [...DEMO.policy, DEMO.finalePick]) expect(['good', 'ok', 'wrong', 'excessive']).toContain(q);
   });
 
+  it("blocks one of the bank's questions, and that charge is one the demo will see", () => {
+    expect(Number.isInteger(DEMO.blockTheCardOnCharge) && DEMO.blockTheCardOnCharge >= 1).toBe(true);
+    expect(DEMO.blockTheCardOnCharge, 'the demo never gets that many bank questions').toBeLessThanOrEqual(DEMO.policy.length);
+  });
+
   it('plays at the speed the docs promise', () => {
     expect(DEMO.speed).toBe(1.5);
   });
@@ -100,12 +106,18 @@ async function playDemo(seed: number) {
   let v = await svc.createGame({ seed, project: DEMO.project, owner: DEMO.owner }, { debug: true });
   const events: string[] = [];
   let blowups = 0;
+  let charges = 0;
   for (let step = 0; v.status === 'playing' && step < 14; step++) {
     events.push(v.event!.id);
     const finale = v.event!.kind === 'finale';
     const index = chooseIndex(finale ? DEMO.finalePick : DEMO.policy[step % DEMO.policy.length], v.debug!.choiceQualities);
     v = await svc.choose(v.id, { choice: index, eventId: v.event!.id }, { debug: true });
     if (v.outcome!.blewUp) blowups++;
+    // The bank asks about the purchase, and the demo answers it: yes, except one charge it blocks.
+    if (v.charge && v.charge.status === 'pending') {
+      charges++;
+      v = await svc.payment(v.id, { chargeId: v.charge.id, confirm: charges !== DEMO.blockTheCardOnCharge }, { debug: true });
+    }
   }
   const overrun = v.stats.spent / v.quote.original.budget;
   return { v, events, blowups, overrun };

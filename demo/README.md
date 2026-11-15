@@ -4,8 +4,8 @@ A full playthrough that plays itself at **1.5x speed**, with a visible mouse mak
 
 **Watch it:** start the game (`npm run play` in `backend/`), then open one of:
 
-- http://127.0.0.1:3001/app/?demo=1 the whole thing, from the splash to the final report (about 2 minutes). The **watch the demo** link on the character screen does the same.
-- http://127.0.0.1:3001/app/?demo=short just the game, skipping the intro (about a minute and 20 seconds).
+- http://127.0.0.1:3001/app/?demo=1 the whole thing, from the splash to the final report (about 2 minutes 30 seconds). The **watch the demo** link on the character screen does the same.
+- http://127.0.0.1:3001/app/?demo=short just the game, skipping the intro (about 2 minutes: the bank now asks about each charge and the demo answers it).
 
 - **Stop it:** press Escape, or just move your real mouse. It hands control back.
 - **Other speeds:** add `&speed=3` (default `1.5`).

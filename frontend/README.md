@@ -82,7 +82,7 @@ All texts are in `character-texts.txt`: 40 per character, plus 40 overconfident 
 
 ## Keep these when the code is combined
 
-- **Payments: `pay(amount, what)`** is the one entry point for spending money. The money leaves the budget at once and the **Bank** texts how much was charged (no fraud check, no confirmation). In backend mode the page answers the backend's charge with "yes" straight away; `settle()` and `heldTotal()` stay for the link.
+- **Payments: `pay(amount, what)`** is the one entry point for spending money. On its own, the money leaves the budget at once and the **Bank** texts how much was charged (no fraud check). In backend mode the link puts each charge on the page's `pending` list instead: the Bank texts "... is on hold. Was this you?", the budget bar waits, and the answer buttons ("Yes, it was me." / "No, block it.") call `settle()`, which tells the backend. An unanswered charge is let through at the next choice ("No answer, so we let it through.").
 - **Cracked phone: `crackPhone()`.** After a big fix (a task of $300 or more, or an urgent one) there is a 1 in 10 chance the phone screen cracks in the lower left corner. The text stays readable.
 
 ## Demo and test switches

@@ -79,7 +79,6 @@
   let cardToken = 0; // changes whenever the card is redrawn, to stop an old typewriter
   let taskId = 0;
   let quoteAsks = 0;
-  const charges = []; // charges the bank is asking about, oldest first (mirrors the phone's queue)
   const lineIx = {}; // next unused line in each character's chatter, after the two the page starts with
   const advised = new Set();
 
@@ -551,14 +550,14 @@
       if (g.outcome && g.outcome.blewUp) window.DIWHY_ELEV.burst(cat === 'plumbing' || cat === 'envelope' ? 'water' : cat === 'electrical' ? 'sparks' : 'dust');
     }
 
+    // A question the player left unanswered was let through by the backend: take it off the bank's list.
+    const letThrough = g.outcome && g.outcome.autoConfirmed;
+    if (letThrough !== null && letThrough !== undefined) releaseCharge(letThrough);
     const fresh = g.charge && g.charge.status === 'pending' && !(before.charge && before.charge.id === g.charge.id);
-    syncNumbers(g, fresh ? g.charge.amount : 0);
+    if (fresh) askBank(g.charge); // the bank asks "was this you?" and holds the money until the player answers
+    syncNumbers(g);
     noteCost(g.outcome);
     if (before.event) eventAnswered(before.event.id);
-    if (fresh) {
-      charges.push(g.charge.id);
-      H.pay(g.charge.amount, g.charge.what); // the bank texts, the clerk's card will not go through
-    }
     react(g);
 
     await wait(1400);
@@ -584,18 +583,47 @@
 
   // ------------------------------------------------------------------ the bank
 
-  H.onSettle = (ok) => {
-    const id = charges.shift();
-    if (id === undefined) return;
-    api(`/games/${GAME}/payments`, { method: 'POST', body: { chargeId: id, confirm: ok } })
+  /** Post the player's answer to the backend. A game that already ended, or an older charge, is nothing to worry about. */
+  function sendPayment(id, ok) {
+    return api(`/games/${GAME}/payments`, { method: 'POST', body: { chargeId: id, confirm: ok } })
       .then((g) => {
         game = g;
         syncNumbers(g);
         if (g.status !== 'playing') endGame(g);
       })
       .catch((err) => {
-        if (err.code !== 'stale_charge' && err.code !== 'game_over') fail(err); // an older charge, or a game that already ended: nothing to worry about
+        if (err.code !== 'stale_charge' && err.code !== 'game_over') fail(err);
       });
+  }
+
+  /** The bank's question: the money stays on hold (the page's own pending list) until "Yes, it was me" or "No, block it". */
+  function askBank(c) {
+    if (!Array.isArray(H.pending)) { // an older page without the list: confirm it, as before
+      H.pay(c.amount, c.what);
+      sendPayment(c.id, true);
+      return;
+    }
+    H.pending.push({ id: c.id, amount: c.amount, what: c.what });
+    H.render();
+    H.deliver('bank', `${money(c.amount)} at the hardware store (${c.what}) is on hold. Was this you?`);
+    if (H.current() === 'bank') H.renderReplies();
+  }
+
+  /** The backend let this charge through because the player never answered. */
+  function releaseCharge(id) {
+    const at = Array.isArray(H.pending) ? H.pending.findIndex((p) => p.id === id) : -1;
+    if (at < 0) return;
+    H.pending.splice(at, 1);
+    H.render();
+    H.deliver('bank', 'No answer, so we let it through.');
+    if (H.current() === 'bank') H.renderReplies();
+  }
+
+  // The page's settle() has already taken the entry off its list when it calls this; entries without an
+  // id (the store's own purchases) are not the backend's business.
+  H.onSettle = (ok, p) => {
+    if (!p || p.id === undefined || p.id === null) return;
+    sendPayment(p.id, ok);
   };
 
   // ------------------------------------------------------------------ the contractor
@@ -775,15 +803,11 @@
     H.msgs.contractor = [{ t: quoteLine(game.quote.original), me: false }];
     H.unread.contractor = 0;
     wireContractor();
+    // A page reloaded with a charge still waiting: bring the bank's question back.
+    if (game.charge && game.charge.status === 'pending') askBank(game.charge);
     syncNumbers(game);
     startTasks(game);
     H.renderList();
-    // A page reloaded with a charge still waiting: bring the bank's question back.
-    if (game.charge && game.charge.status === 'pending') {
-      charges.push(game.charge.id);
-      syncNumbers(game, game.charge.amount);
-      H.pay(game.charge.amount, game.charge.what);
-    }
     if (game.status !== 'playing') return endGame(game);
     return showEvent(game);
   }
