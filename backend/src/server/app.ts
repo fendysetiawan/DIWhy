@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { GameService, type ServiceOptions } from '../service/GameService';
 import { DEFAULT_PHONE_URL } from '../service/phoneModel';
 import { projectSource, repoRoot } from './events';
+import { FileGameStore } from './fileStore';
 import { createHttpHandler, type Handler, type HttpOptions } from './http';
 
 export interface AppOptions extends ServiceOptions {
@@ -25,6 +26,8 @@ export function createApp(opts: AppOptions = {}): App {
 /** Settings from environment variables, shared by the standalone server and the dev server. */
 export function appOptionsFromEnv(env: Record<string, string | undefined>): AppOptions {
   return {
+    // Games are saved here, so they survive a restart. Set GAMES_DIR to "" to keep them in memory only.
+    store: env.GAMES_DIR === '' ? undefined : new FileGameStore({ dir: env.GAMES_DIR ?? join(repoRoot(env), 'backend', '.games') }),
     // The team's event files, read fresh for each new game.
     projects: projectSource(env.EVENTS_DIR ?? join(repoRoot(env), 'events')),
     // Set JEV_URL to "" to turn the jev director off.
