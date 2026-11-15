@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { GameService } from './GameService';
-import { check, cleanLine, firstName, type PhoneContext } from './phone';
+import { check, cleanLine, firstName, repeatsChat, type PhoneContext } from './phone';
 
 type Answer = unknown | (() => Response | Promise<Response>);
 
@@ -77,6 +77,34 @@ describe('check', () => {
   });
   it('rejects a missing, empty or wrongly shaped answer', () => {
     for (const bad of [null, 'text', 5, {}, { text: '' }, { text: 7 }]) expect(check(bad, ctx(), 'reaction', false)).toBeNull();
+  });
+});
+
+describe('repeats', () => {
+  const thread = [
+    { from: 'them' as const, text: 'is there pizza' },
+    { from: 'me' as const, text: 'Maybe I should just leave it.' },
+  ];
+  it('spots a parrot, but not an answer', () => {
+    expect(repeatsChat('maybe i should just leave it.', thread)).toBe(true);
+    expect(repeatsChat('Honestly, maybe I should just leave it', thread)).toBe(true);
+    expect(repeatsChat('leave it and the whole wall comes down, come over and hold the ladder', thread)).toBe(false);
+    expect(repeatsChat('ok.', thread)).toBe(false); // too short to be a parrot
+  });
+  it('rejects a reply that echoes the player', () => {
+    const c = { role: 'friend', name: 'Christian', owner: 'Travis', pick: null, options: [] } as unknown as PhoneContext;
+    expect(check({ text: 'maybe i should just leave it', replies: [] }, c, 'reply', false, thread)).toBeNull();
+    expect(check({ text: 'bad idea, bring the shop vac and I will come over', replies: [] }, c, 'reply', false, thread)).not.toBeNull();
+  });
+  it('tries again once when the first text is a parrot, then uses the second', async () => {
+    let n = 0;
+    const fetch = async () =>
+      new Response(JSON.stringify({ message: { content: JSON.stringify({ text: n++ === 0 ? 'maybe i should just leave it' : 'nah, come over and I will hold the ladder', replies: ['Okay.', 'Not sure.'] }) } }), { status: 200 });
+    const svc = new GameService({ phone: { url: 'http://model', fetch } });
+    const g = await svc.createGame({ seed: 5 });
+    const v = await svc.phone(g.id, { with: 'friend', kind: 'reply', thread });
+    expect(n).toBe(2);
+    expect(v.text).toBe('nah, come over and I will hold the ladder');
   });
 });
 

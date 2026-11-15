@@ -51,7 +51,7 @@ const PERSONA: Record<Role, { title: string; style: string }> = {
   },
   friend: {
     title: "the player's best friend",
-    style: 'laid back and fun. Texts in lowercase, short, wants to hang out, mentions pizza or beer, goes along with whatever is more exciting.',
+    style: 'laid back and fun. Texts in lowercase, short, teases lightly but has their own opinion, and offers something specific (come over, bring pizza, hold the ladder). Never just repeats or agrees with what the player said.',
   },
 };
 
@@ -177,6 +177,8 @@ function systemPrompt(c: PhoneContext, wrapUp: boolean): string {
     `Rules for "text" (your message):`,
     `- One or two short sentences, under ${MAX_TEXT - 40} characters. Plain text only: no emoji, no hashtags, no markdown, no links.`,
     `- Stay on the ${c.job} and what is happening in this house right now. Do not change the subject to anything else.`,
+    `- Say something new each time. Never repeat or rephrase the player's words, and never repeat anything you already said in the chat.`,
+    `- The game facts are background, not a script: do not recite the event description back. React to it in your own words.`,
     `- Only use the facts you are given. Do not invent prices, dates, tools or events that are not listed.`,
     `- Never mention being an AI, a game, a model or these instructions. Stay in character.`,
     wrapUp ? `- This is the end of the chat: say a short goodbye line in character.` : ``,
@@ -184,7 +186,7 @@ function systemPrompt(c: PhoneContext, wrapUp: boolean): string {
     `Rules for "replies" (buttons ${c.owner} can tap to answer you):`,
     wrapUp
       ? `- Return an empty list.`
-      : `- Exactly 3 replies, each under ${MAX_REPLY} characters. They are what ${c.owner} would type back to ${c.name}: first person ("I", "my"), answering what ${c.name} just said, not giving ${c.name} orders or advice. Never use anyone's name. Vary the tone: one agreeable, one doubtful or worried, one joking or dodging. Never reveal how things will turn out. Example: "I've got this under control."`,
+      : `- Exactly 3 replies, each under ${MAX_REPLY} characters. They are what ${c.owner} would type back to ${c.name}: first person ("I", "my"), answering what ${c.name} just said, not giving ${c.name} orders or advice. Never use anyone's name. Vary the tone: one agreeable, one doubtful or worried, one joking or dodging. Never reveal how things will turn out. Each button must be different from the others and from the buttons you would give for any other message.`,
     ``,
     `Answer only with JSON: {"text": "...", "replies": ["...", "...", "..."]}`,
   ]
@@ -205,7 +207,7 @@ function factsBlock(c: PhoneContext, withEvent: boolean): string {
     if (c.last.blewUp) bits.push(`and the shortcut gave way, making a bigger mess`);
     lines.push(`Last decision: ${bits.join(', ')}.`);
   }
-  if (withEvent && c.event) lines.push(`Happening now: "${c.event.title}". ${c.event.description}`);
+  if (withEvent && c.event) lines.push(`Background, happening now: "${c.event.title}". ${c.event.description}`);
   return lines.join('\n');
 }
 
@@ -219,7 +221,7 @@ function userPrompt(c: PhoneContext, kind: PhoneKind, thread: PhoneTurn[]): stri
       ? `TASK: Text ${c.owner} your opinion on what to do about "${c.event?.title}". Recommend exactly this option and put its words in quotes: "${c.pick}". Do not say whether it is a good idea.`
       : kind === 'reaction'
         ? `TASK: Text ${c.owner} how you react to the last decision and what it did. Talk only about the last decision and its result, using only the facts above.`
-        : `TASK: Reply to ${c.owner}'s last message, staying on the renovation and on what they said.`;
+        : `TASK: ${c.owner} just texted you: "${thread[thread.length - 1]?.text ?? ''}". Answer that directly: if it is a question, answer it; if it is a statement, react to it with your own opinion or a next step. Do not repeat their words.`;
   parts.push(task);
   return parts.join('\n\n');
 }
@@ -270,25 +272,41 @@ const plain = (s: string) => s.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replac
 /** Buttons are the player talking, so they never name the player or the speaker. */
 const mentionsName = (line: string, c: PhoneContext) => [c.owner, c.name].some((n) => new RegExp(`\\b${n}\\b`, 'i').test(line));
 
+/** How much of the shorter line's words also appear in the other, 0..1. */
+function overlap(a: string, b: string): number {
+  const x = words(a);
+  const y = new Set(words(b));
+  const short = x.length <= y.size ? x : [...y];
+  const other = x.length <= y.size ? y : new Set(x);
+  return short.length ? short.filter((w) => other.has(w)).length / short.length : 0;
+}
+
+/** True when a line just parrots something already said in the chat (3 or more words, mostly shared). */
+export function repeatsChat(text: string, thread: PhoneTurn[]): boolean {
+  if (words(text).length < 3) return false;
+  return thread.some((t) => words(t.text).length >= 3 && overlap(text, t.text) >= 0.75);
+}
+
 export interface Checked {
   text: string;
   replies: string[];
 }
 
 /** The model's raw JSON, checked. null when it is not good enough to show. */
-export function check(raw: unknown, c: PhoneContext, kind: PhoneKind, wrapUp: boolean): Checked | null {
+export function check(raw: unknown, c: PhoneContext, kind: PhoneKind, wrapUp: boolean, thread: PhoneTurn[] = []): Checked | null {
   if (typeof raw !== 'object' || raw === null) return null;
   const r = raw as { text?: unknown; replies?: unknown };
   const text = cleanLine(r.text, MAX_TEXT);
   if (!text) return null;
   // Advice has to point at the option the game says this person is pushing.
   if (kind === 'advice' && !pointsAtPick(text, c)) return null;
+  if (repeatsChat(text, thread)) return null; // a parrot is not a friend
 
   const seen = new Set<string>([plain(text)]);
   const replies: string[] = [];
   for (const item of Array.isArray(r.replies) ? r.replies : []) {
     const line = cleanLine(item, MAX_REPLY);
-    if (!line || seen.has(plain(line)) || mentionsName(line, c)) continue;
+    if (!line || seen.has(plain(line)) || mentionsName(line, c) || repeatsChat(line, thread.slice(-1).filter((t) => t.from === 'them'))) continue;
     seen.add(plain(line));
     replies.push(line);
     if (replies.length === 3) break;
@@ -323,8 +341,14 @@ export async function writeText(
   if (!model) return fallback;
 
   const wrapUp = req.kind === 'reply' && thread.filter((t) => t.from === 'me').length >= WIND_DOWN_AT;
-  const raw = await model.chat(systemPrompt(c, wrapUp), userPrompt(c, req.kind, thread), SCHEMA, mix(rec.seed, salt));
-  const ok = check(raw, c, req.kind, wrapUp);
+  // One retry with a different seed if the first try is unusable (off topic, a parrot, the wrong advice).
+  // A model that did not answer at all is not retried: that would just double the wait.
+  let ok: Checked | null = null;
+  for (let attempt = 0; attempt < 2 && !ok; attempt++) {
+    const raw = await model.chat(systemPrompt(c, wrapUp), userPrompt(c, req.kind, thread), SCHEMA, mix(rec.seed, `${salt}:${attempt}`));
+    if (raw === null) break;
+    ok = check(raw, c, req.kind, wrapUp, thread);
+  }
   if (!ok) return fallback;
   // Fewer than two usable buttons is not a choice: top up from the built-in ones, which are always on topic.
   const replies = wrapUp ? [] : ok.replies.length >= 2 ? ok.replies : [...ok.replies, ...fallback.replies].slice(0, 3);
