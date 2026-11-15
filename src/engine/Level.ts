@@ -29,8 +29,8 @@ export interface Spot {
 const FOOT = 14;
 const FOOT_H = 12;
 /** How far you can hear a thing's sound, in level units, and how loud it is right next to it. */
-const HEARING = 350;
-const LOUDEST = 0.4;
+const HEARING = 280;
+const LOUDEST = 0.15;
 /** At most one bump sound this often (ms), however long you push against a wall. */
 const BUMP_GAP = 500;
 
@@ -86,7 +86,7 @@ export abstract class Level extends Screen {
     this.controls.onAction('confirm', () => {
       const actor = this.isPaused() ? undefined : this.you.reach(this.actors);
       if (!actor) return;
-      if (actor.useSound) this.sound.play(actor.useSound, 0.7);
+      if (actor.useSound) this.sound.play(actor.useSound, 0.5);
       actor.onUse(this.you);
     });
   }

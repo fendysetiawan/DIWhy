@@ -1,8 +1,8 @@
 // Sound: one music track and one voice at a time (a new one stops the last), effects can overlap.
 
-// The mix: music quietly underneath, so the steps and the things around you come through.
+// The mix: music and the ambience (steps, hums) quietly underneath; voices and what you do on top.
 const MUSIC_VOLUME = 0.12;
-const STEPS_VOLUME = 0.8;
+const STEPS_VOLUME = 0.35;
 const FADE_MS = 600;
 
 export class SoundManager {
