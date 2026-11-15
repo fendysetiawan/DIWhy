@@ -38,6 +38,8 @@ Run the whole thing with `npm run play` in `backend/`, then open http://127.0.0.
   - Optional columns `cost_1..3` and `days_1..3` set an option's numbers by hand. Without them the backend derives them from the quality and the `category`.
 - **What the CSVs don't say** lives in `backend/src/content/`: what each quality costs (`consequences.ts`), which events follow which (`links.ts`), and each project's contractor quote and title (`projects.ts`).
 
+- **The phone's writer.** `POST /api/games/:id/phone` has a local Qwen3 8B model (through Ollama) write the cast's texts and the suggested replies on the phone buttons, grounded in the game's facts and checked before they show (see `backend/API.md`). `game-link.js` asks for the advice and reaction texts, and for the answer when the player taps a button. If Ollama is off or slow, the page's own lines and buttons are used. The hands-free demo skips it, so the demo says the same thing every time.
+
 ### Add an event
 Add a row to its CSV. Done. If it should only happen after another event, add a line to `backend/src/content/links.ts`.
 
@@ -60,6 +62,7 @@ Search for `INTEGRATION` to find every one. They are all small, they do nothing 
 | `setPhase()` | `&& !LIVE` on the dawn line | The backend decides what day it is |
 | `useSpot()` | `if (sp.project && LIVE && DIWHY_HOOKS.started) return` | Once the backend game is running, the other spots do nothing: one job per game |
 | `startProject()` | one line calling `DIWHY_HOOKS.onStartProject(id)` | Saying "Take it on" at a glowing spot starts the backend game for that job, instead of this page's local one |
+| `renderReplies()` and its click handler | one marked line each (**added by Travis**): the buttons come from `DIWHY_HOOKS.suggested(id)` when it has any, and a tap calls `DIWHY_HOOKS.onReply(id, text)` | With a backend game, a small local model suggests the reply buttons and writes the answer, so the chat stays on the job. Both are undefined without it, so the page's own buttons work as before |
 | End of the script | the demo loop, the one "hello" text and the demo tasks wait for `!LIVE`; `window.DIWHY_HOOKS` exposes what the link needs | The backend supplies the numbers; the post-it keeps Ramy's own task rows, one per event |
 | The "people text when something happens" timer | `if (LIVE) return` (**added by Ramy**) | It watches the page's own fake budget and time, which the backend replaces |
 | Before `</body>` | `<script src="game-link.js">` | The link itself |

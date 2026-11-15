@@ -21,10 +21,21 @@ describe('routes', () => {
   it('GET /api/health says which directors exist', async () => {
     const r = await call(createApp().handler, 'GET', '/api/health');
     expect(r.status).toBe(200);
-    expect(await r.json()).toEqual({ status: 'ok', directors: { random: true, jev: false } });
+    expect(await r.json()).toEqual({ status: 'ok', directors: { random: true, jev: false }, phone: false });
     expect(await (await call(appWithFakeModel().handler, 'GET', '/api/health')).json()).toMatchObject({
       directors: { jev: true },
     });
+  });
+
+  it('POST /api/games/:id/phone answers, and says what is wrong with a bad request', async () => {
+    const { handler } = createApp();
+    const g = (await (await call(handler, 'POST', '/api/games', { seed: 42 })).json()) as { id: string };
+    const ok = await call(handler, 'POST', `/api/games/${g.id}/phone`, { with: 'partner', kind: 'reaction' });
+    expect(ok.status).toBe(200);
+    expect(await ok.json()).toMatchObject({ with: 'partner', text: null, source: 'fallback' }); // no model on a plain test app
+    expect((await err(await call(handler, 'POST', `/api/games/${g.id}/phone`, { with: 'dog', kind: 'reaction' }))).code).toBe('invalid_role');
+    expect((await call(handler, 'POST', '/api/games/nope/phone', { with: 'partner', kind: 'reaction' })).status).toBe(404);
+    expect((await call(handler, 'GET', `/api/games/${g.id}/phone`)).status).toBe(405);
   });
 
   it('POST /api/games creates a game: 201, Location, JSON view', async () => {

@@ -1392,7 +1392,7 @@ const contractorReplies = [{ t:"I'll do it myself." }, { t:'Give up.', red:true 
 function renderReplies() {
   const list = current === 'contractor' ? contractorReplies
     : current === 'bank' ? (pending.length ? bankReplies : [])
-    : shuffle(TEXTS.owner).slice(0, 3).map(t => ({ t }));
+    : ((window.DIWHY_HOOKS && window.DIWHY_HOOKS.suggested && window.DIWHY_HOOKS.suggested(current)) || shuffle(TEXTS.owner).slice(0, 3)).map(t => ({ t }));   /* INTEGRATION: with a backend game the phone's model suggests the buttons (game-link.js) */
   const box = $('#replies');
   box.innerHTML = list.map(r => `<button class="${r.red ? 'red' : ''}">${r.t}</button>`).join('');
   box.querySelectorAll('button').forEach((b, i) => b.onclick = e => {
@@ -1403,6 +1403,7 @@ function renderReplies() {
     const d = document.createElement('div'); d.className = 'bub me' + (r.red ? ' red' : ''); d.textContent = r.t;
     $('#msgs').appendChild(d); $('#msgs').scrollTop = 1e6;
     renderList();
+    if (window.DIWHY_HOOKS && window.DIWHY_HOOKS.onReply) window.DIWHY_HOOKS.onReply(current, r.t);   /* INTEGRATION: the backend's phone answers back (game-link.js) */
     if (r.act) { settle(r.act === 'confirm'); renderReplies(); }
     if (current === 'contractor' && r.red) setTimeout(() => contractorArrives(), 1200);
     if (current === 'contractor' && !r.red && typeof saidMyself === 'function') saidMyself();   /* "Give up.": the contractor shows up in person */

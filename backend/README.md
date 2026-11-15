@@ -149,6 +149,16 @@ uv venv --python 3.12 .venv
 
 The backend calls `http://127.0.0.1:8009/v1/systemone`. Set `JEV_URL` to change that, or to an empty string to switch the `jev` director off. For a smaller, faster model use `alanhuangya/OpenJev-1.7B`.
 
+**The phone's writer** (optional, separate from the Jev model). The texts on the player's phone and the suggested replies on its buttons can be written by Qwen3 8B running locally in Ollama. It never changes the game, and without it the game uses its built-in lines.
+
+```
+ollama pull qwen3:8b
+ollama serve        # or open the Ollama app
+npm run play
+```
+
+`GET /api/health` shows `phone: true` when it is configured. Set `PHONE_URL` to an empty string to turn it off, or `PHONE_MODEL` to try another model. See `API.md` ("The phone").
+
 **Comparing directors over many seeds** (opt-in because it calls the model):
 
 ```

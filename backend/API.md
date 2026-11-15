@@ -23,6 +23,9 @@ Settings (environment variables):
 | `CORS_ORIGIN` | unset (no CORS headers) | Allowed origin for browsers on another origin, such as `http://localhost:3000`, or `*`. |
 | `EVENTS_DIR` | `../events` | Where the team's event CSVs are. |
 | `JEV_URL` | `http://127.0.0.1:8009/v1/systemone` | Where the Jev model server is. Set it to an empty string to turn the `jev` director off. |
+| `PHONE_URL` | `http://127.0.0.1:11434` | Where Ollama is, for the phone's writer. Set it to an empty string to turn the phone model off. |
+| `PHONE_MODEL` | `qwen3:8b` | Which Ollama model writes the texts. |
+| `PHONE_TIMEOUT_MS` | `12000` | How long to wait for a text before using the built-in one. |
 
 **The event files are read live.** Edit a CSV in `events/` and the next *new* game uses it, with no restart. A game already in progress keeps its events (unless one it needs was removed, then it answers `project_changed`). If an edit breaks a file, the server keeps the last good version and logs why.
 
@@ -55,13 +58,14 @@ console.log(game.report.achievement.title);
 
 | Method and path | Body | Success | Notes |
 |---|---|---|---|
-| `GET /api/health` | none | `200` `{ status, directors }` | Which directors this server can use. |
+| `GET /api/health` | none | `200` `{ status, directors, phone }` | Which directors this server can use, and whether a phone model is configured (it may still not be running). |
 | `GET /api/projects` | none | `200` `{ projects }` | Every job a player can take on, with the contractor's quote. |
 | `POST /api/games` | `{ seed?, project?, owner?, director? }` | `201` GameView, `Location` header | Body may be empty. |
 | `GET /api/games/:id` | none | `200` GameView | Safe to call any time, for example to resume after a reload. |
 | `POST /api/games/:id/choices` | `{ choice, eventId? }` | `200` GameView | Applies the choice, then picks the next event. |
 | `POST /api/games/:id/quote` | none | `200` GameView | The contractor re-quotes. Only ever goes up. |
 | `POST /api/games/:id/payments` | `{ chargeId, confirm }` | `200` GameView | Answer the bank about the latest charge. |
+| `POST /api/games/:id/phone` | `{ with, kind, thread? }` | `200` PhoneView | A text from someone in the cast, and reply buttons, written by the local model. Read-only: it never changes the game. See below. |
 | `DELETE /api/games/:id` | none | `204` | Throws the game away. |
 
 Add `?debug=1` to any game request to include the `debug` payload (see below).
@@ -138,6 +142,27 @@ Every endpoint that returns a game returns this shape. Trimmed:
 - **The partner** nags about money or time (`cast.partnerFocus`). While that thing is over the contractor's quote, every choice adds stress and `outcome.partnerNagged` is `true`.
 - **How good an answer is** comes from the `answer_key` in the team's event files (`good`, `ok`, `wrong`, `excessive`). Good answers cost a fair price and lower risk. Wrong ones are cheap now, raise risk, and may blow up. Excessive ones cost far more than needed. For temptations, "good" means saying no, which is free.
 
+## The phone
+
+`POST /api/games/:id/phone` has a small local model (Qwen3 8B, through Ollama) write the texts on the player's phone and the suggested replies on its buttons, so they stay on the renovation that is actually happening.
+
+```json
+{ "with": "neighbor", "kind": "reply", "thread": [{ "from": "them", "text": "Is it done yet?" }, { "from": "me", "text": "Almost." }] }
+```
+```json
+{ "with": "neighbor", "text": "Almost? I can hear the sander in my dreams.", "replies": ["Sorry, last day.", "It is going fine.", "Want to sand?"], "source": "model" }
+```
+
+- `with` is a role: `partner`, `clerk`, `contractor`, `parent`, `neighbor` or `friend`.
+- `kind` is `advice` (the current event's advice in their words, so it needs `event.advice.from` to be that role, or `409 no_advice`), `reaction` (how they react to what the last choice did) or `reply` (their answer to the last text: `thread` must end with a `"me"` turn). Only the last 6 turns count, each cut to 200 characters. After the player's 4th answer the person says goodbye and `replies` is empty.
+- **Grounded:** every prompt carries this game's facts (the job, the quote, money and days, how stressed the player is, the last decision and what it did, the event on the table) and who is talking (their role, how they behave, their first name from `cast`).
+- **Checked:** the model answers in a fixed JSON shape. Lines are cut to text size, and anything with a link, markdown, emoji, a name in a button, or "as an AI" is thrown away. Advice must name the option the game says that person is pushing (`advice.ts` decides that, and whether it is a good idea; the model only phrases it) and no other option more clearly.
+- **Never leaks:** the model is not told which answers are good, so it can't give the answer away.
+- **Always answers:** if Ollama is off, slow or off topic, the response is `{ text: null, replies: <built-in on-topic buttons>, source: "fallback" }` and a front end uses its own line. A game never waits more than `PHONE_TIMEOUT_MS` for a text.
+- **Seeded:** the model's seed comes from the game's seed, so a replay writes nearly the same texts.
+
+To use it: `ollama pull qwen3:8b`, make sure Ollama is running (`ollama serve`, or the Ollama app), then `npm run play`. `GET /api/health` shows `phone: true` when it is configured. To try the model on its own: `LIVE_PHONE=1 npx vitest run src/service/phone.live.test.ts --disable-console-intercept`.
+
 ## Money and the bank
 
 Every choice that costs money becomes a `charge` with `status: "pending"`. A front end shows the bank's fraud alert and asks the player.
@@ -164,12 +189,16 @@ Every error has the same shape, and `code` is stable, so match on it and not on 
 | 400 | `invalid_project` | No such project. |
 | 400 | `invalid_owner` | Not one of the seven characters. |
 | 400 | `invalid_choice` | `choice` isn't a valid index for the current event. |
+| 400 | `invalid_role` | `with` isn't one of the six roles. |
+| 400 | `invalid_kind` | `kind` isn't `advice`, `reaction` or `reply`. |
+| 400 | `invalid_thread` | `thread` isn't a list of `{ from, text }`, or a `reply` doesn't end with a `"me"` turn. |
 | 400 | `invalid_payment` | `confirm` isn't `true` or `false`. |
 | 404 | `game_not_found` | Unknown id, or the game expired. |
 | 404 | `not_found` | No such route. |
 | 405 | `method_not_allowed` | Wrong HTTP method. The `Allow` header lists the right ones. |
 | 409 | `game_over` | The game has already ended. |
 | 409 | `stale_event` | `eventId` doesn't match the current event. Re-fetch the game and redraw. |
+| 409 | `no_advice` | `kind: "advice"` for someone who has no advice about the current event. |
 | 409 | `stale_charge` | That charge isn't the latest one. |
 | 409 | `project_changed` | The event files were edited and an event this game needs is gone. Start a new game. |
 | 500 | `internal_error` | A bug. Details go to the server log, not the response. |

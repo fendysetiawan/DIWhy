@@ -73,8 +73,8 @@ function makeHooks() {
   return hooks;
 }
 
-async function boot(opts: { gameId?: string; seed?: number; project?: string; fetch?: typeof fetch } = {}) {
-  const app = createApp({ projects: realProjects() });
+async function boot(opts: { gameId?: string; seed?: number; project?: string; fetch?: typeof fetch; phone?: Parameters<typeof createApp>[0] extends infer O ? (O extends { phone?: infer P } ? P : never) : never } = {}) {
+  const app = createApp({ projects: realProjects(), phone: opts.phone });
   const bridge = bridgeFetch(app.handler);
   const created = await (await bridge('/api/games', {
     method: 'POST',
@@ -176,9 +176,35 @@ describe('game-link: starting up', () => {
     expect(hooks.msgs.contractor[0].t).toContain('$10,000');
     expect(hooks.msgs.contractor[0].t).toContain('14 days');
     expect(hooks.plan).toEqual({ days: 14, budget: 10000 });
-    expect(hooks.S.time).toBe(0);
+    expect(hooks.S.time * hooks.PLAN_DAYS).toBeLessThan(1); // day 0: only the clock creeping inside it
     expect(hooks.S.budget).toBe(0);
     expect(hooks.S.health).toBe(1);
+  });
+
+  it('counts the bars up to a new value instead of jumping, never past the backend\'s day, and notes the cost', async () => {
+    const { hooks, created } = await boot({ seed: 9, project: 'carpet-replacement' });
+    (window as any).DIWHY_SPEED = 1; // real time for this one, so the count-up can be seen
+    document.body.insertAdjacentHTML('beforeend', '<div class="note"><div id="s-time"></div></div>'); // the stats post-it
+    await waitForOptions();
+    options()[2].click();
+    await vi.waitFor(() => expect(document.getElementById('dwCostNote')?.textContent).toMatch(/That cost/), { timeout: 3000 });
+    // Money on hold at the bank is not spent yet: the bar waits for "Yes, it was me".
+    if (hooks.paid.length) {
+      expect(hooks.S.budget).toBe(0);
+      hooks.settleFirst(true);
+      await vi.waitFor(() => expect((window as any).DIWHY_LINK.game().charge?.status).not.toBe('pending'), { timeout: 3000 });
+    }
+    const g = (window as any).DIWHY_LINK.game();
+    const target = g.stats.spent / hooks.PLAN_BUDGET;
+    // The cost counts up to the new value, and never goes past it.
+    expect(hooks.S.budget).toBeLessThanOrEqual(target);
+    await vi.waitFor(() => expect(hooks.S.budget).toBeCloseTo(target, 3), { timeout: 4000 });
+    // Time never runs ahead of the backend's day, and gets there.
+    expect(Math.floor(hooks.S.time * hooks.PLAN_DAYS + 1e-6)).toBeLessThanOrEqual(g.stats.daysElapsed);
+    await vi.waitFor(() => expect(Math.floor(hooks.S.time * hooks.PLAN_DAYS + 1e-6)).toBe(g.stats.daysElapsed), { timeout: 4000 });
+    expect(created.stats.daysElapsed).toBe(0);
+    await waitForOptions(); // let the game finish showing its next event before the next test
+    (window as any).DIWHY_SPEED = 400;
   });
 
   it('shows the first event on the tasks post-it, above the last step, and ignores ticking by hand', async () => {
@@ -230,6 +256,76 @@ describe('game-link: the event card', () => {
     expect(hint.textContent).toContain('texted you');
     hint.click();
     expect(found.hooks.opened).toContain(who);
+  });
+});
+
+/** A stand-in for the local model that writes whatever the prompt asks for, and records the prompts. */
+function writer() {
+  const prompts: string[] = [];
+  const fetch = async (_url: string, init: RequestInit) => {
+    const body = JSON.parse(String(init.body));
+    const user: string = body.messages[1].content;
+    prompts.push(user);
+    const pick = /in quotes: "(.*?)"/.exec(user)?.[1];
+    const text = pick ? `Model says: ${pick}.` : user.includes('CHAT SO FAR') ? 'Model answer.' : 'Model reaction.';
+    return new Response(JSON.stringify({ message: { content: JSON.stringify({ text, replies: ['Button A.', 'Button B.', 'Button C.'] }) } }), { status: 200 });
+  };
+  return { fetch, prompts };
+}
+
+async function bootWithAdvice(phone?: Parameters<typeof boot>[0] extends infer O ? (O extends { phone?: infer P } ? P : never) : never) {
+  for (let seed = 0; seed < 40; seed++) {
+    const r = await boot({ seed, phone });
+    if (r.created.event.advice) return r;
+  }
+  throw new Error('no seed with advice');
+}
+
+describe('game-link: the phone writer', () => {
+  it('delivers the model\'s text, and suggests its buttons for that chat', async () => {
+    const w = writer();
+    const r = await bootWithAdvice({ url: 'http://model', fetch: w.fetch });
+    const who = r.created.event.advice.from as string;
+    const label = r.created.event.choices[r.created.event.advice.pick].label as string;
+    await vi.waitFor(() => expect(r.hooks.delivered.some(([id]: [string]) => id === who)).toBe(true));
+    expect(r.hooks.delivered.find(([id]: [string]) => id === who)[1]).toBe(`Model says: ${label}.`);
+    expect(r.hooks.suggested(who)).toEqual(['Button A.', 'Button B.', 'Button C.']);
+    expect(r.hooks.suggested('bank')).toBeNull(); // other chats keep the page's own buttons
+  });
+
+  it('answers when the player taps a button: sends the chat so far, then shows new buttons', async () => {
+    const w = writer();
+    const r = await bootWithAdvice({ url: 'http://model', fetch: w.fetch });
+    const who = r.created.event.advice.from as string;
+    await vi.waitFor(() => expect(r.hooks.suggested(who)).not.toBeNull());
+    r.hooks.msgs[who].push({ t: 'Model says hi.', me: false }, { t: 'Button B.', me: true }); // what the page does on a tap
+    r.hooks.onReply(who, 'Button B.');
+    expect(r.hooks.suggested(who)).toEqual([]); // no stale buttons while they answer
+    await vi.waitFor(() => expect(r.hooks.delivered.some(([id, t]: [string, string]) => id === who && t === 'Model answer.')).toBe(true));
+    expect(w.prompts.at(-1)).toContain('Button B.');
+    expect(r.hooks.suggested(who)).toEqual(['Button A.', 'Button B.', 'Button C.']);
+  });
+
+  it('does not ask the model about the bank or the contractor', async () => {
+    const w = writer();
+    const r = await bootWithAdvice({ url: 'http://model', fetch: w.fetch });
+    await vi.waitFor(() => expect(r.hooks.suggested(r.created.event.advice.from)).not.toBeNull());
+    const before = w.prompts.length;
+    r.hooks.onReply('bank', 'Yes, it was me.');
+    r.hooks.onReply('contractor', "I'll do it myself.");
+    await new Promise((res) => setTimeout(res, 20));
+    expect(w.prompts.length).toBe(before);
+  });
+
+  it('keeps the page\'s own lines and buttons when the model is off', async () => {
+    const r = await bootWithAdvice({ url: 'http://model', fetch: async () => { throw new Error('connection refused'); } });
+    const who = r.created.event.advice.from as string;
+    await vi.waitFor(() => expect(r.hooks.delivered.some(([id]: [string]) => id === who)).toBe(true));
+    expect(r.hooks.delivered.find(([id]: [string]) => id === who)[1]).toContain(r.created.event.choices[r.created.event.advice.pick].label);
+    expect(r.hooks.suggested(who)).toBeNull();
+    r.hooks.msgs[who].push({ t: 'x', me: true });
+    r.hooks.onReply(who, 'x'); // nothing comes back, and the buttons go back to the page's own
+    await vi.waitFor(() => expect(r.hooks.suggested(who)).toBeNull());
   });
 });
 

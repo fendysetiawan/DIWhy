@@ -6,6 +6,8 @@
  *   - drive the Time, Budget and Health bars from the game
  *   - show each event as a card with typewriter narration and the options to pick
  *   - text the advice from the neighbor, parent, friend or clerk (they can be wrong)
+ *   - ask the backend's phone (a small local model) to write those texts and the reply buttons, so they
+ *     stay on the job that is actually happening; if it is off or slow, the page's own lines are used
  *   - send every purchase through pay(): the bank alert, and the clerk's card trouble
  *   - let the contractor's Update button ask the backend for a new quote
  *   - show each event on the tasks post-it, in this page's own task style (the rows persist: they are
@@ -84,14 +86,78 @@
   // ------------------------------------------------------------------ keeping the page in step
 
   /** The bars, the contractor's quote and health all come from the game. `held` is money the bank has on hold. */
+  // The bars. The backend knows the truth in whole steps (an answer costs $490 and 2 days). The page
+  // shows it the way it happens: the numbers count up to the new value instead of jumping, the clock
+  // creeps through the current day while you think (never into the next one), and time the page itself
+  // spends (a how-to video, the store) is kept instead of being overwritten. A little note says what the
+  // last answer cost.
+  const speedNow = () => window.DIWHY_SPEED || 1;
+  const DAY_MS = 6 * 60 * 1000; // a day on this page's clock is 6 minutes (3 day, 3 night)
+  const aim = { time: 0, budget: 0, health: 1 }; // where the backend says the numbers are
+  const shown = { time: 0, budget: 0, health: 1 }; // where they are on screen right now
+  let firstSync = true, loop = null, dayStarted = Date.now(), pageExtra = 0, lastWritten = null;
+
+  function stepBars() {
+    if (!game) return;
+    if (lastWritten !== null && H.S.time !== lastWritten) pageExtra += H.S.time - lastWritten; // the page spent some time itself
+    const k = 1 - Math.pow(0.001, 50 / (1600 / speedNow())); // about 1.6 s to arrive
+    for (const key of ['time', 'budget', 'health']) {
+      const d = aim[key] - shown[key];
+      shown[key] = Math.abs(d) < 1e-6 ? aim[key] : shown[key] + d * k;
+    }
+    const creep = game.status === 'playing' ? Math.min(0.9, (Date.now() - dayStarted) / (DAY_MS / speedNow())) : 0;
+    const time = shown.time + creep / H.PLAN_DAYS + pageExtra;
+    if (time === H.S.time && shown.budget === H.S.budget && shown.health === H.S.health) return;
+    H.S.time = time;
+    H.S.budget = shown.budget;
+    H.S.health = shown.health;
+    lastWritten = time;
+    H.render();
+  }
+
   function syncNumbers(g, heldExtra = 0) {
     H.plan.days = g.quote.current.days;
     H.plan.budget = g.quote.current.budget;
-    H.S.time = g.stats.daysElapsed / H.PLAN_DAYS;
-    H.S.budget = Math.max(0, (g.stats.spent - H.heldTotal() - heldExtra) / H.PLAN_BUDGET);
-    H.S.health = H.clamp(1 - g.stats.stress / 100, 0.05, 1);
-    H.render();
+    const time = g.stats.daysElapsed / H.PLAN_DAYS;
+    if (time !== aim.time) dayStarted = Date.now(); // a new day: the clock inside it starts over
+    aim.time = time;
+    aim.budget = Math.max(0, (g.stats.spent - H.heldTotal() - heldExtra) / H.PLAN_BUDGET);
+    aim.health = H.clamp(1 - g.stats.stress / 100, 0.05, 1);
+    if (firstSync) { // the very first numbers appear at once
+      firstSync = false;
+      Object.assign(shown, aim);
+    }
+    if (!loop) loop = setInterval(stepBars, 50);
+    stepBars();
     H.renderQuote();
+  }
+
+  /** "This one cost $490 and 2 days": a short note above the bars after each answer. */
+  function noteCost(o) {
+    if (!o || (!o.cost && !o.days)) return;
+    const anchor = document.getElementById('s-time');
+    const note = anchor && anchor.closest('.note');
+    if (!note) return;
+    let el = document.getElementById('dwCostNote');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'dwCostNote';
+      document.body.appendChild(el);
+    }
+    const parts = [];
+    if (o.cost) parts.push(money(o.cost));
+    if (o.days) parts.push(`${o.days} day${o.days === 1 ? '' : 's'}`);
+    el.textContent = `That cost ${parts.join(' and ')}${o.blewUp ? ' (it gave way)' : ''}`;
+    el.className = o.blewUp || o.quality === 'excessive' ? 'bad' : '';
+    const r = note.getBoundingClientRect();
+    el.style.left = `${r.left}px`;
+    el.style.bottom = `${innerHeight - r.top + 8}px`;
+    el.style.width = `${r.width}px`;
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+    clearTimeout(noteCost.t);
+    noteCost.t = setTimeout(() => el.classList.remove('show'), 6000 / speedNow());
   }
 
   // ---- the tasks post-it: this page's own way of showing events
@@ -174,6 +240,61 @@
     return list[lineIx[id] % list.length];
   }
 
+  // ------------------------------------------------------------------ the phone's writer
+
+  // The backend can have a small local model write the texts and the reply buttons for the game as
+  // it is now (POST /games/:id/phone). It is only ever a nicer wording: when it is off, slow or off
+  // topic the backend says so and the page's own lines and buttons are used, exactly as before.
+  // The hands-free demo skips it, so the demo says the same thing every time.
+  const SMART_PHONE = !DEMO;
+  const suggested = {}; // role -> the buttons for the open chat with them (undefined: the page's own)
+
+  async function phone(who, kind, thread) {
+    try {
+      const v = await api(`/games/${GAME}/phone`, { method: 'POST', body: { with: who, kind, thread } });
+      return v && v.source === 'model' ? v : null;
+    } catch {
+      return null; // never let a text hold up the game
+    }
+  }
+
+  function showButtons(who) {
+    if (H.current() === who) H.renderReplies();
+  }
+
+  /** Deliver a text. `line` is the page's own, used unless the model writes a better one in time. */
+  function sendText(who, kind, line, delay) {
+    const started = Date.now();
+    const ask = SMART_PHONE ? phone(who, kind) : Promise.resolve(null);
+    ask.then((v) => {
+      const go = () => {
+        if (v && v.replies.length) suggested[who] = v.replies;
+        H.deliver(who, (v && v.text) || line);
+        showButtons(who);
+      };
+      setTimeout(go, Math.max(0, delay / (window.DIWHY_SPEED || 1) - (Date.now() - started)));
+    });
+  }
+
+  if (SMART_PHONE) {
+    H.suggested = (who) => suggested[who] || null;
+    // The player tapped a button (or one of the page's own): the person answers, and new buttons appear.
+    H.onReply = async (who, text) => {
+      if (who === 'bank' || who === 'contractor' || !H.msgs[who]) return; // those two chats have their own fixed answers
+      suggested[who] = []; // no stale buttons while they type
+      showButtons(who);
+      const thread = H.msgs[who].slice(-7).map((m) => ({ from: m.me ? 'me' : 'them', text: m.t }));
+      const v = await phone(who, 'reply', thread);
+      if (!v) {
+        delete suggested[who]; // back to the page's own buttons
+        return showButtons(who);
+      }
+      suggested[who] = v.replies;
+      if (v.text) setTimeout(() => (H.deliver(who, v.text), showButtons(who)), 900 / (window.DIWHY_SPEED || 1));
+      else showButtons(who);
+    };
+  }
+
   // ------------------------------------------------------------------ advice
 
   // What people say when they point at an option. They are not equally trustworthy.
@@ -226,6 +347,11 @@
       .dw-live #ownerBtn, .dw-pending #ownerBtn { pointer-events: none; }
       .dw-live #shuffleBtn, .dw-pending #shuffleBtn { display: none; }
       .dw-live .hot.fix { display: none !important; } /* once the job is picked, the other spots are done: one job per game */
+      #dwCostNote { position: fixed; z-index: 6; box-sizing: border-box; padding: 7px 12px; border-radius: 10px; pointer-events: none;
+        font: 600 13px/1.3 var(--font, system-ui); background: #fffbe8; color: #3a3320; box-shadow: 0 3px 10px rgba(0,0,0,.25);
+        opacity: 0; transform: translateY(6px); transition: opacity .3s, transform .3s; }
+      #dwCostNote.show { opacity: 1; transform: none; }
+      #dwCostNote.bad { background: #fde8e6; color: #7a1d14; }
       .dw-card { position: fixed; left: 50%; top: 46%; transform: translate(-50%, -50%); z-index: 7;
         width: min(640px, calc(100vw - 24px)); max-height: calc(100vh - 24px); overflow: auto;
         display: grid; gap: 16px; animation: dw-in .35s cubic-bezier(.2, .8, .2, 1); }
@@ -334,7 +460,7 @@
       hint.textContent = `${ROLE_NAME[who]} texted you about this`;
       hint.addEventListener('click', () => H.openChat(who));
       el.appendChild(hint);
-      setTimeout(() => H.deliver(who, adviceText(g)), 700 / (window.DIWHY_SPEED || 1));
+      sendText(who, 'advice', adviceText(g), 700);
     }
   }
 
@@ -372,6 +498,7 @@
 
     const fresh = g.charge && g.charge.status === 'pending' && !(before.charge && before.charge.id === g.charge.id);
     syncNumbers(g, fresh ? g.charge.amount : 0);
+    noteCost(g.outcome);
     if (before.event) eventAnswered(before.event.id);
     if (fresh) {
       charges.push(g.charge.id);
@@ -394,7 +521,7 @@
     else if (o.quality === 'excessive') texts.push(['clerk', nextLine('clerk')]);
     else if (o.quality === 'wrong') texts.push(['parent', nextLine('parent')]);
     else if (hash(`${g.id}:${o.eventId}`) % 3 === 0) texts.push(['friend', nextLine('friend')]);
-    texts.forEach(([who, line], n) => setTimeout(() => H.deliver(who, line), (500 + n * 1600) / (window.DIWHY_SPEED || 1)));
+    texts.forEach(([who, line], n) => sendText(who, 'reaction', line, 500 + n * 1600));
 
     // A big fix sometimes ends with the phone on the floor. Deterministic, so a replay cracks it again.
     if (o.cost >= 300 && hash(`${g.id}:crack:${o.eventId}`) % 10 === 0) setTimeout(() => H.crackPhone(), 900 / (window.DIWHY_SPEED || 1));

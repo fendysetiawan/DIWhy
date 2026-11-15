@@ -6,6 +6,7 @@
 //   choose()          make a choice, then the director picks what happens next
 //   requestQuote()    ask the contractor for an updated quote
 //   payment()         answer the bank about the latest charge
+//   phone()           write a text (and reply buttons) for someone in the cast, with the local model
 //   deleteGame()      throw it away
 //
 // Every game method returns a GameView (see types.ts). Games are stored as plain JSON records, so
@@ -27,8 +28,10 @@ import { RandomDirector } from '../engine/RandomDirector';
 import { buildReport } from '../engine/report';
 import { createRng, type StatefulRng } from '../engine/rng';
 import { adviceFor } from './advice';
-import { CHARACTER_IDS, dealCast } from './cast';
+import { CHARACTER_IDS, ROLES, dealCast } from './cast';
 import { badRequest, conflict, notFound } from './errors';
+import { contextOf, cleanThread, writeText } from './phone';
+import { PhoneModel, type PhoneModelOptions } from './phoneModel';
 import { MemoryGameStore, type GameRecord, type GameStore } from './store';
 import type {
   ChooseRequest,
@@ -38,6 +41,8 @@ import type {
   GameView,
   HealthView,
   PaymentRequest,
+  PhoneRequest,
+  PhoneView,
   PoolEntry,
   ProjectView,
   Quote,
@@ -50,6 +55,8 @@ export interface ServiceOptions {
   store?: GameStore;
   /** Where the Jev model server lives. Leave out to disable the `jev` director. */
   jev?: { url: string; timeoutMs?: number; fetch?: FetchFn };
+  /** The local model that writes the phone texts (Qwen3 8B through Ollama). Leave out to use only the built-in texts. */
+  phone?: PhoneModelOptions;
   /**
    * The playable projects. Pass a function to read them fresh for each new game, so edited event
    * files apply without a restart. Defaults to the built-in bathroom project.
@@ -70,6 +77,7 @@ const round50 = (n: number) => Math.round(n / 50) * 50;
 export class GameService {
   private store: GameStore;
   private jev?: ServiceOptions['jev'];
+  private phoneModel?: PhoneModel;
   private getProjects: () => Project[];
   private now: () => number;
   private newId: () => string;
@@ -78,6 +86,7 @@ export class GameService {
   constructor(opts: ServiceOptions = {}) {
     this.store = opts.store ?? new MemoryGameStore();
     this.jev = opts.jev;
+    this.phoneModel = opts.phone ? new PhoneModel(opts.phone) : undefined;
     const projects = opts.projects ?? builtInProjects();
     this.getProjects = typeof projects === 'function' ? projects : () => projects;
     this.now = opts.now ?? Date.now;
@@ -85,7 +94,7 @@ export class GameService {
   }
 
   health(): HealthView {
-    return { status: 'ok', directors: { random: true, jev: Boolean(this.jev) } };
+    return { status: 'ok', directors: { random: true, jev: Boolean(this.jev) }, phone: Boolean(this.phoneModel) };
   }
 
   listProjects(): ProjectView[] {
@@ -246,6 +255,37 @@ export class GameService {
       await this.store.set(rec);
       return this.toView(rec, project, opts);
     });
+  }
+
+  /**
+   * Write a text from someone in the cast, with suggested replies for the player's buttons.
+   * It only reads the game. The model never changes it, and a slow or missing model just means
+   * `text` is null and the replies are the built-in ones.
+   */
+  async phone(id: string, req: PhoneRequest): Promise<PhoneView> {
+    const rec = await this.load(id);
+    const project = this.projectOf(rec);
+    if (!ROLES.includes(req.with)) throw badRequest('invalid_role', `with must be one of: ${ROLES.join(', ')}`);
+    if (req.kind !== 'advice' && req.kind !== 'reaction' && req.kind !== 'reply') {
+      throw badRequest('invalid_kind', 'kind must be "advice", "reaction" or "reply"');
+    }
+    const thread = cleanThread(req.thread);
+    if (req.kind === 'reply' && thread[thread.length - 1]?.from !== 'me') {
+      throw badRequest('invalid_thread', 'a reply needs a thread that ends with a "me" turn');
+    }
+
+    const event = rec.eventId ? this.eventOf(project, rec.eventId) : null;
+    let pick: number | null = null;
+    if (req.kind === 'advice') {
+      const advice = event ? adviceFor(event, rec.seed) : null;
+      if (!event || !advice || advice.from !== req.with) {
+        throw conflict('no_advice', `${req.with} has no advice about the current event`);
+      }
+      pick = advice.pick;
+    }
+    const lastEvent = rec.outcome ? this.eventOf(project, rec.outcome.eventId) : null;
+    const ctx = contextOf(rec, req.with, { title: project.title, event, pick, lastEvent });
+    return writeText(this.phoneModel, rec, ctx, { ...req, thread }, thread);
   }
 
   async deleteGame(id: string): Promise<void> {

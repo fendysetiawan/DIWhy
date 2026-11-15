@@ -166,6 +166,28 @@ export interface ProjectsView {
 export interface HealthView {
   status: 'ok';
   directors: Record<DirectorName, boolean>; // which directors this server can use
+  /** Whether a local phone model (qwen3:8b through Ollama) is configured. It may still be switched off or slow. */
+  phone: boolean;
+}
+
+/** One text on the phone. */
+export interface PhoneTurn {
+  from: 'them' | 'me'; // "me" is the player
+  text: string;
+}
+
+/** What the phone is being asked to write. */
+export type PhoneKind = 'advice' | 'reaction' | 'reply';
+
+/** The phone's answer: a text from someone in the cast, and what the player can tap to answer it. */
+export interface PhoneView {
+  with: Role;
+  /** The message to show. null means "the model had nothing usable: use your own line". */
+  text: string | null;
+  /** Up to three short answers for the reply buttons. Always on topic; empty when the chat has wound down. */
+  replies: string[];
+  /** Where it came from. "fallback" means the canned replies, because the model was off, slow or off topic. */
+  source: 'model' | 'fallback';
 }
 
 export interface ApiErrorBody {
@@ -191,6 +213,18 @@ export interface PaymentRequest {
   chargeId: number; // ChargeView.id
   /** false means the player told the bank "No, block it". The card is blocked, and a day is lost. */
   confirm: boolean;
+}
+
+export interface PhoneRequest {
+  with: Role; // who is texting
+  /**
+   * advice    the current event's advice, in their words (needs the game to have advice from them)
+   * reaction  how they react to what the player's last choice did
+   * reply     their answer to the player's last text; `thread` must end with a "me" turn
+   */
+  kind: PhoneKind;
+  /** The chat so far, oldest first. Only the last 6 turns count, each cut to 200 characters. */
+  thread?: PhoneTurn[];
 }
 
 export interface RequestOptions {
