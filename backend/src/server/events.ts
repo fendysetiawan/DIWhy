@@ -2,8 +2,9 @@
 // This is the one place the backend touches those files.
 //
 // The result is cached by file modification time, so editing a CSV changes the next NEW game
-// without restarting the server. A game already in progress keeps playing the events it started
-// with, unless an event it needs was removed (then the API says "start a new game").
+// without restarting the server. A game copies the data of its job (text, answer keys, links,
+// quote, weights) when it starts, so a game in progress keeps playing the events it started with
+// whatever happens to the files. Only the rules in the code apply to it as the server runs them.
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';

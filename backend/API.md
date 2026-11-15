@@ -28,7 +28,7 @@ Settings (environment variables):
 | `PHONE_MODEL` | `qwen3:8b` | Which Ollama model writes the texts. |
 | `PHONE_TIMEOUT_MS` | `12000` | How long to wait for a text before using the built-in one. |
 
-**The event files are read live.** Edit a CSV in `events/` and the next *new* game uses it, with no restart. A game already in progress keeps its events (unless one it needs was removed, then it answers `project_changed`). If an edit breaks a file, the server keeps the last good version and logs why.
+**The event files are read live.** Edit a CSV in `events/` and the next *new* game uses it, with no restart. A game copies its job's data (event text, answer keys, links, quote, weights) when it starts, so a game in progress keeps the events it started with, even if the files change or the server restarts. Only the rules in the code apply to it as the running server has them. The built-in bathroom leak has no file; games on it use the server's built-in events, and if those ever change under a running game the API answers `project_changed`. If an edit breaks a file, the server keeps the last good version and logs why.
 
 The API has no authentication. Keep it on localhost or behind something that adds access control before exposing it.
 

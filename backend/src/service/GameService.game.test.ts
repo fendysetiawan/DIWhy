@@ -1,4 +1,7 @@
+import { readFileSync, readdirSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { LINKS } from '../content/links';
+import { buildProjects } from '../content/projects';
 import type { Project } from '../content/projects';
 import { makeFinale } from '../content/fromCsv';
 import type { GameEvent } from '../engine/EventEngine';
@@ -78,21 +81,106 @@ describe('projects', () => {
     }
   });
 
+  // The wall job's CSV, edited the way a teammate would: a changed title, or a row removed.
+  const csv = readFileSync(new URL('../../../events/wall_removal_events.csv', import.meta.url), 'utf8');
+  const otherFiles = Object.fromEntries(
+    readdirSync(new URL('../../../events/', import.meta.url)).filter((f) => f.endsWith('.csv') && f !== 'wall_removal_events.csv')
+      .map((f) => [f, readFileSync(new URL(`../../../events/${f}`, import.meta.url), 'utf8')]),
+  );
+  const withWall = (text: string) => buildProjects({ ...otherFiles, 'wall_removal_events.csv': text });
+  const lines = csv.split(/\r?\n/);
+  const dropRow = (id: string) => lines.filter((l) => !l.startsWith(`${id},`)).join('\n');
+  const retitle = (id: string) => lines.map((l) => (l.startsWith(`${id},`) ? l.replace(`${id},`, `${id},EDITED `) : l)).join('\n');
+
   it('starts a game on a project whose events were edited, with the edited text', async () => {
-    let live: Project[] = projects;
+    let live = projects;
     const s = svc({ projects: () => live });
-    const edited = projects.map((p) => ({ ...p, events: p.events.map((e) => ({ ...e, title: `EDITED ${e.title}` })) }));
-    expect((await s.createGame({ seed: 1, project: 'wall-removal' })).event!.title).not.toContain('EDITED');
-    live = edited;
+    const first = await s.createGame({ seed: 1, project: 'wall-removal' });
+    expect(first.event!.title).not.toContain('EDITED');
+    live = withWall(retitle(first.event!.id));
     expect((await s.createGame({ seed: 1, project: 'wall-removal' })).event!.title).toContain('EDITED');
   });
 
-  it('says "start a new game" when an event a running game needs is gone', async () => {
+  it('keeps a running game on the events it started with, even after its row is removed', async () => {
+    let live = projects;
+    const s = svc({ projects: () => live });
+    const linked = new Set(Object.entries(LINKS['wall-removal']).flatMap(([child, parents]) => [child, ...parents]));
+    let g = await s.createGame({ seed: 1, project: 'wall-removal' });
+    for (let seed = 2; linked.has(g.event!.id) && seed < 40; seed++) g = await s.createGame({ seed, project: 'wall-removal' });
+    expect(linked.has(g.event!.id)).toBe(false); // a row that links.ts mentions can't be removed by itself
+    const title = g.event!.title;
+    live = withWall(dropRow(g.event!.id));
+    expect(live.find((p) => p.id === 'wall-removal')!.events.some((e) => e.id === g.event!.id)).toBe(false);
+    expect((await s.getGame(g.id)).event!.title).toBe(title);
+    const next = await s.choose(g.id, { choice: 0, eventId: g.event!.id });
+    expect(next.outcome!.eventId).toBe(g.event!.id);
+    expect(next.event?.id).not.toBe(g.event!.id);
+    const fresh = await s.createGame({ seed: 1, project: 'wall-removal' });
+    expect(fresh.event!.id).not.toBe(g.event!.id); // a new game sees the edit
+  });
+
+  it('keeps the edited title out of a running game and plays it to the end', async () => {
+    let live = projects;
+    const s = svc({ projects: () => live });
+    const g = await s.createGame({ seed: 4, project: 'wall-removal' });
+    live = withWall(retitle(g.event!.id));
+    expect((await s.getGame(g.id)).event!.title).not.toContain('EDITED');
+    const end = await playOut(s, g.id);
+    expect(['complete', 'failed']).toContain(end.status);
+  });
+
+  it('replays a seed the same way after the files change under it', async () => {
+    let live = projects;
+    const s = svc({ projects: () => live });
+    const plain = await playOut(s, (await s.createGame({ seed: 8, project: 'wall-removal' })).id);
+    const g = await s.createGame({ seed: 8, project: 'wall-removal' });
+    live = withWall(retitle('wall_is_load_bearing'));
+    const again = await playOut(s, g.id);
+    expect(again.history.map((h) => h.id)).toEqual(plain.history.map((h) => h.id));
+  });
+
+  it('lets a second service on the same JSON-serializing store continue a game', async () => {
+    const shelf = new Map<string, string>();
+    const store: GameStore = {
+      get: async (id) => (shelf.has(id) ? JSON.parse(shelf.get(id)!) : undefined),
+      set: async (rec) => void shelf.set(rec.id, JSON.stringify(rec)),
+      delete: async (id) => shelf.delete(id),
+    };
+    const a = svc({ store });
+    const g = await a.createGame({ seed: 6, project: 'dryer-replacement' });
+    const b = svc({ store, projects: () => withWall(csv) }); // a fresh process; its project list is not the one the game started on
+    const v = await b.choose(g.id, { choice: 0, eventId: g.event!.id });
+    expect(v.outcome!.eventId).toBe(g.event!.id);
+    expect((await playOut(b, g.id)).status).not.toBe('playing');
+  });
+
+  it('keeps the content in the stored record, and answers old records that have none', async () => {
+    const store = new MemoryGameStore();
+    const s = svc({ store });
+    const g = await s.createGame({ seed: 2, project: 'wall-removal' });
+    const rec = (await store.get(g.id))!;
+    expect(rec.content!.def.id).toBe('wall-removal');
+    const { content: _c, ...old } = rec;
+    await store.set(old as typeof rec);
+    expect((await s.getGame(g.id)).event!.id).toBe(g.event!.id); // resolved by id, as before
+    const bathroom = await s.createGame({ seed: 2, project: 'bathroom-leak' });
+    expect((await store.get(bathroom.id))!.content).toBeNull();
+  });
+
+  it('says "start a new game" when a project without its own content loses an event', async () => {
     let live: Project[] = projects;
     const s = svc({ projects: () => live });
-    const g = await s.createGame({ seed: 1, project: 'wall-removal' });
+    const g = await s.createGame({ seed: 1, project: 'bathroom-leak' });
     live = projects.map((p) => ({ ...p, events: p.events.filter((e) => e.id !== g.event!.id) }));
     expect(await code(s.choose(g.id, { choice: 0 }))).toBe('project_changed');
+  });
+
+  it('says "start a new game" when the project is gone and the game has no content of its own', async () => {
+    let live: Project[] = projects;
+    const s = svc({ projects: () => live });
+    const g = await s.createGame({ seed: 1, project: 'bathroom-leak' });
+    live = projects.filter((p) => p.id !== 'bathroom-leak');
+    expect(await code(s.getGame(g.id))).toBe('project_changed');
   });
 });
 

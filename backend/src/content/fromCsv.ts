@@ -1,9 +1,10 @@
 // Turns parsed CSV rows into engine events, and builds each project's finale.
 
 import { MAX_EVENTS, type Choice, type GameEvent } from '../engine/EventEngine';
-import { flagCount, type Quote } from '../engine/GameState';
+import { flagCount, type GameState, type Quote } from '../engine/GameState';
 import { SERIOUS, baseFor, consequence, flavor, type Scale } from './consequences';
 import type { CsvEventRow } from './csv';
+import type { EventWeight } from './weights';
 
 const cap = (n: number, max: number) => Math.min(max, n);
 const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
@@ -24,10 +25,27 @@ export function calibrate(rows: CsvEventRow[], quote: Quote): Scale {
   return { cost, days: Math.max(0.15, days) };
 }
 
-export function buildEvents(rows: CsvEventRow[], links: Record<string, string[]>, scale: Scale): GameEvent[] {
+/** The baked weight of an event right now: its pull from the latest event, else the strongest pull from any earlier one, else base. */
+export function bakedWeight(w: EventWeight, s: GameState): number {
+  const after = w.after;
+  if (!after) return w.base;
+  const last = s.eventHistory[s.eventHistory.length - 1];
+  if (last !== undefined && after[last] !== undefined) return after[last];
+  const pulls = s.eventHistory.filter((id) => after[id] !== undefined).map((id) => after[id]);
+  return pulls.length ? Math.max(...pulls) : w.base;
+}
+
+export function buildEvents(
+  rows: CsvEventRow[],
+  links: Record<string, string[]>,
+  scale: Scale,
+  weights: Record<string, EventWeight> = {},
+): GameEvent[] {
   return rows.map((row): GameEvent => {
     const parents = links[row.id] ?? [];
     const temptation = row.kind === 'temptation';
+    // Without a table entry: 8 for an opener, 16 for a follow-up, 5 for a temptation.
+    const baked = (s: GameState, fallback: number): number => (weights[row.id] ? bakedWeight(weights[row.id], s) : fallback);
     return {
       id: row.id,
       kind: temptation ? 'temptation' : 'problem',
@@ -40,11 +58,12 @@ export function buildEvents(rows: CsvEventRow[], links: Record<string, string[]>
         : parents.length
           ? (s) => parents.some((p) => s.eventHistory.includes(p))
           : () => true,
-      // Follow-ups are likelier than openers (that is the cascade). Cutting corners makes the
-      // serious kinds of trouble likelier still. Scope creep makes temptations louder.
+      // The baked table (weights.ts) sets the odds; follow-ups are likelier than openers (that is
+      // the cascade). Cutting corners makes the serious kinds of trouble likelier still. Scope
+      // creep makes temptations louder.
       weight: temptation
-        ? (s) => 5 + 4 * flagCount(s, 'scope-creep')
-        : (s) => (parents.length ? 16 : 8) + (SERIOUS.has(row.category) ? s.riskDebt * 0.25 : 0),
+        ? (s) => baked(s, 5) + 4 * flagCount(s, 'scope-creep')
+        : (s) => baked(s, parents.length ? 16 : 8) + (SERIOUS.has(row.category) ? s.riskDebt * 0.25 : 0),
       choices: row.options.map((label, i): Choice => {
         const q = row.qualities[i];
         const c = consequence(q, row.category, row.kind, scale, { cost: row.costs[i], days: row.days[i] });

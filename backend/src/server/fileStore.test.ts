@@ -2,6 +2,7 @@ import { mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { realProjects } from '../testing';
 import { GameService } from '../service/GameService';
 import type { GameRecord } from '../service/store';
 import type { GameView } from '../service/types';
@@ -31,6 +32,15 @@ async function playOut(s: GameService, id: string): Promise<GameView> {
 }
 
 describe('FileGameStore', () => {
+  it('keeps the content a game started with, so another process can continue it', async () => {
+    const projects = realProjects();
+    const first = svc({ store: new FileGameStore({ dir }), projects });
+    const g = await first.createGame({ seed: 7, project: 'toilet-replacement' });
+    const second = svc({ store: new FileGameStore({ dir }) }); // knows only the built-in bathroom project
+    expect((await second.getGame(g.id)).event!.id).toBe(g.event!.id);
+    expect((await playOut(second, g.id)).status).not.toBe('playing');
+  });
+
   it('gives the same games as the memory store', async () => {
     const norm = (v: GameView) => ({ ...v, id: '' });
     const memory = svc();

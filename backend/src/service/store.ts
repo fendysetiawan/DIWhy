@@ -1,6 +1,7 @@
 // Where games live between requests. The service only talks to the GameStore interface,
 // so swapping memory for a database means writing one small class.
 
+import type { ProjectSource } from '../content/projects';
 import type { GameState, Quote } from '../engine/GameState';
 import type { Cast, ChargeView, DecisionRecord, DirectorName, LastDecision, OutcomeView } from './types';
 
@@ -10,6 +11,7 @@ export interface GameRecord {
   seed: number;
   director: DirectorName;
   projectId: string;
+  content?: ProjectSource | null; // the data the game started with, so edits to the files don't change it. null/absent: resolve the project by id
   cast: Cast;
   quoteCurrent: Quote; // what the contractor last told the player
   charge: ChargeView | null; // the latest charge awaiting the bank

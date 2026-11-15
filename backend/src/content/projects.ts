@@ -8,9 +8,10 @@
 import { EVENTS as BATHROOM_EVENTS, FINALE as BATHROOM_FINALE } from '../data/events';
 import type { GameEvent, Quality } from '../engine/EventEngine';
 import type { Quote } from '../engine/GameState';
-import { parseEventRows } from './csv';
+import { parseEventRows, type CsvEventRow } from './csv';
 import { buildEvents, calibrate, makeFinale } from './fromCsv';
 import { LINKS } from './links';
+import { WEIGHTS, type EventWeight } from './weights';
 
 export interface ProjectDef {
   id: string;
@@ -25,6 +26,32 @@ export interface ProjectDef {
 export interface Project extends Omit<ProjectDef, 'file'> {
   events: GameEvent[];
   finale: GameEvent;
+  /** The data this project was built from. A game stores it, so editing a file never changes a running game. Absent for the built-in bathroom events. */
+  source?: ProjectSource;
+}
+
+/** Everything a CSV-built project is made of, as plain JSON: text, answer keys, links, quote and weights. */
+export interface ProjectSource {
+  def: Omit<ProjectDef, 'file'>;
+  rows: CsvEventRow[];
+  links: Record<string, string[]>;
+  weights?: Record<string, EventWeight>;
+}
+
+/** Build a project from its source. The one code path for new games and for games resumed from storage. */
+export function projectFromSource(src: ProjectSource): Project {
+  // JSON turns the `undefined` slots of hand-set numbers into null; put them back.
+  const rows = src.rows.map((r) => ({
+    ...r,
+    costs: r.costs.map((n) => n ?? undefined) as CsvEventRow['costs'],
+    days: r.days.map((n) => n ?? undefined) as CsvEventRow['days'],
+  }));
+  return {
+    ...src.def,
+    events: buildEvents(rows, src.links, calibrate(rows, src.def.quote), src.weights),
+    finale: makeFinale(src.def.job, src.def.quote),
+    source: src,
+  };
 }
 
 export const PROJECT_DEFS: ProjectDef[] = [
@@ -184,10 +211,6 @@ export function buildProjects(files: Record<string, string>): Project[] {
       if (!rows.some((r) => r.id === parent)) throw new Error(`links for "${def.id}" mention "${parent}", which is not in events/${def.file}`);
     }
     const { file: _file, ...rest } = def;
-    return {
-      ...rest,
-      events: buildEvents(rows, links, calibrate(rows, def.quote)),
-      finale: makeFinale(def.job, def.quote),
-    };
+    return projectFromSource({ def: rest, rows, links, weights: WEIGHTS[def.id] });
   });
 }

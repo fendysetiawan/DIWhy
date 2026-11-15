@@ -7,7 +7,7 @@ import { buildProjects, type Project } from './content/projects';
 import { createApp, type App, type AppOptions } from './server/app';
 import type { Handler } from './server/http';
 
-/** The six real projects, built from the team's actual events/*.csv. */
+/** The real projects: eleven built from the team's actual events/*.csv, plus the built-in bathroom leak. */
 export function realProjects(): Project[] {
   const dir = join(process.cwd(), '..', 'events'); // tests run from backend/
   const files = Object.fromEntries(

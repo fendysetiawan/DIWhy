@@ -6,7 +6,9 @@ import { RandomDirector } from '../engine/RandomDirector';
 import { createRng } from '../engine/rng';
 import { parseCsv, parseEventRows } from './csv';
 import { LINKS } from './links';
-import { PROJECT_DEFS, buildProjects, builtInProjects, type Project } from './projects';
+import { buildEvents, calibrate } from './fromCsv';
+import { PROJECT_DEFS, buildProjects, builtInProjects, projectFromSource, type Project } from './projects';
+import { WEIGHTS } from './weights';
 
 // The real files the team edits, so a bad edit fails here and not in the middle of a game.
 const eventsDir = new URL('../../../events/', import.meta.url);
@@ -96,9 +98,86 @@ describe("the team's real event files", () => {
     }
   });
 
+  it('has a baked weight for every event, and only for events and projects that exist', () => {
+    const csvJobs = PROJECT_DEFS.filter((d) => d.file).map((d) => d.id);
+    for (const id of Object.keys(WEIGHTS)) expect(csvJobs, `weights for unknown project ${id}`).toContain(id);
+    for (const id of csvJobs) {
+      const ids = byId(id).events.map((e) => e.id);
+      const table = WEIGHTS[id] ?? {};
+      for (const e of ids) expect(table[e], `${id}: no weight for ${e}`).toBeDefined();
+      for (const [e, w] of Object.entries(table)) {
+        expect(ids, `${id}: weight for unknown ${e}`).toContain(e);
+        expect(w.base).toBeGreaterThan(0);
+        for (const [parent, n] of Object.entries(w.after ?? {})) {
+          expect(ids, `${id}: ${e} after unknown ${parent}`).toContain(parent);
+          expect(n).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
+
   it('fail loudly when a file is missing', () => {
     const { 'wall_removal_events.csv': _gone, ...rest } = files;
     expect(() => buildProjects(rest)).toThrow('wall_removal_events.csv not found');
+  });
+});
+
+describe('a project rebuilt from its source', () => {
+  const csvProjects = projects.filter((p) => p.source);
+  const snapshot = (p: Project, s: GameState) =>
+    p.events.map((e) => ({ id: e.id, title: e.title, eligible: e.eligible(s), weight: e.weight(s), choices: e.choices.map((c) => ({ ...c, gamble: c.gamble && { ...c.gamble, chance: c.gamble.chance(s) } })) }));
+  const stateOf = (p: Project, history: string[]): GameState => ({ ...createInitialState({ job: p.job, quote: p.quote }), eventHistory: history, riskDebt: 20 });
+
+  it('exists for every project built from a file, and not for the built-in bathroom', () => {
+    expect(csvProjects.map((p) => p.id)).toEqual(PROJECT_DEFS.filter((d) => d.file).map((d) => d.id));
+    expect(byId('bathroom-leak').source).toBeUndefined();
+  });
+
+  it('is plain JSON and rebuilds an equal project', () => {
+    for (const p of csvProjects) {
+      const again = projectFromSource(JSON.parse(JSON.stringify(p.source)));
+      expect(again.events.map((e) => e.id), p.id).toEqual(p.events.map((e) => e.id));
+      expect(again.finale.title, p.id).toBe(p.finale.title);
+      expect(again.quote, p.id).toEqual(p.quote);
+      const parents = Object.values(LINKS[p.id] ?? {}).flat().slice(0, 3);
+      for (const history of [[], ...parents.map((x) => [x]), ['a', ...parents]]) {
+        const s = stateOf(p, history);
+        expect(JSON.stringify(snapshot(again, s)), `${p.id} after ${history.join(',')}`).toBe(JSON.stringify(snapshot(p, s)));
+      }
+    }
+  });
+
+  it('carries hand-set cost and day columns through JSON', () => {
+    const head = 'id,event,kind,category,description,option_1,option_2,option_3,answer_key,cost_1,days_2\n';
+    const text = head + 'e1,E,snowball,plumbing,d,a,b,c,"good,ok,wrong",123,4\n';
+    const rows = parseEventRows(text, 'f.csv');
+    const def = { id: 'x', title: 't', job: 'j', blurb: 'b', fromPlan: false, quote: { budget: 1000, days: 5 } };
+    const direct = projectFromSource({ def, rows, links: {} });
+    const viaJson = projectFromSource(JSON.parse(JSON.stringify({ def, rows, links: {} })));
+    expect(JSON.stringify(viaJson.events[0].choices)).toBe(JSON.stringify(direct.events[0].choices));
+  });
+});
+
+describe('baked weights', () => {
+  it('reproduce the weights the game had before the table, at the start and after each parent', () => {
+    for (const p of projects.filter((x) => x.source)) {
+      const { rows, links } = p.source!;
+      const scale = calibrate(rows, p.quote);
+      const withTable = buildEvents(rows, links, scale, WEIGHTS[p.id]);
+      const without = buildEvents(rows, links, scale);
+      const base = createInitialState({ job: p.job, quote: p.quote });
+      const parents = [...new Set(Object.values(links).flat())];
+      const histories = [[], ...parents.map((x) => [x]), parents.slice(0, 4), ['one', 'two', ...parents.slice(0, 2)]];
+      for (const history of histories) {
+        for (const riskDebt of [0, 30]) {
+          const s = { ...base, eventHistory: history, riskDebt };
+          withTable.forEach((e, i) => {
+            expect(e.eligible(s), `${p.id}/${e.id}`).toBe(without[i].eligible(s));
+            expect(e.weight(s), `${p.id}/${e.id} after ${history.join(',')}`).toBe(without[i].weight(s));
+          });
+        }
+      }
+    }
   });
 });
 

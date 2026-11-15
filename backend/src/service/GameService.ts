@@ -14,7 +14,7 @@
 
 import { JevDirector } from '../directors/JevDirector';
 import { readInfo, resetInfo } from '../directors/types';
-import { builtInProjects, type Project } from '../content/projects';
+import { builtInProjects, projectFromSource, type Project } from '../content/projects';
 import {
   MAX_EVENTS,
   applyChoice,
@@ -79,6 +79,7 @@ export class GameService {
   private jev?: ServiceOptions['jev'];
   private phoneModel?: PhoneModel;
   private getProjects: () => Project[];
+  private built = new Map<string, Project>(); // projects rebuilt from a game's own content, by game id
   private now: () => number;
   private newId: () => string;
   private locks = new Map<string, Promise<unknown>>();
@@ -128,6 +129,7 @@ export class GameService {
       seed,
       director,
       projectId: project.id,
+      content: structuredClone(project.source ?? null),
       cast: dealCast(seed, req.owner),
       quoteCurrent: project.quote,
       charge: null,
@@ -326,6 +328,7 @@ export class GameService {
   async deleteGame(id: string): Promise<void> {
     // Under the game's lock, so a choice in flight can't save the game again after it is gone.
     await this.withLock(id, async () => {
+      this.built.delete(id);
       if (!(await this.store.delete(id))) throw notFound('game_not_found', `no game with id "${id}"`);
     });
   }
@@ -339,6 +342,16 @@ export class GameService {
   }
 
   private projectOf(rec: GameRecord): Project {
+    if (rec.content) {
+      // The game's own copy of its content. Rebuilt once per game, then remembered.
+      let built = this.built.get(rec.id);
+      if (!built) {
+        built = projectFromSource(rec.content);
+        if (this.built.size >= 200) this.built.delete(this.built.keys().next().value!);
+        this.built.set(rec.id, built);
+      }
+      return built;
+    }
     const project = this.getProjects().find((p) => p.id === rec.projectId);
     if (!project) throw conflict('project_changed', `the project "${rec.projectId}" is no longer available; start a new game`);
     return project;
