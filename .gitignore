@@ -10,7 +10,7 @@ unused-assets/
 # What screenshots/capture.ts makes
 screenshots/desktop/
 screenshots/phone/
-screenshots/diwhy-screenshots.zip
+screenshots/*.zip
 
 # Logs and the OS
 *.log

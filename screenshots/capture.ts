@@ -28,7 +28,7 @@ type GameHandle = {
   screens: { start(key: string, data?: unknown): void };
   session: { startGame(player: string): Promise<void>; sign(name: string): void; startJob(job: string): void; work(job: string): Promise<void> };
   state: { jobs: { id: string; surprise: unknown }[]; chats: Record<string, { messages: unknown[] }> };
-  hud: { phone: { setOpen(open: boolean): void } };
+  hud: { phone: { setOpen(open: boolean): void; openChat(contact: string): void } };
   giveUp(): void;
 };
 
@@ -80,6 +80,7 @@ async function workUntilSurprise(page: Page, job: string): Promise<void> {
 /** Every state worth a still, at one size. */
 async function captureStills(browser: Browser, viewport: keyof typeof VIEWPORTS): Promise<void> {
   const folder = `${OUT}${viewport}`;
+  rmSync(folder, { recursive: true, force: true }); // fresh each run: no old shots left in the zip
   mkdirSync(folder, { recursive: true });
   const page = await browser.newPage({ viewport: VIEWPORTS[viewport], deviceScaleFactor: viewport === 'phone' ? 3 : 1 });
   await page.goto(GAME);
@@ -124,6 +125,17 @@ async function captureStills(browser: Browser, viewport: keyof typeof VIEWPORTS)
   await wait(800);
   await shoot('to-do');
   await page.keyboard.press('KeyT');
+
+  // the contractor's quotes: take on a job and they text their price for it (Claude writes it, so wait for it)
+  for (const [i, job] of ['mount-tv', 'kitchen-faucet', 'paint-room'].entries()) {
+    const before = await inGame(page, (game) => game.state.chats.contractor.messages.length);
+    await inGame(page, (game, id) => game.session.startJob(id as string), job);
+    await page.waitForFunction(`game.state.chats.contractor.messages.length > ${before}`, undefined, { timeout: 60000 });
+    await inGame(page, (game) => game.hud.phone.openChat('contractor'));
+    await wait(1200);
+    await shoot(`contractor-quote-${i + 1}`);
+    await inGame(page, (game) => game.hud.phone.setOpen(false));
+  }
 
   // a DIY job, a surprise, the store
   await show(page, 'Diy', { job: 'mount-tv', back }, 2000);
