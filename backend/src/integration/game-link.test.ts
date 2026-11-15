@@ -511,6 +511,58 @@ describe('game-link: making choices', () => {
     await vi.waitFor(async () => expect((await (await fetch(`/api/games/${first.id}`)).json()).charge.status).toBe('confirmed'));
   });
 
+  it('forgets the charge when the player gives up with the bank still asking: the bars show everything spent', async () => {
+    const { hooks } = await boot({ project: 'dryer-replacement', seed: 2 });
+    await untilTheBankAsks(hooks);
+    const held = hooks.pending[0];
+    hooks.chat = 'bank';
+    let refreshed = 0;
+    hooks.renderReplies = () => refreshed++;
+    hooks.onReply('contractor', 'Give up.');
+    await vi.waitFor(() => expect(document.querySelector('.dw-report')).not.toBeNull(), { timeout: WAIT });
+    const g = (window as any).DIWHY_LINK.game();
+    expect(g.charge.status, 'the backend lets it through on give-up').toBe('confirmed');
+    expect(hooks.pending.some((p: any) => p.id === held.id), 'the bank is still asking about a settled charge').toBe(false);
+    expect(refreshed, 'the open bank chat must stop offering "Yes, it was me"').toBeGreaterThan(0);
+    await vi.waitFor(() => expect(Math.round(hooks.S.budget * 24000)).toBe(g.stats.spent)); // nothing is held back any more
+  });
+
+  it('drops a charge the backend settled while the page looked away, when it resumes after a stale click', async () => {
+    const { hooks, bridge, id } = await boot();
+    await untilTheBankAsks(hooks);
+    const old = hooks.pending[0].id;
+    await waitForOptions();
+    // Another tab answers the card: the backend lets the old charge through and moves on (and may open a new one).
+    const now = (window as any).DIWHY_LINK.game();
+    const moved = await (await bridge(`/api/games/${id}/choices`, { method: 'POST', body: JSON.stringify({ choice: 0, eventId: now.event.id }) })).json();
+    options()[1].click(); // this click is stale
+    await vi.waitFor(() => expect((window as any).DIWHY_LINK.game().event.id).toBe(moved.event.id), { timeout: WAIT });
+    await vi.waitFor(() => expect(hooks.pending.some((p: any) => p.id === old)).toBe(false), { timeout: WAIT });
+    const open = (window as any).DIWHY_LINK.game().charge;
+    // whatever is left on the bank's list is the one question the backend still has open
+    expect(hooks.pending.map((p: any) => p.id)).toEqual(open && open.status === 'pending' ? [open.id] : []);
+    await vi.waitFor(() => expect(options().length).toBe(3), { timeout: WAIT });
+  });
+
+  it('tells the player when "No, block it" came too late, because the next answer had already let the charge through', async () => {
+    const { hooks } = await boot();
+    await untilTheBankAsks(hooks);
+    await waitForOptions();
+    options()[1].click(); // the answer is on its way...
+    hooks.settleFirst(false); // ...and so is "No, block it"
+    await vi.waitFor(() => expect(hooks.delivered.some(([who, t]: [string, string]) => who === 'bank' && /already gone through/.test(t))).toBe(true), { timeout: WAIT });
+    await waitForOptions(); // the game carries on
+  });
+
+  it('does not say "too late" for a block that worked', async () => {
+    const { hooks, id } = await boot();
+    await untilTheBankAsks(hooks);
+    hooks.settleFirst(false);
+    await vi.waitFor(async () => expect((await (await fetch(`/api/games/${id}`)).json()).charge.status).toBe('blocked'));
+    await new Promise((r) => setTimeout(r, 100));
+    expect(hooks.delivered.some(([, t]: [string, string]) => /already gone through/.test(t))).toBe(false);
+  });
+
   it('has the cast react: the partner nags, the neighbor hears a blow-up, and so on', async () => {
     const { hooks } = await boot({ seed: 9, project: 'carpet-replacement' });
     for (let i = 0; i < 8; i++) {
@@ -711,6 +763,9 @@ describe('game-link: the elevation view follows the event', () => {
           blew++;
           await vi.waitFor(() => expect(calls.some((c) => c[0] === 'burst')).toBe(true));
           expect(calls.filter((c) => c[0] === 'burst').at(-1)).toEqual(['burst', kindOf(asked.category)]);
+          // the burst is told first, while the answered card's pictures are still up to centre it on; then they clear
+          const at = calls.map((c) => c[0]).lastIndexOf('burst');
+          expect(calls[at + 1], 'burst() must come before clear()').toEqual(['clear']);
         }
       }
       await vi.waitFor(() => expect(document.querySelector('.dw-report')).toBeTruthy(), { timeout: WAIT });

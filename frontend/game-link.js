@@ -114,7 +114,25 @@
     H.render();
   }
 
+  /** The bank's list holds only the charge the backend still has open. Whatever else it holds was settled
+   *  without the player's answer (the next choice, giving up, a reload): the backend let it through. */
+  function dropSettledCharges(g) {
+    if (!Array.isArray(H.pending)) return;
+    const open = g.charge && g.charge.status === 'pending' ? g.charge.id : null;
+    let dropped = false;
+    for (let i = H.pending.length - 1; i >= 0; i--) {
+      const id = H.pending[i].id;
+      if (id === undefined || id === null || id === open) continue; // the store's own purchases have no id
+      H.pending.splice(i, 1);
+      dropped = true;
+    }
+    if (!dropped) return;
+    H.render();
+    if (H.current() === 'bank') H.renderReplies();
+  }
+
   function syncNumbers(g, heldExtra = 0) {
+    dropSettledCharges(g); // every game view passes through here, so the bank never asks about a charge that is settled
     H.plan.days = g.quote.current.days;
     H.plan.budget = g.quote.current.budget;
     const time = g.stats.daysElapsed / H.PLAN_DAYS;
@@ -544,10 +562,11 @@
     game = g;
     hideCard();
     if (window.DIWHY_ELEV) {
-      window.DIWHY_ELEV.clear();
-      // A blow-up shakes the picture before the next card: water, sparks or dust by the kind of trouble.
+      // A blow-up shakes the picture before the next card: water, sparks or dust by the kind of trouble. It is
+      // centred on the answered card's picture, so it starts before that is cleared and then plays on its own.
       const cat = before.event && before.event.category;
       if (g.outcome && g.outcome.blewUp) window.DIWHY_ELEV.burst(cat === 'plumbing' || cat === 'envelope' ? 'water' : cat === 'electrical' ? 'sparks' : 'dust');
+      window.DIWHY_ELEV.clear();
     }
 
     // A question the player left unanswered was let through by the backend: take it off the bank's list.
@@ -589,11 +608,22 @@
       .then((g) => {
         game = g;
         syncNumbers(g);
+        if (!ok && g.charge && g.charge.id === id && g.charge.status === 'confirmed') tooLate(); // the backend had already let it through
         if (g.status !== 'playing') endGame(g);
       })
       .catch((err) => {
+        // "No, block it" can arrive after the answer to the next card (or the end) let the charge through.
+        if (!ok && (err.code === 'stale_charge' || err.code === 'game_over')) return tooLate();
         if (err.code !== 'stale_charge' && err.code !== 'game_over') fail(err);
       });
+  }
+
+  /** The page has already said "blocked, your card is safe"; this is the bank correcting it. */
+  function tooLate() {
+    setTimeout(() => {
+      H.deliver('bank', 'Sorry, that charge had already gone through before your block reached us. The money is spent.');
+      if (H.current() === 'bank') H.renderReplies();
+    }, 1500 / speedNow());
   }
 
   /** The bank's question: the money stays on hold (the page's own pending list) until "Yes, it was me" or "No, block it". */
@@ -744,6 +774,8 @@
     } catch (err) {
       return fail(err);
     }
+    // The game may have moved on without this page: the bank asks about the charge that is open now (and syncNumbers forgets the settled ones).
+    if (game.status === 'playing' && game.charge && game.charge.status === 'pending' && Array.isArray(H.pending) && !H.pending.some((p) => p.id === game.charge.id)) askBank(game.charge);
     syncNumbers(game);
     if (game.status !== 'playing') return endGame(game);
     return showEvent(game);
