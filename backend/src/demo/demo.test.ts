@@ -28,7 +28,9 @@ interface DemoConfig {
   seed: number;
   owner: string;
   project: string;
-  projectTitle: string;
+  spot: string;
+  spotScene: string;
+  spotAt: [number, number];
   policy: string[];
   finalePick: string;
   story: { mustSee: string[]; minEvents: number; minBlowups: number; overrun: [number, number] };
@@ -71,11 +73,16 @@ describe('demo: everything it relies on still exists', () => {
 describe('demo: its settings are valid', () => {
   const projects = realProjects();
 
-  it('uses a real character and a real project, and clicks the project\'s real title', () => {
+  it('uses a real character and a real project, reached through a real glowing spot', () => {
     expect(CHARACTER_IDS, 'demo owner is not one of the seven characters').toContain(DEMO.owner);
     const project = projects.find((p) => p.id === DEMO.project);
     expect(project, `demo project "${DEMO.project}" is not in backend/src/content/projects.ts`).toBeDefined();
-    expect(project!.title, 'the story button the demo clicks must match the project title in projects.ts').toBe(DEMO.projectTitle);
+    const link = readFileSync(join(root, 'frontend/game-link.js'), 'utf8');
+    expect(link, `frontend/game-link.js SPOT_PROJECT must map the demo's spot "${DEMO.spot}" to "${DEMO.project}"`).toMatch(
+      new RegExp(`SPOT_PROJECT[^\\n]*\\b${DEMO.spot}: '${DEMO.project}'`),
+    );
+    const page = readFileSync(join(root, 'frontend/index.html'), 'utf8');
+    expect(page, `the page has no glowing spot "${DEMO.spot}" in ${DEMO.spotScene}`).toMatch(new RegExp(`${DEMO.spotScene}:[\\s\\S]{0,400}project:'${DEMO.spot}'`));
   });
 
   it('picks only real answer qualities', () => {

@@ -1,4 +1,4 @@
-// The demo for the gameplay page: read the advice, pick an option on each event card, answer the
+// The demo for the gameplay page: find the job at its glowing spot, read the advice, pick an option on each event card, answer the
 // bank, ask the contractor for a new quote, and finish on the report.
 //
 // What it picks follows a policy by step (see ../config.js), not specific events, so editing the
@@ -22,8 +22,21 @@ export function chooseIndex(want, qualities) {
 const $ = (s) => document.querySelector(s);
 
 export async function run(a) {
-  await waitForLink(a);
   const H = window.DIWHY_HOOKS;
+
+  // Find the job the way a player does: go to the glowing DIY spot, and say "Take it on". The page
+  // starts the backend game when that happens (frontend/game-link.js), and then the events begin.
+  if (!(window.DIWHY_LINK.game && window.DIWHY_LINK.game())) {
+    await a.sleep(1800); // a look at the yard and the house
+    H.travel(DEMO.spotScene, DEMO.spotAt[0], DEMO.spotAt[1], "back"); // the page's own scene change
+    await a.waitFor(SEL.diySpot);
+    await a.sleep(900);
+    await a.click(SEL.diySpot);
+    await a.waitFor(SEL.takeItOn);
+    await a.sleep(1500); // reading what it says
+    await a.click(SEL.takeItOn);
+  }
+  await waitForLink(a);
   let step = 0;
   let charges = 0;
 

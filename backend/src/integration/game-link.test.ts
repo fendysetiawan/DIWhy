@@ -110,6 +110,58 @@ describe('game-link: starting up', () => {
     expect(document.getElementById('dwCard')).toBeNull();
   });
 
+  it('without a game, waits in the house; taking on a glowing spot starts that job on the backend', async () => {
+    const app = createApp({ projects: realProjects() });
+    const bridge = bridgeFetch(app.handler);
+    document.body.innerHTML = '<button id="quoteBtn"></button><b id="quoteVal"></b>';
+    const hooks = makeHooks();
+    (window as any).DIWHY_HOOKS = hooks;
+    (window as any).DIWHY_SPEED = 400;
+    vi.stubGlobal('fetch', bridge);
+    history.replaceState(null, '', '/frontend/?owner=gigi-singh&seed=3');
+    (0, eval)(SCRIPT);
+    await (window as any).DIWHY_LINK.ready;
+
+    // Waiting: no game, no card, the owner is cast, the page's own spots are still on.
+    expect(document.documentElement.classList.contains('dw-pending')).toBe(true);
+    expect(document.documentElement.classList.contains('dw-live')).toBe(false);
+    expect(document.getElementById('dwCard')).toBeNull();
+    expect(hooks.cast.owner).toBe('Gigi');
+    expect(typeof hooks.onStartProject).toBe('function');
+
+    hooks.onStartProject('dryer'); // "Take it on" at the basement spot
+    await waitForOptions();
+    expect(hooks.started).toBe(true);
+    expect(document.documentElement.classList.contains('dw-live')).toBe(true);
+    const game = (window as any).DIWHY_LINK.game();
+    expect(game.project.id).toBe('dryer-replacement');
+    expect(game.seed).toBe(3);
+    expect(game.cast.owner).toBe('gigi-singh');
+    expect(location.search).toBe(`?game=${game.id}`); // a reload resumes it
+    // The contractor's quote arrives now, and the job's last step sits on the post-it.
+    expect(hooks.msgs.contractor[0].t).toContain('cost estimate');
+    expect(hooks.taskList.textContent).toContain('Finish the dryer replacement');
+
+    hooks.onStartProject('wall'); // a second spot does nothing: one job per game
+    await new Promise((r) => setTimeout(r, 30));
+    expect((window as any).DIWHY_LINK.game().id).toBe(game.id);
+  });
+
+  it('ignores a spot it does not know', async () => {
+    document.body.innerHTML = '';
+    const hooks = makeHooks();
+    (window as any).DIWHY_HOOKS = hooks;
+    const calls: string[] = [];
+    vi.stubGlobal('fetch', async (url: string) => { calls.push(String(url)); throw new Error('no network expected'); });
+    history.replaceState(null, '', '/frontend/?owner=gigi-singh');
+    (0, eval)(SCRIPT);
+    await (window as any).DIWHY_LINK.ready;
+    hooks.onStartProject('attic');
+    await new Promise((r) => setTimeout(r, 20));
+    expect(calls).toEqual([]);
+    expect(hooks.started).toBeFalsy();
+  });
+
   it('casts the game with the backend\'s cast, as first names', async () => {
     const { hooks, created } = await boot();
     expect(hooks.cast.owner).toBe('Travis');

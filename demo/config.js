@@ -11,7 +11,9 @@ export const DEMO = {
   seed: 0,
   owner: "gigi-singh", // a folder name in assets/characters
   project: "dryer-replacement", // a project id in backend/src/content/projects.ts
-  projectTitle: "Replace the smoking dryer", // the button the story shows for it (that project's title)
+  spot: "dryer", // the glowing DIY spot that takes it on (frontend/index.html SPOTS; frontend/game-link.js maps it to the project)
+  spotScene: "basement", // where that spot is, and where on that floor to stand next to it
+  spotAt: [929, 800],
 
   // What it picks on each event card, by answer quality (the answer_key in events/*.csv). By step,
   // not by event, so editing events changes the story but never breaks the demo. It repeats.

@@ -28,13 +28,15 @@ const STAGE = `(() => {
   if (q('.dw-option')) return 'event: ' + text('.dw-title');
   if (q('#dwCard') && !q('#dwCard').hidden) return 'event loading';
   if (q('.reply-button')) return 'story: the contractor texts';
-  if (q('.choices .choice')) return 'story: where do you start';
   if (q('.living-on')) return 'story: the living room';
   if (q('.deed-pad canvas')) return 'story: the contract';
   if (q('.house-on')) return 'story: the house';
   if (q('.story')) return 'story';
   if (q('.select')) return 'character select';
   if (q('.splash')) return 'splash';
+  if (q('#diyAsk.open')) return 'the house: take it on?';
+  if (q('.hot.fix.lit')) return 'the house: a job to take on';
+  if (q('.dw-pending')) return 'the house: finding a job';
   if (q('.dw-live')) return 'game loading';
   return 'loading';
 })()`;

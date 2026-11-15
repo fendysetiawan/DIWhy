@@ -19,9 +19,14 @@
   'use strict';
 
   const params = new URLSearchParams(location.search);
-  const GAME = params.get('game');
+  // Two ways in: ?game=<id> is a game already running; ?owner=<character> (and maybe &seed=) is a player
+  // who has just left the front door and has not picked a job yet. Walking to one of the page's
+  // glowing DIY spots and saying "Take it on" starts the backend game for that spot's job.
+  let GAME = params.get('game');
+  const OWNER = params.get('owner');
   const H = window.DIWHY_HOOKS;
-  if (!GAME || !H) return;
+  if ((!GAME && !OWNER) || !H) return;
+  const SPOT_PROJECT = { wall: 'wall-removal', bath: 'toilet-replacement', dryer: 'dryer-replacement' }; // the page's spots -> events/*.csv jobs
 
   const DEMO = params.get('demo') === '1';
   if (DEMO) window.DIWHY_SPEED = Number(params.get('speed')) || 1.5; // the hands-free demo runs everything faster
@@ -218,9 +223,9 @@
     st.textContent = `
       ${pageFont ? `:root { --font: ${pageFont}; }` : ''}
       .dw-card, .dw-report-backdrop { --font: "Press Start 2P", ui-monospace, monospace; }
-      .dw-live #ownerBtn { pointer-events: none; }
-      .dw-live #shuffleBtn { display: none; }
-      .dw-live .hot.fix { display: none !important; } /* this page's own DIY spots: the backend game has its own job */
+      .dw-live #ownerBtn, .dw-pending #ownerBtn { pointer-events: none; }
+      .dw-live #shuffleBtn, .dw-pending #shuffleBtn { display: none; }
+      .dw-live .hot.fix { display: none !important; } /* once the job is picked, the other spots are done: one job per game */
       .dw-card { position: fixed; left: 50%; top: 46%; transform: translate(-50%, -50%); z-index: 7;
         width: min(640px, calc(100vw - 24px)); max-height: calc(100vh - 24px); overflow: auto;
         display: grid; gap: 16px; animation: dw-in .35s cubic-bezier(.2, .8, .2, 1); }
@@ -512,8 +517,50 @@
     return showEvent(game);
   }
 
+  let starting = false;
+
+  /** You said "Take it on" at a glowing spot: start the backend game for that spot's job. */
+  async function startFromSpot(spotId) {
+    const project = SPOT_PROJECT[spotId];
+    if (!project || GAME || starting) return;
+    starting = true;
+    try {
+      const body = { owner: OWNER, project };
+      const seed = params.get('seed');
+      if (seed !== null && seed !== '') body.seed = Number(seed);
+      const made = await api('/games', { method: 'POST', body });
+      GAME = made.id;
+      const next = new URLSearchParams({ game: GAME });
+      if (DEMO) next.set('demo', '1');
+      if (params.get('speed')) next.set('speed', params.get('speed'));
+      history.replaceState(null, '', `${location.pathname}?${next}`); // a reload now resumes this game
+      document.documentElement.classList.remove('dw-pending');
+      H.started = true;
+      await begin();
+    } catch (err) {
+      starting = false;
+      fail(err);
+    }
+  }
+
   async function init() {
     injectStyle();
+    if (GAME) return begin();
+    // No job yet: the house is open and the glowing spots are how you find one.
+    document.documentElement.classList.add('dw-pending');
+    // You are the owner. Everyone else gets a placeholder role for now; the backend deals the real cast
+    // when the game starts. The bars start empty: nothing has been spent and no day has gone by.
+    const people = H.C.filter((c) => !c.bank);
+    const everyone = [...new Set([...people.map((c) => c.name), H.owner()])];
+    const mine = first(OWNER);
+    const rest = everyone.filter((n) => n !== mine);
+    H.setCast(mine, Object.fromEntries(people.map((c, i) => [c.id, rest[i]])), 'budget');
+    H.S.time = 0; H.S.budget = 0; H.S.health = 1;
+    H.render();
+    H.onStartProject = startFromSpot;
+  }
+
+  async function begin() {
     document.documentElement.classList.add('dw-live');
     try {
       game = await api(`/games/${GAME}`);

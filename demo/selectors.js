@@ -22,10 +22,13 @@ export const REGISTRY = {
   selectStart: entry(".select-start", "app/screens/character-select.js", "select-start"),
   deedPad: entry(".deed-pad canvas", "app/screens/deed.js", "deed-pad", "canvas"),
   deedCheck: entry(".deed-check", "app/screens/deed.js", "deed-check"),
-  choice: entry(".choices .choice", "app/screens/story.js", '"choices"', "choice"),
   replyButton: entry(".reply-button", "app/screens/story.js", "reply-button"),
   captionReady: entry(".caption.ready:not(.choosing)", "app/screens/story.js", "caption", '"ready"', '"choosing"'),
   captionText: entry(".caption-text", "app/screens/story.js", "caption-text"),
+
+  // ---- the gameplay page: finding the job (frontend/index.html). A lit glowing spot, then "Take it on".
+  diySpot: entry(".hot.fix.lit", "frontend/index.html", "hot", "'lit'", "'fix'"),
+  takeItOn: entry("#diyAsk .yes", "frontend/index.html", 'id="diyAsk"', "Take it on"),
 
   // ---- the gameplay page: the event card and report (frontend/game-link.js)
   option: entry(".dw-option", "frontend/game-link.js", "dw-option"),
@@ -47,6 +50,9 @@ export const REGISTRY = {
 export const CONTRACTS = {
   link: entry("window.DIWHY_LINK.game()", "frontend/game-link.js", "window.DIWHY_LINK", "game: () => game"),
   hooks: entry("window.DIWHY_HOOKS.heldTotal()", "frontend/index.html", "window.DIWHY_HOOKS", "heldTotal"),
+  travel: entry("window.DIWHY_HOOKS.travel(scene, x, y, dir)", "frontend/index.html", "window.DIWHY_HOOKS", "travel,"),
+  startHook: entry("window.DIWHY_HOOKS.onStartProject", "frontend/game-link.js", "onStartProject"),
+  ownerParam: entry("?owner=<character>&seed=<n> on the game page", "frontend/game-link.js", "params.get('owner')", "params.get('seed')"),
   qualities: entry("debug.choiceQualities", "backend/src/service/types.ts", "choiceQualities"),
   speedInStory: entry("window.DIWHY_SPEED", "app/screens/story.js", "DIWHY_SPEED"),
   speedInLink: entry("window.DIWHY_SPEED", "frontend/game-link.js", "DIWHY_SPEED"),

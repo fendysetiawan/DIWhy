@@ -895,7 +895,7 @@ window.WALK = {"Aidan": {"front": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR
 const $ = s => document.querySelector(s);
 const root = document.documentElement;
 /* INTEGRATION: with ?game=<id> the backend runs the game (see game-link.js). Without it, this page runs on its own. */
-const LIVE = /[?&]game=/.test(location.search);
+const LIVE = /[?&](game|owner)=/.test(location.search);
 
 /* ---------------- theme ---------------- */
 let stored = null;
@@ -2158,7 +2158,7 @@ function updateHotspots(ch) {
     if (on && d < best) { best = d; nearSpot = sp; }
   });
 }
-function useSpot(sp) { if (frozen) return; if (sp.project && LIVE) return; /* INTEGRATION: the backend game has its own job */ if (sp.project) askProject(sp.project); else sp.act(); }
+function useSpot(sp) { if (frozen) return; if (sp.project && LIVE && window.DIWHY_HOOKS && window.DIWHY_HOOKS.started) return; /* INTEGRATION: one job per backend game */ if (sp.project) askProject(sp.project); else sp.act(); }
 addEventListener('keydown', e => { if ((e.code === 'Space' || e.code === 'Enter') && nearSpot && !frozen && !e.repeat) { e.preventDefault(); if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); useSpot(nearSpot); } });   /* Space or Enter */
 const baseFit = fit;
 function freeBox() {
@@ -2475,6 +2475,7 @@ function askProject(id) {
   askEl.querySelector('.no').onclick = e => { e.stopPropagation(); askEl.classList.remove('open'); frozen = false; };
 }
 function startProject(id) {
+  if (LIVE && window.DIWHY_HOOKS && window.DIWHY_HOOKS.onStartProject) { frozen = false; window.DIWHY_HOOKS.onStartProject(id); return; }   /* INTEGRATION: the backend plays this job */
   const p = PROJECTS[id];
   run = { id, p, step:0, t:0, cost:p.cost, days:p.days, health:-.04, paused:false, last:performance.now() };
   setTimeout(() => receive('contractor'), 2500);   /* word gets around */
@@ -3051,6 +3052,9 @@ window.DIWHY_HOOKS = {
   render, renderList, renderChat, renderQuote, renderReplies, deliver, pay, heldTotal, crackPhone,
   openPhone, openChat, makeTask, markActive, shuffle, clamp, money,
   onSettle: null,                                   /* set by game-link.js: (ok, payment) => void */
+  onStartProject: null,                             /* set by game-link.js: (spotId) => void, called when you say yes to a DIY spot */
+  started: false,                                   /* set by game-link.js once the backend game is running */
+  travel,                                           /* the demo uses this to go to a DIY spot: travel(scene, x, y, dir) */
   owner: () => owner,
   current: () => current,
   /* Cast the game: the owner and who plays each role, as first names ("Travis"). Same steps as recast(). */

@@ -1,5 +1,5 @@
 // The demo for the front door: splash, pick a character, sign the contract, click through the story,
-// pick the dryer (the plan's showpiece: smoke, dust, wall, beehive), answer the contractor.
+// answer the contractor.
 // It ends when the page moves on to the game, where pages/game.js takes over.
 //
 // Every element it touches is listed in ../selectors.js. Settings are in ../config.js.
@@ -40,16 +40,10 @@ export async function run(a) {
   await a.sleep(500);
   await a.click(SEL.deedCheck);
 
-  // ---- the story: read each line, click to go on, pick the project, answer the contractor
+  // ---- the story: read each line, click to go on, answer the contractor
   for (;;) {
-    const [el, which] = await a.waitForAny([SEL.choice, SEL.replyButton, SEL.captionReady]);
+    const [el, which] = await a.waitForAny([SEL.replyButton, SEL.captionReady]);
     if (which === 0) {
-      const options = [...document.querySelectorAll(SEL.choice)];
-      const wanted = options.find((b) => b.textContent.includes(DEMO.projectTitle)) || options[0];
-      await a.sleep(900);
-      for (const other of options.filter((b) => b !== wanted).slice(0, 2)) await a.hover(other);
-      await a.click(wanted);
-    } else if (which === 1) {
       await a.sleep(1200); // let the quote sink in
       await a.click(el);
     } else {

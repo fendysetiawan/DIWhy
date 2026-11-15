@@ -2,14 +2,16 @@
 //
 //   1. The contract: a paper unrolls, the text is too small to read, you sign and press the check.
 //   2. The house, morning, the "sold" sign. The cat walks in. The narration sets up the game.
-//      Then: where do you start? That picks the project.
 //   3. The living room. You look at the wall, then at your phone: an AI render of what it could be.
-//   4. The contractor texts a quote. You answer: "I'll do it myself."
+//   4. The contractor texts. You answer: "I'll do it myself."
+//
+// There is no "where do you start?": the job is found in the house, on the gameplay page, by walking
+// to one of its glowing DIY spots.
 //
 // Scene 3 has no art yet (a placeholder card stands in for the AI render). The house picture and
 // the deed paper are the team's art, restored from git history 391db4d (see app/README.md).
 //
-//   const { project } = await story(root, { character, projects })
+//   await story(root, { character })
 
 import { playEmote } from "../audio/emotes.js";
 import { chime, tap } from "../audio/chime.js";
@@ -20,7 +22,6 @@ const speed = () => window.DIWHY_SPEED || 1;
 const reduced = () => !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 // Under reduced motion, pauses shrink and text appears at once. Under the demo, everything speeds up.
 const wait = (ms) => new Promise((r) => setTimeout(r, reduced() ? Math.min(ms, 150) : ms / speed()));
-const money = (n) => "$" + Math.round(n).toLocaleString("en-US");
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 // The plan's scene 2, word for word.
@@ -29,7 +30,7 @@ const SCENE_2 =
   "Deciding to take it on themselves, they grab their tools, roll up their sleeves, " +
   "and set out to prove just how hard it can be to DIY.";
 
-export async function story(root, { character, projects }) {
+export async function story(root, { character }) {
   const el = createScreen(root, "story", `
     <div class="stage" aria-hidden="true">
       <div class="camera">
@@ -41,8 +42,8 @@ export async function story(root, { character, projects }) {
       <img class="owner" src="/assets/characters/${character.id}/front-still.svg" alt="" />
       <div class="render brand-window">
         <p class="brand-text brand-highlight">AI render</p>
-        <p class="render-title brand-title"></p>
-        <p class="render-blurb brand-text"></p>
+        <p class="render-title brand-title">Open plan. Bright. Perfect.</p>
+        <p class="render-blurb brand-text">Every wall gone, every room lit. It looks easy.</p>
       </div>
     </div>
     <div class="phone-scene" aria-hidden="true">
@@ -96,37 +97,6 @@ export async function story(root, { character, projects }) {
     });
   }
 
-  // Ask a question with buttons. Click one, or press 1 to 9.
-  function choose(question, options) {
-    caption.classList.add("on", "ready", "choosing");
-    text.textContent = question;
-    const row = document.createElement("div");
-    row.className = "choices";
-    return new Promise((resolve) => {
-      const pick = (i) => {
-        window.removeEventListener("keydown", onKey);
-        row.remove();
-        caption.classList.remove("choosing");
-        resolve(options[i]);
-      };
-      const onKey = (e) => {
-        const i = Number(e.key) - 1;
-        if (i >= 0 && i < options.length) pick(i);
-      };
-      options.forEach((o, i) => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "brand-button choice";
-        b.dataset.i = String(i);
-        b.innerHTML = `<span class="choice-n">${i + 1}</span>${esc(o.label)}`;
-        b.addEventListener("click", () => pick(i));
-        row.append(b);
-      });
-      caption.append(row);
-      window.addEventListener("keydown", onKey);
-    });
-  }
-
   const fadeOut = async () => { caption.classList.remove("on"); el.classList.remove("house-on", "living-on", "phone-on"); await wait(700); };
 
   // ---- Scene 1: the contract
@@ -144,18 +114,10 @@ export async function story(root, { character, projects }) {
   await say(SCENE_2, { ms: 34 });
   await say("Congratulations. You own a house.");
 
-  // Where do you start? This is what picks the project.
-  const picked = await choose(
-    "So. Where do you start?",
-    projects.map((p) => ({ label: p.title, project: p })),
-  );
-  const project = picked.project;
   await fadeOut();
 
   // ---- Scene 3: the living room and the AI render
   el.classList.add("living-on");
-  q(".render-title").textContent = project.title;
-  q(".render-blurb").textContent = project.blurb;
   await wait(900);
   await say("The living room. Beige. Quiet. Full of potential.");
   q(".owner").classList.add("in");
@@ -172,8 +134,8 @@ export async function story(root, { character, projects }) {
   await wait(900);
   const bubbles = q(".bubbles");
   const reply = q(".reply");
-  const quote = project.quote;
-  const line = `Took a stab at the cost estimate. I'm looking at around ${money(quote.budget)} and ${quote.days} days for all the work.`;
+  // No numbers yet: the real quote arrives on the gameplay page, once you pick a job in the house.
+  const line = "Heard you bought the place. Whatever you decide to fix, call me first and I'll give you a number.";
   const incoming = document.createElement("p");
   incoming.className = "bubble them brand-text";
   bubbles.append(incoming);
@@ -204,5 +166,4 @@ export async function story(root, { character, projects }) {
   await wait(1700);
   await fadeOut();
   el.classList.add("black");
-  return { project };
 }

@@ -1,11 +1,11 @@
 // DIWHY?!: the front door. Runs the screens in order, then hands the game to the gameplay page.
 //
-//   splash  ->  pick your diy-er  ->  the story (contract, house, where to start, the quote)
-//   ->  start the game on the backend  ->  /frontend/?game=<id>
+//   splash  ->  pick your diy-er  ->  the story (contract, house, the contractor's text)
+//   ->  /frontend/?owner=<id>   (the gameplay page; the game starts on the backend when you take on a
+//                               glowing DIY spot in the house)
 //
 // Add ?demo=1 to watch the whole thing play itself (see demo/).
 
-import { createGame, listProjects } from "./api.js";
 import { getSetting } from "./settings.js";
 import { characterSelect } from "./screens/character-select.js";
 import { splash } from "./screens/splash.js";
@@ -37,26 +37,25 @@ function showError(message) {
   el.querySelector("button").addEventListener("click", () => location.reload());
 }
 
-function startGame(game) {
-  const next = new URLSearchParams({ game: game.id });
-  if (demo) next.set("demo", "1");
+function startGame(owner) {
+  const next = new URLSearchParams({ owner });
+  if (demo) { next.set("demo", "1"); next.set("seed", String(DEMO.seed)); } // the demo plays one fixed game
   if (params.get("speed")) next.set("speed", params.get("speed"));
   location.assign(`/frontend/?${next}`);
 }
 
 try {
   if (shortDemo) {
-    // Straight to the game: the same owner, job and seed the full demo uses.
-    startGame(await createGame({ owner: DEMO.owner, project: DEMO.project, seed: DEMO.seed }));
+    // Straight to the game: the same owner and seed the full demo uses.
+    startGame(DEMO.owner);
   } else {
     // The intro always plays, unless "skip intro" is ticked (and never when demoing).
     if (demo || !getSetting("skipIntro", false)) await splash(app);
 
     const character = await characterSelect(app);
-    const projects = await listProjects();
-    const { project } = await story(app, { character, projects });
+    await story(app, { character });
 
-    startGame(await createGame({ owner: character.id, project: project.id, ...(demo ? { seed: DEMO.seed } : {}) }));
+    startGame(character.id);
   }
 } catch (err) {
   showError(err && err.message ? err.message : "Something went wrong.");
