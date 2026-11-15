@@ -44,10 +44,10 @@ npm run e2e         # plays the whole demo in a real Chrome and photographs it (
 | **Characters** (add, remove or rename a folder in `assets/characters/`) | The cast needs exactly seven (six roles plus the owner). Update `CHARACTER_IDS` in `backend/src/service/cast.ts`, `CAST` in `app/screens/character-select.js`, the owner in `demo/config.js`, and the sounds in `app/audio/emotes.js`. The gameplay page keeps its own copy of the sprites (see `frontend/GRAPHICS.md`). |
 | **Art or brand paths** (anything that moves or renames files in `assets/`) | Search for the old path in `app/`, `frontend/game-link.js`, `demo/` and `backend/`. `assets/style.css` sets `--font`, which the gameplay page also uses; `game-link.js` keeps them apart, so don't rename it without checking. |
 | **A new screen, step or overlay in the player's path**, or reordering the flow | The demo must get a step for it or it will hang waiting. Update `demo/pages/`, the `STAGE` check in `backend/e2e/demo.mjs`, and the flow in `INTEGRATION.md`. |
-| **Timing or pacing** (typing speed, pauses, animation lengths) | Re-time the demo: `SPEED=1.5 SHOTS=0 npm run e2e`. It should take about **2 min 15** in full and about **1 min 30** for `?demo=short`. Update the numbers in `demo/README.md` if they move. |
-| **A new job** (a whole new project) | CSV in `events/`, an entry in `PROJECT_DEFS`, optional cascades in `links.ts`. The story's picker lists it automatically. |
+| **Timing or pacing** (typing speed, pauses, animation lengths) | Re-time the demo: `SPEED=1.5 SHOTS=0 npm run e2e`. It should take about **2 min** in full and about **1 min 20** for `?demo=short`. Update the numbers in `demo/README.md` if they move. |
+| **A new job** (a whole new project) | CSV in `events/`, an entry in `PROJECT_DEFS`, optional cascades in `links.ts`. It also needs a glowing spot to start it: today only three jobs have one (`SPOT_PROJECT` in `frontend/game-link.js`, spots in `frontend/index.html`), so tell the user. |
 | **Routes or URLs** (`/api`, `/app`, `/frontend`, which folders the server serves) | `backend/src/server/play.ts` (the folders it serves), the links in every README, `demo/README.md`. |
-| **The `?demo`, `?game` or `?speed` options** | `demo/selectors.js` (`CONTRACTS`), `app/main.js`, `frontend/game-link.js`, `demo/README.md`. |
+| **The `?demo`, `?game`, `?owner`, `?seed` or `?speed` options** | `demo/selectors.js` (`CONTRACTS`), `app/main.js`, `frontend/game-link.js`, `demo/README.md`. |
 
 When in doubt: search the whole repo for the thing you are changing, and run `npm test`.
 
@@ -104,4 +104,4 @@ Give it a stable `id` or class. Add an entry to `REGISTRY` in `demo/selectors.js
 
 ## Open decisions
 
-These are for the team, listed in `INTEGRATION.md`: how a player picks a job (the story versus Ramy's glowing DIY spots), two sets of cost numbers, two dryer event sets, and the story's missing living-room art. If your task touches one, tell the user before choosing.
+These are for the team, listed in `INTEGRATION.md`: which jobs get a glowing spot, two sets of cost numbers, two dryer event sets, and the story's missing living-room art. If your task touches one, tell the user before choosing.

@@ -28,6 +28,7 @@ function makeHooks() {
     tasks: [] as any[],
     taskList: document.createElement('div'),
     LIVE: true,
+    C: ['partner', 'clerk', 'contractor', 'parent', 'neighbor', 'friend'].map((id, i) => ({ id, name: ['Aidan', 'Christian', 'Fendy', 'Rachel', 'Ramy', 'Travis'][i] })).concat([{ id: 'bank', name: 'Bank', bank: true } as any]),
     delivered: [] as Array<[string, string]>,
     paid: [] as Array<[number, string]>,
     renders: 0,

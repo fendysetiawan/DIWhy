@@ -7,9 +7,11 @@ Everyone works in their own folder. This page says how the folders connect, so a
 ## The flow
 
 ```
-/app/        splash -> pick your diy-er -> the story ----> POST /api/games {project, owner}
+/app/        splash -> pick your diy-er -> the story ----> /frontend/?owner=<id>
                                                                  |
-/frontend/?game=<id>   the gameplay page  <---- GET game, POST choices / quote / payments ---->  /api
+/frontend/   the gameplay page: walk the house, take on a glowing DIY spot ----> POST /api/games {project, owner}
+                                                                 |
+/frontend/?game=<id>   the same page  <---- GET game, POST choices / quote / payments ---->  /api
                                                                                                     ^
                                                                                   reads  events/*.csv
 ```
@@ -24,7 +26,7 @@ Run the whole thing with `npm run play` in `backend/`, then open http://127.0.0.
 | `frontend/` | Ramy | The gameplay page | `pay()`, `settle()` and `crackPhone()` (his own note: keep these) |
 | `events/` | Fendy | The events, as CSVs | The columns and the `answer_key` convention |
 | `backend/` | Travis | The rules, the API, the dice | The JSON contract in `backend/src/service/types.ts` |
-| `app/` | Travis | The front door (splash, character, story). Aidan's screens, restored from history and restyled | `app/main.js` hands off to `/frontend/?game=<id>` |
+| `app/` | Travis | The front door (splash, character, story). Aidan's screens, restored from history and restyled | `app/main.js` hands off to `/frontend/?owner=<id>` |
 | `demo/` | Travis | The hands-free playthrough | It clicks the real pages' real buttons |
 | `plan/` | the team | The vision | |
 
@@ -52,22 +54,23 @@ Search for `INTEGRATION` to find every one. They are all small, they do nothing 
 
 | Where | What | Why |
 |---|---|---|
-| Top of the script | `const LIVE = ...?game=` | A game id in the URL means the backend runs the game |
+| Top of the script | `const LIVE = ...?(game|owner)=` | A game id (or an owner who has not picked a job yet) in the URL means the backend runs the game |
 | `settle()` | one line calling `DIWHY_HOOKS.onSettle` | The backend hears "Yes it was me" or "No, block it" (no longer asked: see `pay()`) |
 | `pay()` | one line calling `DIWHY_HOOKS.onSettle(true, ...)` (**added by Ramy**) | The bank no longer asks the player; every charge is confirmed at once, so the backend always hears "yes" and `heldTotal()` stays 0 |
 | `setPhase()` | `&& !LIVE` on the dawn line | The backend decides what day it is |
-| `useSpot()` | `if (sp.project && LIVE) return` | The glowing DIY spots start this page's own local projects |
+| `useSpot()` | `if (sp.project && LIVE && DIWHY_HOOKS.started) return` | Once the backend game is running, the other spots do nothing: one job per game |
+| `startProject()` | one line calling `DIWHY_HOOKS.onStartProject(id)` | Saying "Take it on" at a glowing spot starts the backend game for that job, instead of this page's local one |
 | End of the script | the demo loop, the one "hello" text and the demo tasks wait for `!LIVE`; `window.DIWHY_HOOKS` exposes what the link needs | The backend supplies the numbers; the post-it keeps Ramy's own task rows, one per event |
 | The "people text when something happens" timer | `if (LIVE) return` (**added by Ramy**) | It watches the page's own fake budget and time, which the backend replaces |
 | Before `</body>` | `<script src="game-link.js">` | The link itself |
 
-`frontend/game-link.js` does the rest. Without `?game=<id>` it does nothing, and Ramy's page runs exactly as it does on its own, including the house, the DIY jobs and the day and night cycle.
+`frontend/game-link.js` does the rest. Without `?game=<id>` or `?owner=<id>` it does nothing, and Ramy's page runs exactly as it does on its own, including the house, the DIY jobs and the day and night cycle.
 
 ## Decisions that are still open
 
 These are for the team, not for any one person:
 
-1. **How a player picks a job.** The story asks "where do you start?" and that starts the backend game for one job. Ramy's page has its own way: walk into the house and click a glowing spot. In a backend game those spots are switched off. The cohesive version is probably: the spots start backend projects, and his animated elevation views play between the backend's events. That needs Ramy and Travis together.
+1. **How a player finds a job (decided).** Ramy's glowing DIY spots are the way: the story has no "where do you start?" any more. Walking to a spot and saying "Take it on" starts the backend game for that spot's job (`SPOT_PROJECT` in `game-link.js`: kitchen wall is wall removal, bathroom is toilet replacement, dryer is dryer replacement). Still open: his animated elevation views could play between the backend's events, and the other nine jobs have no spot yet. Both need Ramy and Travis together.
 2. **Two sets of numbers.** Ramy's page has its own costs and outcomes for its three jobs (`PROJECTS`, `OUTCOME` in `index.html`). The backend has its own (`consequences.ts`). They differ, so the same job costs different amounts in each.
 3. **Two dryer event sets.** `events/dryer_replace_events.csv` (17 events, a first draft following the plan's smoke, dust, wall, beehive chain) and `frontend/dryer_vent_events.csv` (5 events, Ramy's, about fire and gas). Worth merging into one.
 4. **The dryer draft is mine.** Fendy, please review `events/dryer_replace_events.csv`. It uses your columns and `answer_key` convention.

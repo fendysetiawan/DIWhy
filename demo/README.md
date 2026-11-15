@@ -4,15 +4,15 @@ A full playthrough that plays itself at **1.5x speed**, with a visible mouse mak
 
 **Watch it:** start the game (`npm run play` in `backend/`), then open one of:
 
-- http://127.0.0.1:3001/app/?demo=1 the whole thing, from the splash to the final report (about 2 minutes 15). The **watch the demo** link on the character screen does the same.
-- http://127.0.0.1:3001/app/?demo=short just the game, skipping the intro (about a minute and a half).
+- http://127.0.0.1:3001/app/?demo=1 the whole thing, from the splash to the final report (about 2 minutes). The **watch the demo** link on the character screen does the same.
+- http://127.0.0.1:3001/app/?demo=short just the game, skipping the intro (about a minute and 20 seconds).
 
 - **Stop it:** press Escape, or just move your real mouse. It hands control back.
 - **Other speeds:** add `&speed=3` (default `1.5`).
 
 ## What the mouse does
 
-Splash (clicks through), looks at a few characters and picks one, presses Start, **signs the contract** with a drawn signature and the green check, clicks through the story, picks the dryer, answers the contractor with "I'll do it myself", then in the game: opens the phone to read the advice, picks an option on each event card, answers the bank ("Yes, it was me", and once "No, block it." for drama), asks the contractor for a new quote, and ends on the report.
+Splash (clicks through), looks at a few characters and picks one, presses Start, **signs the contract** with a drawn signature and the green check, clicks through the story, goes to the dryer's glowing spot in the basement and takes it on, answers the contractor with "I'll do it myself", then in the game: opens the phone to read the advice, picks an option on each event card, answers the bank ("Yes, it was me", and once "No, block it." for drama), asks the contractor for a new quote, and ends on the report.
 
 ## How it works
 

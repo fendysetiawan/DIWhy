@@ -4,10 +4,10 @@ The first thing a player sees: **splash, pick your diy-er, the story, then the g
 
 | File | What it does |
 |---|---|
-| `main.js` | Runs the screens in order, starts a game on the backend, then goes to `/frontend/?game=<id>` |
+| `main.js` | Runs the screens in order, then goes to `/frontend/?owner=<id>`. The game starts on the backend when the player takes on a glowing DIY spot in the house |
 | `screens/splash.js` | The studio logo and "around the world games presents" |
 | `screens/character-select.js` | Pick the home owner from the seven characters. The other six are dealt to roles by the backend |
-| `screens/story.js` | The plan's scenes: the contract, the house and the cat, "where do you start?" (this picks the project), the living room, the contractor's text |
+| `screens/story.js` | The plan's scenes: the contract, the house and the cat, the living room, the contractor's text (there is no "where do you start?": the job is found in the house) |
 | `screens/deed.js` | The signing screen: blurry small print, a signature pad, the green check |
 | `api.js` | The only calls to the backend: the project list, and starting a game |
 | `audio/` | Emote sounds (one per character) and a phone chime, made in code |
