@@ -73,13 +73,6 @@ export interface QuoteView {
   current: Quote; // what the contractor last told the player; asking again can raise it
 }
 
-export interface TaskView {
-  id: string;
-  title: string;
-  priority: 'urgent' | 'high' | 'normal';
-  done: boolean;
-}
-
 /** Money that just left the account and is waiting for the player to confirm it with the bank. */
 export interface ChargeView {
   id: number;
@@ -154,7 +147,6 @@ export interface GameView {
   project: { id: string; title: string; job: string };
   cast: Cast;
   quote: QuoteView;
-  tasks: TaskView[];
   charge: ChargeView | null; // the latest charge, if any
   outcome: OutcomeView | null; // what the last choice did, null at the start
   status: GameStatus;

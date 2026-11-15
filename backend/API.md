@@ -94,7 +94,6 @@ Every endpoint that returns a game returns this shape. Trimmed:
   "status": "playing",
   "failure": null,
   "stats": { "budget": 4500, "spent": 0, "daysElapsed": 0, "maxDays": 9, "stress": 0, "riskDebt": 0, "problems": 0 },
-  "tasks": [ { "id": "dryer_smokes", "title": "Dryer starts smoking", "priority": "high", "done": false }, { "id": "finale", "title": "Finish the dryer replacement", "priority": "normal", "done": false } ],
   "charge": null,
   "outcome": null,
   "ledger": [],
@@ -124,7 +123,6 @@ Every endpoint that returns a game returns this shape. Trimmed:
 | `status` | `"playing"`, `"complete"` (the job got finished) or `"failed"`. |
 | `failure` | When `"failed"`: `"budget"`, `"time"` or `"stress"`. The game ends at 2.5 times the quote's money, 3 times its days, or stress 100 (`stats.budget` and `stats.maxDays` are those limits). |
 | `stats` | The numbers to show. `riskDebt` is the hidden cost of shortcuts; hide it if you want the risk to stay secret. |
-| `tasks` | The to-do list: what has come up, what is on the table now, and the last step. `priority` is `urgent`, `high` or `normal`. |
 | `charge` | The latest purchase, waiting for the bank: `{ id, amount, what, status }`. `status` is `pending`, `confirmed` or `blocked`. |
 | `outcome` | What the last choice did: its `quality`, what it cost, whether it `blewUp`, and whether the partner nagged. Use it to have the cast react. `null` at the start. |
 | `ledger` | Every cost so far, as `{ label, cost }`. |

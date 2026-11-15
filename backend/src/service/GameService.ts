@@ -23,7 +23,6 @@ import {
   type GameEvent,
 } from '../engine/EventEngine';
 import { applyEffects, checkEnd, createInitialState, isOver } from '../engine/GameState';
-import { SERIOUS } from '../content/consequences';
 import { RandomDirector } from '../engine/RandomDirector';
 import { buildReport } from '../engine/report';
 import { createRng, type StatefulRng } from '../engine/rng';
@@ -43,7 +42,6 @@ import type {
   ProjectView,
   Quote,
   RequestOptions,
-  TaskView,
 } from './types';
 
 type FetchFn = (url: string, init: RequestInit) => Promise<Response>;
@@ -330,23 +328,6 @@ export class GameService {
     rec.rngState = rng.state();
   }
 
-  /** The post-it: what has come up so far, then what is on the table now, then the last step. */
-  private tasks(rec: GameRecord, project: Project, current: GameEvent | undefined): TaskView[] {
-    const byId = new Map([...project.events, project.finale].map((e) => [e.id, e]));
-    const priority = (e: GameEvent): TaskView['priority'] =>
-      e.kind === 'temptation' ? 'normal' : e.category && SERIOUS.has(e.category) ? 'urgent' : 'high';
-    const done = rec.state.eventHistory
-      .filter((id) => id !== project.finale.id)
-      .slice(-4)
-      .map((id) => byId.get(id))
-      .filter((e): e is GameEvent => Boolean(e))
-      .map((e): TaskView => ({ id: e.id, title: e.title, priority: priority(e), done: true }));
-    const now: TaskView[] =
-      current && current.id !== project.finale.id ? [{ id: current.id, title: current.title, priority: priority(current), done: false }] : [];
-    const last: TaskView = { id: project.finale.id, title: `Finish the ${project.job}`, priority: 'normal', done: rec.state.completed };
-    return [...done, ...now, last];
-  }
-
   /** Record -> the JSON a front end gets. Hidden consequences (effects, gambles, weights) stay out. */
   private toView(rec: GameRecord, project: Project, opts: RequestOptions): GameView {
     const s = rec.state;
@@ -371,7 +352,6 @@ export class GameService {
       project: { id: project.id, title: project.title, job: project.job },
       cast: rec.cast,
       quote: { original: s.quote, current: rec.quoteCurrent },
-      tasks: this.tasks(rec, project, event),
       charge: rec.charge,
       outcome: rec.outcome,
       status: s.failure ? 'failed' : s.completed ? 'complete' : 'playing',

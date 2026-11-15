@@ -349,24 +349,3 @@ describe('the partner', () => {
     expect(v.stats.stress).toBe(0);
   });
 });
-
-describe('the post-it', () => {
-  it('lists what has come up, what is on the table now, and the last step', async () => {
-    const s = svc();
-    let v = await s.createGame({ seed: 20, project: 'dryer-replacement' });
-    expect(v.tasks.map((t) => t.done)).toEqual([false, false]);
-    expect(v.tasks[0].id).toBe(v.event!.id);
-    expect(v.tasks[1].title).toBe('Finish the dryer replacement');
-    v = await s.choose(v.id, { choice: 1, eventId: v.event!.id });
-    expect(v.tasks.map((t) => t.done)).toEqual([true, false, false]);
-    expect(['urgent', 'high', 'normal']).toContain(v.tasks[0].priority);
-  });
-
-  it('marks everything done at the end', async () => {
-    const s = svc();
-    const g = await s.createGame({ seed: 20, project: 'dryer-replacement' });
-    const end = await playOut(s, g.id, 1);
-    if (end.status === 'complete') expect(end.tasks.every((t) => t.done)).toBe(true);
-    expect(end.tasks.at(-1)!.title).toBe('Finish the dryer replacement');
-  });
-});

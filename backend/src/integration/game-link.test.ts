@@ -128,11 +128,11 @@ describe('game-link: starting up', () => {
     expect(hooks.S.health).toBe(1);
   });
 
-  it('turns the tasks post-it into the game\'s to-do list and ignores ticking by hand', async () => {
-    const { hooks } = await boot();
+  it('shows the first event on the tasks post-it, above the last step, and ignores ticking by hand', async () => {
+    const { hooks, created } = await boot();
+    await waitForOptions();
     const titles = [...hooks.taskList.querySelectorAll('.tt')].map((e) => e.textContent);
-    expect(titles.at(-1)).toBe('Finish the wall removal');
-    expect(titles.length).toBe(2);
+    expect(titles).toEqual([created.event.title, 'Finish the wall removal']); // the event, then the last step
     (hooks.taskList.querySelector('.check') as HTMLElement).click(); // does nothing
     expect(hooks.tasks.every((t: any) => !t.done)).toBe(true);
   });
@@ -181,14 +181,48 @@ describe('game-link: the event card', () => {
 });
 
 describe('game-link: making choices', () => {
-  it('sends the choice, moves the bars, updates the tasks and shows the next event', async () => {
+  it('sends the choice, moves the bars and shows the next event', async () => {
     const { hooks, created } = await boot();
     await waitForOptions();
     options()[1].click();
     await vi.waitFor(() => expect(card().querySelector('.dw-title')!.textContent).not.toBe(created.event.title));
     await waitForOptions();
     expect(hooks.S.time * 30 + hooks.S.budget).toBeGreaterThan(0);
-    expect(hooks.taskList.querySelectorAll('.task').length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('keeps the post-it rows: a row is added per event and ticked off, never wiped and redrawn', async () => {
+    const { hooks } = await boot({ seed: 9, project: 'carpet-replacement' });
+    await waitForOptions();
+    const firstRow = hooks.taskList.querySelector('.task') as HTMLElement;
+    const lastRow = hooks.taskList.querySelector('.task:last-child') as HTMLElement;
+    expect(lastRow.textContent).toContain('Finish the carpet replacement');
+
+    options()[1].click();
+    await vi.waitFor(() => expect(hooks.taskList.querySelectorAll('.task').length).toBe(3));
+    await waitForOptions();
+
+    // The very same elements are still there: the answered event is ticked off, a new one joined it.
+    const rowsNow = [...hooks.taskList.querySelectorAll('.task')];
+    expect(rowsNow[0]).toBe(firstRow);
+    expect(rowsNow.at(-1)).toBe(lastRow);
+    expect(firstRow.classList.contains('done')).toBe(true);
+    expect(rowsNow[1].classList.contains('done')).toBe(false); // the event on the table now
+    expect(hooks.tasks.map((t: any) => t.done)).toEqual([true, false, false]);
+  });
+
+  it('lets the oldest finished rows slide away so the post-it does not overflow', async () => {
+    const { hooks } = await boot({ seed: 2, project: 'wall-removal' });
+    for (let i = 0; i < 7; i++) {
+      await vi.waitFor(() => expect(options().length >= 2 || document.querySelector('.dw-report')).toBeTruthy(), { timeout: 3000 });
+      if (document.querySelector('.dw-report')) break;
+      options()[1].click();
+      await new Promise((r) => setTimeout(r, 40));
+    }
+    await new Promise((r) => setTimeout(r, 60));
+    const finished = [...hooks.taskList.querySelectorAll('.task.done')];
+    expect(finished.length).toBeLessThanOrEqual(5); // 4 kept, plus one still sliding away
+    expect(hooks.tasks.filter((t: any) => t.done).length).toBeLessThanOrEqual(5);
+    expect(hooks.taskList.querySelector('.task:last-child')!.textContent).toContain('Finish the wall removal');
   });
 
   it('sends every purchase through pay(), holding it back from the budget until the bank is answered', async () => {

@@ -8,7 +8,8 @@
  *   - text the advice from the neighbor, parent, friend or clerk (they can be wrong)
  *   - send every purchase through pay(): the bank alert, and the clerk's card trouble
  *   - let the contractor's Update button ask the backend for a new quote
- *   - turn the tasks post-it into the game's to-do list
+ *   - show each event on the tasks post-it, in this page's own task style (the rows persist: they are
+ *     added as events arrive and ticked off as you answer, never wiped and redrawn)
  *   - show the end-of-game report
  *
  * It talks to /api (see backend/API.md). Plain script, no build step.
@@ -88,18 +89,68 @@
     H.renderQuote();
   }
 
-  /** The tasks post-it is the game's to-do list. Ticking one by hand does nothing. */
-  function syncTasks(g) {
+  // ---- the tasks post-it: this page's own way of showing events
+  // The events come from the team's event list (events/*.csv) via the backend. How they look as tasks is
+  // this page's business: the same row component the page's own tasks use (priority chip, progress bar,
+  // tick). The rows PERSIST: one is added when an event arrives, ticked off when you answer it, and the
+  // oldest finished ones slide away. Nothing is wiped and redrawn.
+  const SERIOUS = new Set(['structural', 'environmental', 'electrical', 'plumbing', 'envelope']);
+  const priorityOf = (e) => (e.kind === 'temptation' ? 'normal' : e.category && SERIOUS.has(e.category) ? 'urgent' : 'high');
+  const MAX_FINISHED_ROWS = 4;
+  const rows = new Map(); // event id -> { task, el }
+  let finishRow = null; // "Finish the <job>", always last
+
+  function makeRow(title, priority) {
+    const task = { id: ++taskId, t: title, p: priority, cost: 0, prog: 0, done: false };
+    const el = H.makeTask(task);
+    el.querySelector('.check').onclick = (e) => e.stopPropagation(); // ticking by hand does nothing
+    el.classList.add('entering');
+    return { task, el };
+  }
+
+  /** Start the list for a game: just the last step. Events are added as they arrive. */
+  function startTasks(g) {
     H.tasks.splice(0, H.tasks.length);
     H.taskList.innerHTML = '';
-    for (const t of g.tasks) {
-      const task = { id: ++taskId, t: t.title, p: t.priority, cost: 0, prog: t.done ? 1 : 0, done: t.done };
-      H.tasks.push(task);
-      const el = H.makeTask(task);
-      el.querySelector('.check').onclick = (e) => e.stopPropagation();
-      H.taskList.appendChild(el);
-    }
+    rows.clear();
+    finishRow = makeRow(`Finish the ${g.project.job}`, 'normal');
+    H.tasks.push(finishRow.task);
+    H.taskList.appendChild(finishRow.el);
+  }
+
+  /** The event now on the table gets a row (once), just above the last step. */
+  function noteEvent(g) {
+    const e = g.event;
+    if (!finishRow) startTasks(g);
+    if (!e || rows.has(e.id)) return;
+    const row = makeRow(e.title, priorityOf(e));
+    rows.set(e.id, row);
+    H.tasks.splice(H.tasks.indexOf(finishRow.task), 0, row.task);
+    H.taskList.insertBefore(row.el, finishRow.el);
     H.markActive();
+  }
+
+  function tickOff(row) {
+    row.task.done = true;
+    row.task.prog = 1;
+    row.el.classList.add('done');
+    const bar = row.el.querySelector('.prog i');
+    if (bar) bar.style.width = '100%';
+    H.markActive();
+  }
+
+  /** You answered this event: tick it off, and let the oldest finished rows slide away. */
+  function eventAnswered(eventId) {
+    const row = rows.get(eventId);
+    if (row) tickOff(row);
+    const finished = [...rows.entries()].filter(([, r]) => r.task.done);
+    while (finished.length > MAX_FINISHED_ROWS) {
+      const [id, old] = finished.shift();
+      old.el.classList.add('leaving');
+      setTimeout(() => old.el.remove(), 500 / (window.DIWHY_SPEED || 1));
+      H.tasks.splice(H.tasks.indexOf(old.task), 1);
+      rows.delete(id);
+    }
   }
 
   function applyCast(g) {
@@ -246,6 +297,7 @@
 
   async function showEvent(g) {
     const e = g.event;
+    noteEvent(g);
     const el = card();
     const token = ++cardToken;
     el.innerHTML = `
@@ -315,7 +367,7 @@
 
     const fresh = g.charge && g.charge.status === 'pending' && !(before.charge && before.charge.id === g.charge.id);
     syncNumbers(g, fresh ? g.charge.amount : 0);
-    syncTasks(g);
+    if (before.event) eventAnswered(before.event.id);
     if (fresh) {
       charges.push(g.charge.id);
       H.pay(g.charge.amount, g.charge.what); // the bank texts, the clerk's card will not go through
@@ -352,7 +404,6 @@
       .then((g) => {
         game = g;
         syncNumbers(g);
-        syncTasks(g);
         if (g.status !== 'playing') endGame(g);
       })
       .catch((err) => {
@@ -391,6 +442,7 @@
 
   function endGame(g) {
     hideCard();
+    if (finishRow && g.status === 'complete') tickOff(finishRow);
     const r = g.report;
     if (!r) return;
     const failed = g.status === 'failed';
@@ -456,7 +508,6 @@
       return fail(err);
     }
     syncNumbers(game);
-    syncTasks(game);
     if (game.status !== 'playing') return endGame(game);
     return showEvent(game);
   }
@@ -474,7 +525,7 @@
     H.unread.contractor = 0;
     wireContractor();
     syncNumbers(game);
-    syncTasks(game);
+    startTasks(game);
     H.renderList();
     // A page reloaded with a charge still waiting: bring the bank's question back.
     if (game.charge && game.charge.status === 'pending') {

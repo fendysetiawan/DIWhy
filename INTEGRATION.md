@@ -57,7 +57,7 @@ Search for `INTEGRATION` to find every one. They are all small, they do nothing 
 | `pay()` | one line calling `DIWHY_HOOKS.onSettle(true, ...)` (**added by Ramy**) | The bank no longer asks the player; every charge is confirmed at once, so the backend always hears "yes" and `heldTotal()` stays 0 |
 | `setPhase()` | `&& !LIVE` on the dawn line | The backend decides what day it is |
 | `useSpot()` | `if (sp.project && LIVE) return` | The glowing DIY spots start this page's own local projects |
-| End of the script | the demo loop, the one "hello" text and the demo tasks wait for `!LIVE`; `window.DIWHY_HOOKS` exposes what the link needs | The backend supplies the tasks and the numbers |
+| End of the script | the demo loop, the one "hello" text and the demo tasks wait for `!LIVE`; `window.DIWHY_HOOKS` exposes what the link needs | The backend supplies the numbers; the post-it keeps Ramy's own task rows, one per event |
 | The "people text when something happens" timer | `if (LIVE) return` (**added by Ramy**) | It watches the page's own fake budget and time, which the backend replaces |
 | Before `</body>` | `<script src="game-link.js">` | The link itself |
 
