@@ -133,13 +133,18 @@
     showWork(g);
   }
 
+  let presented = null; // the id of the event whose card is on screen
+
   /** The 2D elevation view of the job (the wall, the dryer, the toilet). The backend says how far along it is. */
   function showWork(g) {
     const job = Object.keys(SPOT_PROJECT).find((k) => SPOT_PROJECT[k] === g.project.id);
     if (!job || !H.diyOpenLive || !H.diyProgress) return;
     if (g.status === 'playing') H.diyOpenLive(job, 1); // does nothing if it is already open
     const fraction = g.status === 'complete' ? 1 : g.stats.eventsDone / g.stats.eventsMax;
-    H.diyProgress(fraction, `Spent ${money(g.stats.spent)} of the contractor's ${money(g.quote.original.budget)}`);
+    // The steps are the backend's events: the ones answered so far, then the one on the table. No future ones.
+    const steps = g.history.map((h) => ({ title: h.title, done: true }));
+    if (g.event && g.event.id === presented) steps.push({ title: g.event.title, done: false }); // once its card is up
+    H.diyProgress(fraction, `Spent ${money(g.stats.spent)} of the contractor's ${money(g.quote.original.budget)}`, steps);
   }
 
   /** "This one cost $490 and 2 days": a short note above the bars after each answer. */
@@ -375,6 +380,7 @@
       .dw-card[hidden] { display: none; }
       /* While a job is open the page shows its elevation view (the wall, the dryer). Dock the card low and to the left so the work stays in sight. */
       .in-diy .dw-card { left: 16px; top: auto; bottom: 16px; transform: none; width: min(520px, 48vw); max-height: 52vh; overflow-y: auto; padding: 18px 20px; gap: 12px; }
+      .dw-live #diyLeave { display: none; } /* one job per game: you leave by giving up (the contractor's chat) */
       .in-diy .dw-title { font-size: 13px; }
       .in-diy .dw-desc { min-height: 0; font-size: 11px; }
       .in-diy .dw-option { padding: 8px 12px; font-size: 11px; }
@@ -450,6 +456,8 @@
 
   async function showEvent(g) {
     const e = g.event;
+    presented = e.id;
+    showWork(g); // the step list gains this event as the card comes up
     noteEvent(g);
     const el = card();
     const token = ++cardToken;

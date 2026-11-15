@@ -234,6 +234,30 @@ describe('the jev director through the service', () => {
   });
 });
 
+describe('history', () => {
+  it('lists the events already answered, oldest first, and never the one on the table', async () => {
+    const s = svc();
+    const g = await s.createGame({ seed: 42 });
+    expect(g.history).toEqual([]);
+    const first = g.event!;
+    const v1 = await s.choose(g.id, { choice: 0, eventId: first.id });
+    expect(v1.history).toEqual([{ id: first.id, title: first.title }]);
+    expect(v1.history.map((h) => h.id)).not.toContain(v1.event!.id);
+    const second = v1.event!;
+    const v2 = await s.choose(g.id, { choice: 0, eventId: second.id });
+    expect(v2.history.map((h) => h.id)).toEqual([first.id, second.id]);
+    expect(v2.stats.eventsDone).toBe(2);
+  });
+
+  it('lists every answered event once the game is over', async () => {
+    const s = svc();
+    const g = await s.createGame({ seed: 7 });
+    const done = await playOut(s, g.id);
+    expect(done.history).toHaveLength(done.stats.eventsDone);
+    expect(done.history.every((h) => h.title.length > 0)).toBe(true);
+  });
+});
+
 describe('giveUp', () => {
   it('ends a fresh game as a failure with the contractor bill', async () => {
     const s = svc();

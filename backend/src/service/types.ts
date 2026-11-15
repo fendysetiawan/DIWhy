@@ -156,9 +156,16 @@ export interface GameView {
   stats: StatsView;
   ledger: LedgerEntry[]; // every cost so far
   log: string[]; // flavor text from recent choices, newest first
+  history: HistoryItem[]; // the events already answered, oldest first. The current event is not in here
   event: EventView | null; // null once the game is over
   report: Report | null; // the end-of-game report, once the game is over
   debug?: DebugView;
+}
+
+/** An event the player has already answered. */
+export interface HistoryItem {
+  id: string;
+  title: string;
 }
 
 export interface ProjectsView {

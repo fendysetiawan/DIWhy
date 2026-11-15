@@ -325,6 +325,12 @@ export class GameService {
     return project;
   }
 
+  /** An event's title for the history. An event removed from the files since then shows its id instead of failing the view. */
+  private titleOf(project: Project, id: string): string {
+    const event = id === project.finale.id ? project.finale : project.events.find((e) => e.id === id);
+    return event ? event.title : id;
+  }
+
   private eventOf(project: Project, id: string): GameEvent {
     const event = id === project.finale.id ? project.finale : project.events.find((e) => e.id === id);
     if (!event) throw conflict('project_changed', `the event "${id}" no longer exists; start a new game`);
@@ -428,6 +434,7 @@ export class GameService {
       },
       ledger: s.ledger,
       log: rec.log,
+      history: s.eventHistory.map((id) => ({ id, title: this.titleOf(project, id) })),
       event: eventView,
       report: isOver(s) ? buildReport(s) : null,
     };

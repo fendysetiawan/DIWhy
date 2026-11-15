@@ -2597,21 +2597,24 @@ function diyOpenLive(id, limit) {
   run = { id, p, step:0, t:0, live:true, limit, note:'', cost:0, days:0, health:0, paused:false, last:performance.now(), small:0 };
   document.querySelectorAll('.diy-need').forEach(x => x.remove());
   $('#diyTitle').textContent = p.title;
-  $('#diySteps').innerHTML = p.steps.map(s => `<li>${s[0] === 'EVENT' ? 'Surprise!' : s[0]}</li>`).join('');
+  $('#diySteps').innerHTML = '';   /* the list is the backend's events, as they come (diyProgress) */
   run.px = 1460; run.face = null; run.atWork = false; diySprite.src = SPRITES[owner].left;   /* walks in from the right */
   fadeEl.classList.add('on');
   setTimeout(() => { document.body.classList.add('in-diy', 'in-scene'); diyEl.classList.add('open'); fitDiy(); fadeEl.classList.remove('on'); diyTick(); }, 320);
 }
-/* fraction: 0..1 of the work the backend says is done. note: the line under the progress bar. */
-function diyProgress(fraction, note) {
+/* fraction: 0..1 of the work the backend says is done. note: the line under the progress bar.
+   steps: the backend's events so far, [{ title, done }]. The list shows only these, never the ones still to come. */
+function diyProgress(fraction, note, steps) {
   if (!run || !run.live) return;
+  if (steps) $('#diySteps').innerHTML = steps.map(s => `<li class="${s.done ? 'done' : 'now'}"></li>`).join('');
+  if (steps) $('#diySteps').querySelectorAll('li').forEach((li, i) => { li.textContent = steps[i].title; });   /* textContent: titles are data, not markup */
   const n = run.p.steps.length;
   run.limit = Math.max(run.limit, Math.min(n, 1 + Math.round(fraction * (n - 1))));   /* the first step always runs; the last one opens when the work is done */
   if (note != null) run.note = note;
 }
 function diyCard() {
   const p = run.p;
-  $('#diySteps').querySelectorAll('li').forEach((li, i) => { li.className = i < run.step ? 'done' : i === run.step ? 'now' : ''; });
+  if (!run.live) $('#diySteps').querySelectorAll('li').forEach((li, i) => { li.className = i < run.step ? 'done' : i === run.step ? 'now' : ''; });
   const total = p.steps.length; $('#diyProg').style.width = Math.min(100, (run.step + (p.steps[run.step] && p.steps[run.step][0] !== 'EVENT' ? run.t : 0)) / total * 100) + '%';
   $('#diyCost').textContent = run.live ? run.note : `Spent at the store: ${money(job ? job.spent : 0)} of ${money(job ? job.quote.budget : 0)}`;
 }

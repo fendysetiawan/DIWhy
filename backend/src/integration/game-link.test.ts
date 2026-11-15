@@ -51,9 +51,10 @@ function makeHooks() {
       hooks.onSettle?.(ok, p);
     },
     diyOpened: [] as string[],
-    diyProgressed: [] as Array<[number, string]>,
+    diyProgressed: [] as Array<[number, string, Array<{ title: string; done: boolean }>]>,
     diyOpenLive: (job: string) => hooks.diyOpened.push(job),
-    diyProgress: (fraction: number, note: string) => hooks.diyProgressed.push([fraction, note]),
+    diyProgress: (fraction: number, note: string, steps: Array<{ title: string; done: boolean }>) =>
+      hooks.diyProgressed.push([fraction, note, steps]),
     crackPhone: () => hooks.cracked++,
     openPhone: () => undefined,
     openChat: (id: string) => hooks.opened.push(id),
@@ -475,10 +476,25 @@ describe('game-link: the elevation view', () => {
     expect(hooks.diyProgressed[0][0]).toBe(0);
     expect(hooks.diyProgressed[0][1]).toBe("Spent $0 of the contractor's $10,000");
     options()[1].click();
-    await vi.waitFor(() => expect(hooks.diyProgressed.length).toBeGreaterThan(1), { timeout: 3000 });
-    const last = hooks.diyProgressed[hooks.diyProgressed.length - 1];
-    expect(last[0]).toBeCloseTo(1 / 9);
+    const latest = () => hooks.diyProgressed[hooks.diyProgressed.length - 1];
+    await vi.waitFor(() => expect(latest()[0]).toBeCloseTo(1 / 9), { timeout: 3000 });
+    const last = latest();
     expect(last[1]).toMatch(/^Spent \$[\d,]+ of the contractor's \$10,000$/);
+  });
+
+  it('lists only the events the player has met: the answered ones, then the one on the table', async () => {
+    const { hooks } = await boot({ seed: 2, project: 'wall-removal' });
+    await waitForOptions();
+    const latest = () => hooks.diyProgressed[hooks.diyProgressed.length - 1][2];
+    const first = (window as any).DIWHY_LINK.game().event.title;
+    await vi.waitFor(() => expect(latest()).toEqual([{ title: first, done: false }]), { timeout: 3000 });
+    options()[1].click();
+    await vi.waitFor(() => expect(latest().length).toBe(2), { timeout: 3000 });
+    const now = (window as any).DIWHY_LINK.game().event.title;
+    expect(latest()).toEqual([
+      { title: first, done: true },
+      { title: now, done: false },
+    ]);
   });
 });
 

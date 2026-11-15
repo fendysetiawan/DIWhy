@@ -131,6 +131,7 @@ Every endpoint that returns a game returns this shape. Trimmed:
 | `charge` | The latest purchase, waiting for the bank: `{ id, amount, what, status }`. `status` is `pending`, `confirmed` or `blocked`. |
 | `outcome` | What the last choice did: its `quality`, what it cost, whether it `blewUp`, and whether the partner nagged. Use it to have the cast react. `null` at the start. |
 | `ledger` | Every cost so far, as `{ label, cost }`. |
+| `history` | The events the player has already answered, oldest first, as `{ id, title }`. The event on the table is not in it, and an event removed from the files since then shows its id as its title. A front end can use it to show the steps so far. |
 | `log` | Flavor text from recent choices, newest first. |
 | `event` | What to decide now. `null` once the game is over. `kind` is `problem`, `temptation`, `humor` or `finale`. |
 | `event.choices[].cost`, `days` | Always `null`: nobody tells you what a DIY fix will cost. The fields exist so a price tag can come back later. |
