@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DIWHY: light fixture</title>
+<!-- Project scene: swap a light fixture. The "before": a dated brass chandelier with frosted tulip
+     shades hanging from the ceiling, one bulb dead, the others flickering, a moth circling, cobwebs,
+     and a step ladder waiting below with the new fixture's box. A loop.
+     Open it to watch it on its own (add ?controls for pause/restart/sound). -->
+<link rel="stylesheet" href="../shared/cinematic.css">
+</head>
+<body>
+<script src="../shared/player.js"></script>
+<script src="../shared/pixel-art.js"></script>
+<script id="scene">
+Cinematic.scene("light-fixture", {
+  duration: 6,
+  holdEnd: true, // keeps flickering for as long as it's on screen
+  cues: [],
+  init(kit) {
+    const P = W.pal(kit);
+    // a frosted tulip shade, opening down, its bulb showing underneath
+    const shade = (g, cx, y, lit) => {
+      g.poly([[cx - 7, y], [cx + 7, y], [cx + 20, y + 36], [cx - 20, y + 36]], lit ? P.goldL : P.cream2);
+      g.poly([[cx - 7, y], [cx - 2, y], [cx - 10, y + 36], [cx - 20, y + 36]], lit ? P.creamL : P.cream, 0.8);
+      g.poly([[cx + 4, y], [cx + 7, y], [cx + 20, y + 36], [cx + 14, y + 36]], lit ? P.gold : P.peach, 0.6);
+      g.r(cx - 21, y + 36, 42, 3, lit ? P.gold : P.peach); g.r(cx - 21, y + 36, 42, 1, P.creamL, 0.6);
+      g.oval(cx, y + 42, 7, 4, lit ? P.creamL : P.slate); if (lit) g.oval(cx, y + 41, 4, 2, P.goldL);
+    };
+    // The room, straight on, on the 480 x 270 art grid. Lit from the upper left.
+    const room = W.paint(480, 270, g => {
+      // ceiling with a plaster medallion, crown moulding
+      g.r(0, 0, 480, 40, P.creamL); g.dith(0, 0, 480, 40, P.cream, 0, 0.3);
+      g.oval(240, 39, 34, 6, P.cream); g.oval(240, 39, 28, 4, P.creamL); g.oval(240, 39, 20, 3, P.cream2);
+      g.r(0, 40, 480, 4, P.cream); g.r(0, 44, 480, 2, P.peach); g.r(0, 46, 480, 2, P.creamL);
+      // dated wallpaper: thin stripes and little gold sprigs
+      g.r(0, 48, 480, 166, P.cream2);
+      for (let x = 0; x < 480; x += 24) { g.r(x, 48, 2, 166, P.peach, 0.6); g.r(x + 12, 48, 1, 166, P.pink, 0.35); }
+      for (let y = 60, i = 0; y < 210; y += 20, i++) for (let x = 6 + (i % 2) * 12; x < 480; x += 24) { g.p(x, y, P.gold); g.p(x - 1, y + 1, P.leaf, 0.7); g.p(x + 1, y + 1, P.leaf, 0.7); }
+      for (let k = 0; k < 5; k++) g.oval(90, 60, 200 - k * 30, 120 - k * 20, P.goldL, 0.05);
+      // a faint scorch on the ceiling above the hot bulbs
+      g.oval(240, 36, 40, 4, P.brownL, 0.2);
+      // cobwebs from the chandelier up to the ceiling
+      for (let i = 0; i < 34; i++) { g.p(170 - i, 92 - i * 1.4, P.slate2, 0.45); g.p(310 + i, 92 - i * 1.4, P.slate2, 0.45); g.p(172 - i, 96 - i * 1.2, P.slate2, 0.25); }
+      // skirting and floor planks
+      g.r(0, 214, 480, 6, P.creamL); g.r(0, 219, 480, 2, P.peach2);
+      g.r(0, 221, 480, 49, P.wood);
+      for (let y = 221, i = 0; y < 270; y += 12, i++) {
+        g.r(0, y, 480, 1, P.woodL); g.r(0, y + 11, 480, 1, P.wood2);
+        const j = (i % 2 ? 90 : 260) + (i * 53) % 80; g.r(j, y + 1, 1, 10, P.wood2); g.r(j + 180, y + 1, 1, 10, P.wood2);
+      }
+      // the step ladder, opened up under the light
+      g.r(198, 238, 92, 3, P.ink, 0.25);
+      g.poly([[262, 158], [266, 158], [290, 238], [285, 238]], P.slate); // back legs
+      g.poly([[214, 158], [218, 158], [205, 238], [200, 238]], P.slate);
+      g.poly([[218, 154], [224, 154], [212, 238], [205, 238]], P.blue2); g.poly([[256, 154], [262, 154], [276, 238], [269, 238]], P.blue2);
+      g.r(218, 150, 44, 6, P.terra); g.r(218, 150, 44, 2, P.terraL); g.r(218, 155, 44, 1, P.terra2);
+      for (let k = 0; k < 3; k++) { const y = 176 + k * 22, s = (y - 154) * 0.12; g.r(222 - s, y, 36 + 2 * s, 4, P.blueL); g.r(222 - s, y + 3, 36 + 2 * s, 1, P.slate); }
+      g.r(226, 146, 14, 3, P.gold); g.r(240, 147, 10, 1, P.slate); // a screwdriver left on top
+      // the new fixture's box on the floor, and a coil of wire nuts
+      g.r(318, 200, 64, 38, P.blue); g.r(318, 200, 64, 3, P.blueL); g.r(378, 200, 4, 38, P.blue3);
+      g.oval(350, 220, 12, 8, P.creamL, 0.8); g.oval(350, 214, 6, 4, P.goldL);
+      [[150, 234], [156, 236], [146, 238]].forEach(([x, y]) => { g.r(x, y, 3, 3, P.terra); g.p(x, y, P.terraL); });
+    });
+    // the chandelier: canopy, brass stem, curly arms, three shades (painted lit and unlit)
+    const fixture = lit => W.paint(180, 100, g => {
+      g.r(76, 0, 28, 6, P.gold); g.r(76, 0, 28, 2, P.goldL); g.r(100, 0, 4, 6, P.brownL); g.r(80, 6, 20, 2, P.brownL);
+      g.r(88, 8, 4, 28, P.gold); g.r(88, 8, 1, 28, P.goldL); g.r(91, 8, 1, 28, P.brownL);
+      g.oval(90, 42, 9, 8, P.gold); g.oval(87, 39, 4, 3, P.goldL); g.oval(92, 46, 4, 2, P.brownL);
+      g.r(26, 44, 128, 4, P.gold); g.r(26, 44, 128, 1, P.goldL); g.r(26, 47, 128, 1, P.brownL);
+      [26, 154].forEach(x => { g.oval(x + (x < 90 ? 8 : -8), 54, 6, 6, P.gold); g.oval(x + (x < 90 ? 8 : -8), 54, 3, 3, P.brownL); }); // curls under the arms
+      [26, 90, 154].forEach(x => { g.r(x - 4, 38, 8, 12, P.gold); g.r(x - 4, 38, 2, 12, P.goldL); g.oval(x, 38, 5, 2, P.brownL); });
+      shade(g, 26, 50, lit); shade(g, 90, 52, lit); shade(g, 154, 50, false); // the right bulb is long dead
+      [[20, 72], [28, 78], [92, 70], [150, 74], [158, 80], [146, 82]].forEach(([x, y]) => { g.p(x, y, P.ink, 0.8); g.p(x + 1, y, P.brown2, 0.5); }); // dead bugs in the shades
+    });
+    const on = fixture(true), off = fixture(false);
+    const glow = W.paint(240, 170, g => { for (let k = 0; k < 6; k++) g.oval(120, 85, 120 - k * 18, 85 - k * 13, P.goldL, 0.07); });
+    const moth = [0, 1].map(k => W.paint(7, 5, g => { if (k) { g.r(0, 0, 3, 2, P.peach); g.r(4, 0, 3, 2, P.peach); g.p(1, 0, P.creamL); } else { g.r(0, 2, 3, 3, P.peach2); g.r(4, 2, 3, 3, P.peach2); } g.r(3, 1, 1, 4, P.brown); }));
+
+    const cam = kit.h('<div class="cam" style="width:1920px;height:1080px"></div>');
+    cam.append(W.layer(kit, room, 0, 0, 480, 270));
+    this.on = on; this.off = off; this.moths = moth;
+    this.glow = W.layer(kit, glow, 120, 34, 240, 170);
+    this.fixture = W.layer(kit, off, 150, 40, 180, 100);
+    this.moth = W.layer(kit, moth[0], 0, 0, 7, 5);
+    cam.append(this.glow, this.fixture, this.moth);
+    const root = kit.h('<div class="ground" style="background:var(--cream2)"></div>');
+    root.append(cam);
+    kit.stage.append(root);
+  },
+  render(t) {
+    // the bulbs flicker: a stutter of on/off frames, and a dead blink every few seconds
+    const n = Math.floor(t * 14), h = Math.abs(Math.sin(n * 12.9898) * 43758.5453) % 1;
+    const dark = ((t % 3.4) + 3.4) % 3.4 > 2.9;
+    const lit = !dark && h > 0.22;
+    if (this.lit !== lit) { this.lit = lit; this.fixture.style.backgroundImage = 'url(' + (lit ? this.on : this.off) + ')'; }
+    this.glow.style.opacity = lit ? (0.8 + h * 0.2).toFixed(2) : 0;
+    // a moth loops round the shades, wings flapping
+    const a = t * 1.8;
+    this.moth.style.left = W.px(238 + Math.cos(a) * 84) + 'px';
+    this.moth.style.top = W.px(112 + Math.sin(a) * 16 + Math.sin(a * 3) * 4) + 'px';
+    const w = ((Math.floor(t * 16) % 2) + 2) % 2;
+    if (this.w !== w) { this.w = w; this.moth.style.backgroundImage = 'url(' + this.moths[w] + ')'; }
+  },
+});
+</script>
+<script>Cinematic.page();</script>
+</body>
+</html>

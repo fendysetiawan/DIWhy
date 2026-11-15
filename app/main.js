@@ -1,16 +1,19 @@
 // DIWHY?!: the front door. Runs the screens in order, then hands the game to the gameplay page.
 //
-//   splash  ->  pick your diy-er  ->  the story (contract, house, the contractor's text)
+//   splash  ->  pick your diy-er  ->  the story (title, contract, SOLD!)
 //   ->  /frontend/?owner=<id>   (the gameplay page; the game starts on the backend when you take on a
 //                               glowing DIY spot in the house)
 //
 // Add ?demo=1 to watch the whole thing play itself (see demo/).
 
-import { getSetting } from "./settings.js";
 import { characterSelect } from "./screens/character-select.js";
 import { splash } from "./screens/splash.js";
 import { story } from "./screens/story.js";
 import { createScreen } from "./screens/screen.js";
+import { playMusic } from "./audio/music.js";
+import { listenForClicks } from "./audio/sfx.js";
+
+listenForClicks(); // a click sound on every button
 
 const app = document.getElementById("app");
 const params = new URLSearchParams(location.search);
@@ -49,12 +52,15 @@ try {
     // Straight to the game: the same owner and seed the full demo uses.
     startGame(DEMO.owner);
   } else {
-    // The intro always plays, unless "skip intro" is ticked (and never when demoing).
-    if (demo || !getSetting("skipIntro", false)) await splash(app);
+    // The intro always plays: the logo with its voice, then the music (until the game page takes over).
+    await splash(app);
+    playMusic("select"); // upbeat for picking your diy-er
 
     const character = await characterSelect(app);
+    playMusic("menu"); // calm for the story
     await story(app, { character });
 
+    // straight into the game; the job is found there, at a glowing DIY spot in the house
     startGame(character.id);
   }
 } catch (err) {

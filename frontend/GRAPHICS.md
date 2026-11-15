@@ -149,7 +149,6 @@ assets/characters/aidan-newsome/
   back.svg         facing away (moving up), animated
   left.svg         facing left, animated
   right.svg        facing right, animated
-  front-still.svg  the front view without the animation
   standing.svg     400 x 400 on a cream background (character select)
 ```
 

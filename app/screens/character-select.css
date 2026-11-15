@@ -2,6 +2,26 @@
 
 .select { gap: clamp(20px, 5vh, 48px); }
 
+/* the character select stage (the rest of the app shows the stars on <body>) */
+.screen.select { background: var(--brand-navy); overflow: hidden; }
+
+/* The stage picture (1672 x 941) sized like "cover", so positions in % land on the same spot of the
+   picture at any window size. The floor starts about 74% down; the characters stand on it at 78%. */
+.select-stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100vw, calc(100vh * 1672 / 941));
+  aspect-ratio: 1672 / 941;
+  transform: translate(-50%, -50%);
+  background: url("/assets/backgrounds/character-select.svg") center / 100% 100% no-repeat;
+}
+.select-stage .select-title { position: absolute; left: 0; right: 0; top: max(8%, calc(50% - 50vh + 48px)); text-align: center; }
+.select-stage .cast { position: absolute; left: 50%; bottom: 22%; transform: translateX(-50%); width: max-content; max-width: 100vw; align-items: flex-end; }
+/* the feet sit on the floor line; the name hangs just below them */
+.select-stage .pick { position: relative; padding: 0; }
+.select-stage .pick-name { position: absolute; top: 100%; left: 0; right: 0; margin-top: 8px; text-align: center; }
+
 .select-title {
   font-family: var(--font);
   font-weight: 400;
@@ -32,21 +52,20 @@
   cursor: pointer;
 }
 
-/* the sprite artwork is a 160px square with the character in the middle;
-   show it at 2x and crop to the character */
+/* The sprite sits on its own layer, anchored bottom-centre, so swapping the still for the emote can never
+   push anything around. emote-start.svg and emote.svg share one 238 x 297 box. */
 .pick-sprite {
   position: relative;
   width: 120px;
   height: 260px;
-  overflow: hidden;
 }
 .pick-sprite img {
   position: absolute;
   left: 50%;
-  top: 46%;
-  transform: translate(-50%, -50%);
-  width: 320px;
-  height: 320px;
+  bottom: 0;
+  width: 205px;
+  height: 256px;
+  transform: translateX(-50%);
   image-rendering: pixelated;
   pointer-events: none;
 }
@@ -59,46 +78,17 @@
   opacity: 0.35;
 }
 
-/* "skip intro" in the bottom corner */
-.skip-intro {
-  position: absolute;
-  right: 20px;
-  bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font);
-  font-size: 13px;
-  color: var(--brand-cream);
-  opacity: 0.6;
-  cursor: pointer;
-  user-select: none;
-}
-.skip-intro:hover { opacity: 1; }
-.skip-intro input {
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  margin: 0;
-  border: 2px solid var(--brand-cream);
-  border-radius: 2px;
-  cursor: pointer;
-}
-.skip-intro input:checked { background: var(--brand-cream); box-shadow: inset 0 0 0 2px var(--brand-navy); }
-
 /* small screens: smaller sprites */
 @media (max-width: 600px) {
   .pick { width: 92px; font-size: 15px; }
   .pick-sprite { width: 90px; height: 195px; }
-  .pick-sprite img { width: 240px; height: 240px; }
 }
 
 /* Start button (new) and the demo link */
-.select-start { margin-top: clamp(0px, 2vh, 16px); }
 .watch-demo {
   position: absolute;
   left: 20px;
-  bottom: 16px;
+  top: 16px;
   color: var(--brand-sky);
   font-size: 13px;
   text-decoration: underline;

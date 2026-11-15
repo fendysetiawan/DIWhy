@@ -18,7 +18,7 @@ Then open http://127.0.0.1:3001.
 
 ## Folders
 
-Each person works in their own folder. [`INTEGRATION.md`](INTEGRATION.md) explains how they connect and what each depends on.
+Each person works in their own folder. [`INTEGRATION.md`](INTEGRATION.md) explains how they connect and what each depends on. [`CHANGELOG.md`](CHANGELOG.md) lists what was removed or replaced (and the commit to get it back from), plus known duplication to clean up.
 
 | Folder | What's in it | Start here |
 |---|---|---|

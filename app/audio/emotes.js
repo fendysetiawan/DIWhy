@@ -1,9 +1,9 @@
-// (Aidan's sounds, restored from git history 391db4d.)
-// Placeholder emote sounds, one per character. No audio files: each one is a
-// tiny 8-bit jingle made with the Web Audio API. Swap these for real recordings
-// later by changing playEmote().
+// Character voices. playEmote plays the character's recorded emote line
+// (assets/characters/<id>/voice/emote.mp3: "let's go", "heya", ...); playVoice plays any of their lines
+// ("nice", "oops", "oh-shit", "success", "hooray"). Anyone without a recording falls back to a tiny
+// 8-bit jingle made with the Web Audio API (Aidan's sounds, restored from git history 391db4d).
 //
-// Usage: playEmote("aidan-newsome")
+// Usage: playEmote("aidan-newsome"), playVoice("gigi-singh", "oh-shit")
 
 // Each note: [frequency in Hz, length in seconds, wave, optional slide-to Hz]
 const EMOTES = {
@@ -32,7 +32,16 @@ function audio() {
   return ctx;
 }
 
-export function playEmote(id) {
+const voices = {};
+export function playVoice(id, line) {
+  const a = (voices[`${id}/${line}`] ||= new Audio(`/assets/characters/${id}/voice/${line}.mp3`));
+  a.currentTime = 0;
+  a.play().catch(() => jingle(id)); // no recording (or sound blocked): the jingle
+}
+
+export function playEmote(id) { playVoice(id, "emote"); }
+
+function jingle(id) {
   const notes = EMOTES[id];
   if (!notes) return;
   const ac = audio();

@@ -1,53 +1,16 @@
-/* The story (screens/story.js). Narration and buttons use the brand; the contract and the deed
-   keep the experiment's handwriting, because they are paper. */
+/* The story (screens/story.js). Narration and buttons use the brand. */
 
-.screen.story { background: #000; justify-content: flex-end; overflow: hidden; }
+.screen.story { background: #000; justify-content: flex-end; overflow: hidden; } /* the story plays on black; the stars are for the intro and the ending */
 .screen.story.black { background: #000; }
-
-/* ---------- the house ---------- */
-.stage {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: max(100vw, calc(100vh * 1024 / 572));
-  aspect-ratio: 1024 / 572;
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-.house-on .stage { opacity: 1; }
-
-.camera {
-  position: absolute;
-  inset: 0;
-  container-type: inline-size;
-  transform-origin: 70% 40%;
-  transform: scale(1.25);
-}
-.house-on .camera { animation: drift 30s linear forwards; }
-@keyframes drift { to { transform: scale(1.4); } }
-.house { display: block; width: 100%; height: 100%; }
-
-/* the cat walks in from the right, then sits (plan scene 2) */
-.cat {
-  position: absolute;
-  bottom: 24%;
-  left: 108%;
-  width: 14%;
-  image-rendering: pixelated;
-}
-.cat.walking { animation: cat-walk 3.2s ease-out forwards; }
-.cat.seated { left: 24%; animation: none; }
-@keyframes cat-walk { to { left: 24%; } }
 
 /* ---------- narration ---------- */
 .caption {
   position: relative;
-  z-index: 3;
+  z-index: 6; /* above the cinematics (z-index 5) */
   width: min(820px, calc(100vw - 24px));
   min-height: 7.5em;
-  margin-bottom: 3vh;
-  padding: 20px 56px 20px 24px;
+  margin-bottom: 88px; /* room for the NEXT button below it */
+  padding: 20px 24px;
   opacity: 0;
   transform: translateY(12px);
   transition: opacity 0.35s ease, transform 0.35s ease;
@@ -55,143 +18,57 @@
 }
 .caption.on { opacity: 1; transform: none; }
 .caption-text { margin: 0; }
-.caption-next {
-  position: absolute;
-  right: 20px;
-  bottom: 14px;
-  color: var(--brand-sky);
-  opacity: 0;
-}
-.caption.ready .caption-next { animation: blink 1s steps(2, start) infinite; }
-@keyframes blink { to { opacity: 1; } }
+/* the narrator: the cat sits on top of the narration box whenever it's showing */
+.caption-cat { position: absolute; left: 8px; bottom: calc(100% - 18px); width: 200px; image-rendering: pixelated; pointer-events: none; }
+/* NEXT: our "go on" button (bottom centre), shown once a line has finished typing */
+.caption-next { visibility: hidden; }
+.caption.ready:not(.choosing) + .caption-next { visibility: visible; }
 
 .caption.choosing { pointer-events: auto; max-height: calc(100vh - 24px); overflow: auto; }
-.caption.choosing .caption-next { display: none; }
-.choices { display: grid; gap: 10px; margin-top: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); }
-.choice { display: flex; align-items: center; gap: 14px; text-align: left; line-height: 1.5; font-size: 14px; padding: 10px 14px; }
-.choice-n { color: var(--brand-sky); }
-.choice:hover .choice-n, .choice:focus-visible .choice-n { color: var(--brand-navy); }
 
-/* ---------- the contract and deed paper ---------- */
-.deed-backdrop {
+/* ---------- the contract: a cinematic from assets/cinematics/, full window ---------- */
+.cinematic {
   position: absolute;
   inset: 0;
   z-index: 5;
   display: grid;
   place-items: center;
-  padding: 16px;
-  background: rgba(0, 0, 0, 0);
-  transition: background 0.3s ease;
-}
-.deed-backdrop.on { background: rgba(0, 0, 0, 0.4); }
-.deed {
-  position: relative;
-  width: min(480px, 100%, calc((100vh - 32px) * 680 / 870));
-  aspect-ratio: 680 / 870;
-  container-type: inline-size;
-  background: url("/app/story/deed-paper.png") center / 100% 100% no-repeat;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
-  color: #2b2217;
-  font-family: "Kalam", "Comic Sans MS", cursive;
-  text-align: center;
+  background: #000; /* cinematics play on black */
   opacity: 0;
-  transform: translateY(-80px) scaleY(0.4) rotate(-3deg);
-  transform-origin: top center;
-  transition: opacity 0.25s ease, transform 0.7s cubic-bezier(.3, 1.2, .5, 1);
+  transition: opacity 0.6s ease;
 }
-.deed-backdrop.on .deed { opacity: 1; transform: rotate(-1deg); }
-.deed-backdrop.leaving .deed {
-  opacity: 0;
-  transform: translateY(-60px) rotate(6deg) scale(0.9);
-  transition: opacity 0.35s ease, transform 0.45s ease-in;
-}
-.deed > * { position: absolute; margin: 0; }
-.deed-title { top: 14%; left: 0; right: 0; font: 700 6cqw/1 "Kalam", cursive; letter-spacing: 0.06em; text-transform: uppercase; }
-.deed-price { top: 21.5%; left: 0; right: 0; color: #b23a2e; font: 700 11cqw/1 "Kalam", cursive; }
-/* the small print is too small and blurry to read (plan scene 1) */
-.deed-line { left: 14%; right: 14%; font: 400 3.9cqw/1 "Kalam", cursive; text-align: left; filter: blur(1.1px); }
-.deed-line.l1 { bottom: calc(100% - 38.6%); }
-.deed-line.l2 { bottom: calc(100% - 41.3%); }
-.deed-line.l3 { bottom: calc(100% - 44.1%); }
-.deed-label { top: 49.5%; left: 14%; font: 700 3.6cqw/1 "Kalam", cursive; letter-spacing: 0.08em; text-transform: uppercase; color: #b23a2e; }
-.deed-pad { top: 52%; left: 13%; right: 13%; height: 13.5%; touch-action: none; cursor: crosshair; }
-.deed-pad canvas { width: 100%; height: 100%; display: block; }
-/* the green check mark */
-.deed-check {
-  bottom: 12%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 13cqw;
-  height: 13cqw;
-  border: 0.8cqw solid #1f5a2c;
-  border-radius: 50%;
-  background: #3fae5a;
-  color: #fff;
-  font: 700 8cqw/1 sans-serif;
-  cursor: pointer;
-  transition: transform 0.15s ease;
-}
-.deed-check:hover:not(:disabled), .deed-check:focus-visible { outline: none; transform: translateX(-50%) scale(1.08); }
-.deed-check:disabled { opacity: 0.25; cursor: not-allowed; }
-
-/* ---------- scene 3: the living room ---------- */
-.living, .phone-scene {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(16px, 4vw, 64px);
-  padding: 16px 16px 26vh; /* leave room for the narration box at the bottom */
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.8s ease;
-}
-.living-on .living, .phone-on .phone-scene { opacity: 1; pointer-events: auto; }
-.living { background: linear-gradient(#171f6a, var(--brand-navy)); }
-.owner {
-  width: clamp(160px, 24vw, 300px);
-  image-rendering: pixelated;
-  transform: translateX(-60vw);
-}
-.owner.in { transform: none; transition: transform 1.5s cubic-bezier(.2, .8, .2, 1); }
-.render { width: min(380px, 44vw); display: grid; gap: 12px; opacity: 0; transform: translateY(10px); transition: opacity 0.6s ease, transform 0.6s ease; }
-.render.on { opacity: 1; transform: none; }
-.render-title { font-size: 16px; line-height: 1.6; }
-.render-blurb { font-size: 12px; line-height: 1.8; }
-
-/* ---------- scene 4: the text message ---------- */
-.phone-scene { background: var(--brand-navy); padding-bottom: 16px; }
-.phone-mock {
-  width: min(380px, 100%);
-  min-height: min(520px, 70vh);
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  gap: 12px;
-  padding: 16px;
-  border: 6px solid #1a1b21;
-  border-radius: 36px;
-  background: #f2f2f7;
-  color: #111;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
-}
-.phone-head { text-align: center; font-size: 12px; color: #555; padding-bottom: 8px; border-bottom: 2px solid #ddd; }
-.bubbles { display: flex; flex-direction: column; gap: 12px; align-self: start; }
-.bubble { margin: 0; padding: 12px 14px; border-radius: 18px; font-size: 12px; line-height: 1.8; max-width: 88%; }
-.bubble.them { background: #e5e5ea; color: #111; border-bottom-left-radius: 4px; }
-.bubble.me { background: #2a44c0; color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; animation: pop 0.25s ease; }
-@keyframes pop { from { transform: scale(0.85); opacity: 0; } }
-.reply { display: grid; }
-.reply-button { font-size: 12px; line-height: 1.6; padding: 12px; }
+.cinematic.on { opacity: 1; }
+.cinematic-screen { position: relative; width: min(100vw, calc(100vh * 16 / 9)); aspect-ratio: 16 / 9; }
 
 @media (max-width: 600px) {
-  .living { flex-direction: column; }
-  .owner { width: 140px; }
   .caption { padding: 16px 44px 16px 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .house-on .camera { animation: none; }
-  .cat.walking { animation: none; left: 24%; }
-  .owner { transform: none; }
-  .deed { transition: opacity 0.2s ease; transform: rotate(-1deg); }
+}
+
+/* ---------- the title: the house falls on you, "!", DIWHY?! (screens/title.js) ---------- */
+.title-card { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; align-content: center; gap: 24px; background: #000; }
+/* the house fades in around the character; the whole card fades out at the end */
+.title-stage { opacity: 0; transition: opacity 0.3s ease; }
+.title-card.on .title-stage { opacity: 1; }
+.title-card { transition: opacity 0.6s ease; }
+.title-card.out { opacity: 0; }
+.title-card { overflow: hidden; }
+/* Zoomed in as far as the house allows: the artwork's black edges fall off-screen, but the house never does.
+   Across the whole animation the house fills x 13.6%-86.1% and y 3.6%-94.5% of the 840 x 660 frame,
+   so the frame can be up to 129vw wide (house 94% of the width) or 119vh wide (house 86% of the height,
+   leaving room for DIWHY?! below). Its top sits so the roof starts 3vh from the top. */
+.title-stage { --w: min(129vw, 119vh); position: absolute; left: 50%; top: calc(3vh - var(--w) * 660 / 840 * 0.036); width: var(--w); aspect-ratio: 840 / 660; transform: translateX(-50%); }
+.title-stage img { position: absolute; image-rendering: pixelated; }
+.title-bang { visibility: hidden; }
+.title-card.bang .title-bang { visibility: visible; }
+.title-name { position: absolute; left: 0; right: 0; bottom: 3vh; margin: 0; text-align: center; opacity: 0; transition: opacity 0.4s ease; }
+.title-card.named .title-name { opacity: 1; }
+
+/* dust from the falling house (screens/title.js): square puffs that grow, drift out and fade in steps */
+.title-dust { position: absolute; aspect-ratio: 1; background: #c8a57a; box-shadow: 4px 4px 0 #a98a63, -4px 2px 0 #e2c9a3; opacity: 0;
+  animation: title-dust 1.3s steps(8) forwards; pointer-events: none; }
+@keyframes title-dust {
+  0% { opacity: 0.95; transform: translate(-50%, -50%) scale(0.4); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(2.2); }
 }

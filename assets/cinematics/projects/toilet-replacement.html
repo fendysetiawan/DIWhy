@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DIWHY: toilet</title>
+<!-- Project scene: replace the toilet. The "before": a tiled bathroom with a tired old toilet, its tank
+     running so the water in the bowl never stops rippling, the supply valve dripping, a plunger standing by. A loop.
+     Open it to watch it on its own (add ?controls for pause/restart/sound). -->
+<link rel="stylesheet" href="../shared/cinematic.css">
+</head>
+<body>
+<script src="../shared/player.js"></script>
+<script src="../shared/pixel-art.js"></script>
+<script id="scene">
+Cinematic.scene("toilet-replacement", {
+  duration: 6,
+  holdEnd: true, // keeps running for as long as it's on screen
+  cues: [],
+  init(kit) {
+    const P = W.pal(kit);
+    // The bathroom, straight on, on the 480 x 270 art grid. Lit from the upper left.
+    const room = W.paint(480, 270, g => {
+      // painted wall above, tiles below
+      g.r(0, 0, 480, 110, P.cream2);
+      for (let k = 0; k < 5; k++) g.oval(100, 30, 220 - k * 32, 110 - k * 18, P.goldL, 0.05);
+      g.r(0, 110, 480, 104, P.creamL);
+      for (let y = 110, i = 0; y < 214; y += 13, i++) {
+        g.r(0, y, 480, 1, P.peach);
+        for (let x = (i % 2) * 9; x < 480; x += 18) { g.r(x, y + 1, 1, 12, P.peach); g.r(x + 1, y + 1, 16, 1, P.cream, 0.6); }
+      }
+      g.r(0, 105, 480, 5, P.blueL); g.r(0, 105, 480, 1, P.blue2); g.r(0, 110, 480, 1, P.blue3, 0.5);
+      // a cracked tile and some mildew in the grout
+      g.r(379, 137, 16, 12, P.blue2, 0.5); for (let i = 0; i < 14; i++) g.p(380 + i, 138 + Math.round(i * 0.7) % 11, P.brown2, 0.6);
+      g.dith(96, 196, 70, 2, P.leaf2, 0, 0.35);
+      // the toilet-paper holder, nearly empty
+      g.r(116, 116, 4, 10, P.slate); g.r(140, 116, 4, 10, P.slate); g.r(118, 118, 24, 2, P.slate2);
+      g.r(121, 113, 18, 14, P.peach2); g.r(122, 114, 16, 12, P.cream); g.r(122, 114, 16, 2, P.creamL); g.oval(130, 120, 4, 4, P.wood); g.r(123, 126, 8, 6, P.peach2); g.r(124, 126, 6, 5, P.cream);
+      // skirting tiles and the floor: a worn checkerboard
+      g.r(0, 214, 480, 7, P.blue2); g.r(0, 214, 480, 1, P.blueL); g.r(0, 220, 480, 1, P.blue3);
+      for (let y = 221, i = 0; y < 270; y += 10, i++) for (let x = 0, j = 0; x < 480; x += 16, j++) {
+        g.r(x, y, 16, 10, (i + j) % 2 ? P.blue2 : P.cream); g.r(x, y, 16, 1, P.creamL, 0.5); g.r(x, y, 1, 10, P.peach2, 0.5);
+      }
+      g.oval(240, 226, 60, 6, P.brownL, 0.3); // a ring stain round the base
+      g.oval(184, 228, 12, 3, P.blue, 0.4); g.oval(182, 227, 6, 1, P.creamL, 0.6); // the puddle under the valve
+      // the plunger, standing by on the right
+      g.r(316, 220, 40, 3, P.ink, 0.2);
+      g.r(334, 128, 4, 82, P.wood); g.r(334, 128, 1, 82, P.woodL); g.r(333, 126, 6, 3, P.wood2);
+      g.oval(336, 212, 18, 10, P.terra2); g.oval(335, 211, 16, 9, P.terra); g.oval(330, 207, 6, 3, P.terraL);
+      g.r(318, 212, 36, 9, P.terra2); g.r(320, 212, 32, 8, P.terra); g.r(320, 212, 6, 8, P.terraL, 0.5);
+      // the water supply: valve on the wall, braided hose up to the tank
+      g.r(178, 192, 12, 8, P.slate); g.r(178, 192, 12, 1, P.blueL); g.r(176, 194, 2, 4, P.slate2); g.r(181, 188, 6, 4, P.terra2);
+      g.r(183, 132, 3, 60, P.slate2); g.r(183, 132, 1, 60, P.blueL, 0.6); g.r(183, 131, 16, 3, P.slate2);
+      for (let y = 134; y < 190; y += 3) g.p(184, y, P.cream2, 0.6);
+      // the tank and its lid
+      g.r(200, 70, 92, 64, P.ink, 0.2);
+      g.r(192, 62, 96, 8, P.creamL); g.r(192, 62, 96, 1, P.creamL); g.r(192, 68, 96, 2, P.peach); g.r(284, 62, 4, 8, P.cream);
+      for (let i = 0; i < 9; i++) g.p(260 + i, 62 + (i > 4 ? 2 : i % 3), P.brown2, 0.6); // chipped lid
+      g.r(196, 70, 88, 62, P.creamL); g.r(196, 70, 3, 62, P.creamL); g.r(276, 70, 8, 62, P.cream); g.r(196, 128, 88, 4, P.peach);
+      g.r(200, 76, 12, 4, P.slate); g.r(200, 76, 12, 1, P.blueL); g.r(208, 79, 3, 4, P.slate2); // the flush handle
+      g.r(214, 128, 3, 12, P.brownL, 0.4); g.r(262, 128, 3, 10, P.brownL, 0.4); // rust streaks off the tank bolts
+      // the neck down to the bowl
+      g.r(222, 132, 36, 16, P.cream); g.r(222, 132, 4, 16, P.creamL); g.r(252, 132, 6, 16, P.peach);
+      // the bowl body tapering to the pedestal
+      g.poly([[194, 152], [286, 152], [272, 186], [258, 200], [222, 200], [208, 186]], P.creamL);
+      g.poly([[262, 152], [286, 152], [272, 186], [258, 200], [248, 200]], P.cream);
+      g.r(226, 200, 28, 16, P.creamL); g.r(244, 200, 10, 16, P.cream);
+      g.poly([[222, 214], [258, 214], [264, 224], [216, 224]], P.cream); g.r(216, 222, 48, 2, P.peach2);
+      g.p(224, 218, P.slate); g.p(256, 218, P.slate);
+      // the seat (old wood) and the bowl with its stain ring
+      g.oval(240, 151, 48, 13, P.wood2); g.oval(240, 150, 47, 12, P.wood); g.oval(232, 146, 30, 6, P.woodL, 0.5);
+      g.oval(240, 151, 36, 9, P.cream); g.oval(240, 152, 33, 8, P.peach, 0.6);
+      g.oval(240, 153, 30, 7, P.blue2); g.oval(240, 154, 30, 3, P.gold, 0.25); g.oval(240, 155, 24, 4, P.blueL, 0.6);
+    });
+    // ripple rings in the water, spreading out from where the tank keeps trickling in
+    const ripple = rr => W.paint(64, 16, g => {
+      for (let a = 0; a < 6.28; a += 0.04) {
+        const x = 32 + Math.cos(a) * rr, y = 4 + Math.sin(a) * rr * 0.3;
+        if (((x - 32) / 29) ** 2 + ((y - 9) / 6) ** 2 < 1) g.p(x, y, P.creamL, 0.8);
+      }
+    });
+    this.rings = [3, 7, 11, 16, 21, 27].map(r => 'url(' + ripple(r) + ')');
+    const trickle = W.paint(2, 4, g => { g.r(0, 0, 2, 4, P.creamL); g.p(1, 3, P.blueL); });
+    const drop = W.paint(2, 3, g => { g.r(0, 0, 2, 3, P.blueL); g.p(0, 0, P.creamL); });
+
+    const cam = kit.h('<div class="cam" style="width:1920px;height:1080px"></div>');
+    cam.append(W.layer(kit, room, 0, 0, 480, 270));
+    this.ring = W.layer(kit, ripple(3), 208, 144, 64, 16);
+    this.trickle = W.layer(kit, trickle, 239, 144, 2, 4);
+    this.drop = W.layer(kit, drop, 183, 200, 2, 3);
+    cam.append(this.ring, this.trickle, this.drop);
+    this.last = -1;
+    const root = kit.h('<div class="ground" style="background:var(--cream2)"></div>');
+    root.append(cam);
+    kit.stage.append(root);
+  },
+  render(t) {
+    // the ring spreads, fades out, and another starts: the tank never stops running
+    const f = ((Math.floor(t * 6) % 6) + 6) % 6;
+    if (f !== this.last) { this.ring.style.backgroundImage = this.rings[f]; this.last = f; }
+    this.ring.style.opacity = (1 - f * 0.13).toFixed(2);
+    // the trickle over the back of the bowl flickers
+    this.trickle.style.transform = 'translate(0,' + W.px(Math.floor(t * 10) % 2) + 'px)';
+    // a drop gathers on the valve, falls, and splashes into the puddle every 2.5 seconds
+    const q = ((t / 2.5) % 1 + 1) % 1, fall = q < 0.6 ? 0 : (q - 0.6) / 0.25;
+    this.drop.style.top = W.px(200 + Math.min(1, fall * fall) * 26) + 'px';
+    this.drop.style.opacity = q < 0.15 ? (q / 0.15).toFixed(2) : q < 0.85 ? 1 : 0;
+  },
+});
+</script>
+<script>Cinematic.page();</script>
+</body>
+</html>

@@ -20,10 +20,10 @@ export const REGISTRY = {
   select: entry(".select", "app/screens/character-select.js", '"select"'),
   pick: entry(".pick", "app/screens/character-select.js", 'class="pick"', "data-id"),
   selectStart: entry(".select-start", "app/screens/character-select.js", "select-start"),
-  deedPad: entry(".deed-pad canvas", "app/screens/deed.js", "deed-pad", "canvas"),
-  deedCheck: entry(".deed-check", "app/screens/deed.js", "deed-check"),
-  replyButton: entry(".reply-button", "app/screens/story.js", "reply-button"),
-  captionReady: entry(".caption.ready:not(.choosing)", "app/screens/story.js", "caption", '"ready"', '"choosing"'),
+  contractPad: entry(".contract-pad", "assets/cinematics/contract.html", "contract-pad"),
+  contractPadReady: entry(".contract-pad.ready", "assets/cinematics/contract.html", "contract-pad", '"ready"'),
+  contractSign: entry(".contract-sign", "app/screens/contract.js", "contract-sign"),
+  captionReady: entry(".caption.ready", "app/screens/story.js", "caption", '"ready"'),
   captionText: entry(".caption-text", "app/screens/story.js", "caption-text"),
 
   // ---- the gameplay page: finding the job (frontend/index.html). A lit glowing spot, then "Take it on".

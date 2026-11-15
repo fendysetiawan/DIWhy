@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DIWHY opening</title>
+<link rel="stylesheet" href="cinematic.css">
+<style>
+  html, body { margin: 0; height: 100%; background: #17100c; }
+  body { display: grid; place-items: center; }
+  .screen { position: relative; width: 100vw; max-width: calc(100vh * 16 / 9); aspect-ratio: 16 / 9; }
+  /* the transition between scenes: a dip to dark */
+  .dip { position: absolute; inset: 0; background: #2B1A14; opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="screen"></div>
+
+<script src="player.js"></script>
+<script src="pixel-art.js"></script>
+<script src="scenes/1-contract.js"></script>
+<script src="scenes/2-sold.js"></script>
+<script src="scenes/3-wall.js"></script>
+<script src="scenes/4-estimate.js"></script>
+<script>
+// The opening, in order. Rearrange these to change it.
+const ORDER = ["contract", "sold", "wall", "estimate"];
+const DIP = 0.6; // seconds of fade to dark at the end of each scene
+
+const screen = document.querySelector(".screen");
+const film = Cinematic.film(screen);
+const dip = document.createElement("div"); dip.className = "dip"; film.root.append(dip);
+const scenes = ORDER.map((id) => Cinematic.create(id, film));
+let i = 0;
+
+function start(k) {
+  i = k;
+  scenes.forEach((s, n) => { s.show(n === i); if (n !== i) s.pause(); });
+  scenes[i].restart();
+}
+scenes.forEach((s) => s.events.addEventListener("end", () => start((i + 1) % scenes.length)));
+
+// fade to dark over the last DIP seconds of each scene
+(function fade() {
+  const s = scenes[i];
+  dip.style.opacity = eio(seg(s.time, s.duration - DIP, s.duration)).toFixed(3);
+  requestAnimationFrame(fade);
+})();
+
+start(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DIWHY scenes</title>
+<!-- Every cinematic scene, playing. Click one to open it on its own. -->
+<link rel="stylesheet" href="../style.css">
+<style>
+  body { margin: 0; padding: 24px 16px 64px; }
+  main { max-width: 1400px; margin: 0 auto; display: grid; gap: 32px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  a { color: inherit; text-decoration: none; display: grid; gap: 8px; }
+  iframe { width: 100%; aspect-ratio: 16 / 9; border: 0; pointer-events: none; background: #000; }
+</style>
+</head>
+<body class="brand-stars">
+<main>
+  <h1 class="brand-title">Scenes</h1>
+  <section><p class="brand-text brand-highlight">The intro</p><div class="grid" id="intro"></div></section>
+  <section><p class="brand-text brand-highlight">The jobs (projects/)</p><div class="grid" id="jobs"></div></section>
+</main>
+<script>
+const INTRO = ["contract", "sold"];
+const JOBS = ["wall-removal", "bathroom-leak", "dryer-replacement", "kitchen-faucet", "carpet-replacement", "window-caulking",
+  "finish-basement", "light-fixture", "mount-tv", "paint-room", "smart-thermostat", "toilet-replacement"];
+const card = (href, name) => `<a href="${href}"><iframe src="${href}" loading="lazy" title="${name}"></iframe><span class="brand-text">${name}</span></a>`;
+document.getElementById("intro").innerHTML = INTRO.map((id) => card(`${id}.html`, id)).join("");
+document.getElementById("jobs").innerHTML = JOBS.map((id) => card(`projects/${id}.html`, id)).join("");
+</script>
+</body>
+</html>

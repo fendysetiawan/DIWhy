@@ -10,6 +10,9 @@ html, body {
   overflow: hidden;
 }
 
+/* the stars (brand-stars on <body>) are for the intro and the ending; after START it's black */
+body[data-backdrop="black"] { background: #000; }
+
 /* every screen fills the window and fades in once (screens/screen.js) */
 .screen {
   position: fixed;
@@ -28,3 +31,7 @@ html, body {
 @media (prefers-reduced-motion: reduce) {
   .screen { animation: none; transition: none; }
 }
+
+/* the picked character, carried from character select into the title (screens/title.js) */
+.hero { position: fixed; z-index: 30; image-rendering: pixelated; pointer-events: none;
+  transition: left 0.9s cubic-bezier(.5, 0, .2, 1), top 0.9s cubic-bezier(.5, 0, .2, 1), width 0.9s cubic-bezier(.5, 0, .2, 1), height 0.9s cubic-bezier(.5, 0, .2, 1), opacity 0.3s ease; }

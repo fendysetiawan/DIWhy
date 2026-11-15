@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DIWHY: bathroom leak</title>
+<!-- Project scene: fix the bathroom leak. The "before": the vanity with its doors flung open, the
+     P-trap under the sink dripping into a puddle that spreads and shrinks, a towel swaying on its ring. A loop.
+     Open it to watch it on its own (add ?controls for pause/restart/sound). -->
+<link rel="stylesheet" href="../shared/cinematic.css">
+</head>
+<body>
+<script src="../shared/player.js"></script>
+<script src="../shared/pixel-art.js"></script>
+<script id="scene">
+Cinematic.scene("bathroom-leak", {
+  duration: 6,
+  holdEnd: true, // keeps dripping for as long as it's on screen
+  cues: [],
+  init(kit) {
+    const P = W.pal(kit);
+    // The bathroom, straight on, on the 480 x 270 art grid. Lit from the upper left.
+    const room = W.paint(480, 270, g => {
+      // painted wall above, square tiles below
+      g.r(0, 0, 480, 214, P.cream2);
+      for (let k = 0; k < 5; k++) g.oval(90, 30, 200 - k * 30, 110 - k * 20, P.goldL, 0.05);
+      g.r(0, 108, 480, 106, P.blue2);
+      for (let y = 108; y < 214; y += 14) { g.r(0, y, 480, 1, P.blueL); g.r(0, y + 1, 480, 1, P.creamL, 0.4); }
+      for (let x = 0; x < 480; x += 14) g.r(x, 108, 1, 106, P.blueL);
+      g.r(0, 106, 480, 3, P.creamL); g.r(0, 109, 480, 1, P.blue3, 0.4); // the tile cap
+      // the mirror
+      g.r(188, 16, 108, 64, P.ink, 0.15); g.r(186, 14, 108, 64, P.woodL); g.r(186, 14, 108, 2, P.creamL, 0.6); g.r(190, 18, 100, 56, P.blue2); g.r(190, 18, 100, 30, P.blueL, 0.35); g.r(190, 18, 100, 2, P.ink, 0.2);
+      for (let i = 0; i < 14; i++) { g.r(200 + i, 62 - i * 3, 2, 3, P.creamL, 0.5); g.r(214 + i, 66 - i * 3, 1, 3, P.creamL, 0.35); }
+      // the faucet on the counter
+      g.r(234, 92, 12, 4, P.slate); g.r(238, 82, 4, 10, P.slate); g.r(238, 82, 12, 3, P.slate); g.r(238, 82, 12, 1, P.blueL); g.r(232, 86, 16, 2, P.slate2);
+      // tile floor, with grout
+      g.r(0, 214, 480, 6, P.creamL); g.r(0, 219, 480, 2, P.peach2);
+      for (let y = 221, i = 0; y < 270; y += 12, i++) for (let x = (i % 2) * 12 - 12; x < 480; x += 24) { g.r(x, y, 23, 11, P.cream); g.r(x, y, 23, 1, P.creamL); g.r(x + 12, y, 11, 11, P.peach, 0.4); }
+      // the towel ring
+      g.oval(370, 120, 6, 6, P.slate); g.oval(370, 120, 4, 4, P.blue2); g.r(368, 110, 4, 4, P.slate);
+      // a wet stain creeping up the tiles beside the vanity
+      g.oval(150, 196, 8, 14, P.blue3, 0.25);
+    });
+    // the vanity with its doors open and the plumbing showing
+    const vanity = W.paint(210, 124, g => {
+      g.r(14, 120, 184, 4, P.ink, 0.25); // shadow
+      // the countertop and basin
+      g.r(20, 0, 170, 10, P.creamL); g.r(20, 8, 170, 2, P.peach); g.oval(105, 2, 40, 3, P.cream2);
+      g.r(102, 0, 6, 3, P.slate); // faucet stub in the basin
+      // the cabinet box
+      g.r(26, 10, 158, 110, P.wood); g.r(26, 10, 158, 2, P.woodL); g.r(26, 10, 3, 110, P.woodL); g.r(181, 10, 3, 110, P.wood2);
+      g.r(34, 16, 142, 98, P.brown2); g.r(34, 16, 142, 4, P.ink, 0.5); g.r(34, 108, 142, 6, P.brown);
+      // the open doors, swung out toward us
+      g.poly([[26, 12], [4, 18], [4, 118], [26, 120]], P.woodL); g.poly([[26, 12], [8, 17], [8, 30], [26, 26]], P.creamL, 0.3); g.r(10, 64, 2, 8, P.gold);
+      g.poly([[184, 12], [206, 18], [206, 118], [184, 120]], P.wood2); g.r(198, 64, 2, 8, P.goldL);
+      // the drain tail-piece, the P-trap and the arm to the wall
+      g.r(102, 16, 6, 30, P.cream); g.r(102, 16, 2, 30, P.creamL); g.r(107, 16, 1, 30, P.peach);
+      g.r(102, 46, 6, 10, P.cream); g.r(102, 54, 22, 6, P.cream); g.r(118, 36, 6, 22, P.cream); g.r(118, 36, 58, 6, P.cream);
+      g.r(102, 54, 22, 2, P.creamL); g.r(118, 36, 58, 2, P.creamL); g.r(102, 59, 22, 1, P.peach); g.r(124, 41, 52, 1, P.peach);
+      g.r(100, 44, 10, 3, P.cream2); g.r(116, 42, 10, 3, P.cream2); g.r(100, 44, 10, 1, P.creamL); // slip nuts
+      g.oval(105, 60, 4, 2, P.blue2, 0.7); // the wet seam at the bottom of the trap
+            // the supply lines and shut-off valves
+      g.r(70, 16, 2, 50, P.slate); g.r(66, 64, 10, 4, P.gold); g.r(140, 16, 2, 50, P.slate); g.r(136, 64, 10, 4, P.gold);
+      g.r(48, 92, 16, 16, P.terra); g.r(48, 92, 16, 2, P.terraL); g.r(52, 88, 8, 4, P.creamL); // a cleaner bottle
+    });
+    // the puddle, painted at four sizes so it spreads and shrinks a pixel at a time
+    const puddles = [14, 22, 30, 22].map(w => W.paint(72, 8, g => { g.oval(36, 4, w + 2, 4, P.blue3, 0.5); g.oval(36, 4, w, 3, P.blue2); g.oval(32, 3, Math.max(2, w * 0.4), 1, P.creamL, 0.8); }));
+    const drop = W.paint(2, 3, g => { g.r(0, 0, 2, 3, P.blueL); g.p(0, 0, P.creamL); });
+    const towel = W.paint(26, 54, g => {
+      g.r(2, 4, 22, 48, P.terra); g.r(2, 4, 22, 3, P.terraL); g.r(2, 4, 2, 48, P.terraL);
+      g.r(22, 4, 2, 48, P.terra2); for (let y = 40; y < 52; y += 3) g.r(2, y, 22, 1, P.terraL, 0.6); g.r(2, 50, 22, 2, P.terra2);
+    });
+
+    const cam = kit.h('<div class="cam" style="width:1920px;height:1080px"></div>');
+    cam.append(W.layer(kit, room, 0, 0, 480, 270));
+    cam.append(W.layer(kit, vanity, 136, 96, 210, 124));
+    this.puddles = puddles;
+    this.puddle = W.layer(kit, puddles[0], 205, 200, 72, 8);
+    this.drop = W.layer(kit, drop, 240, 157, 2, 3);
+    this.towel = W.layer(kit, towel, 357, 124, 26, 54);
+    cam.append(this.puddle, this.drop, this.towel);
+    const root = kit.h('<div class="ground" style="background:var(--cream2)"></div>');
+    root.append(cam);
+    kit.stage.append(root);
+  },
+  render(t) {
+    // a drop swells at the bottom of the trap, lets go and falls into the puddle
+    const q = ((t / 1.2) % 1 + 1) % 1;
+    const f = q < 0.4 ? 0 : (q - 0.4) / 0.6;
+    this.drop.style.top = W.px(157 + f * f * 44) + 'px';
+    this.drop.style.opacity = q < 0.15 ? 0 : f > 0.97 ? 0 : 1;
+    // the puddle spreads and shrinks back
+    this.puddle.style.backgroundImage = 'url(' + this.puddles[Math.floor(t / 1.5) % 4] + ')';
+    // the towel sways a pixel on its ring
+    this.towel.style.transform = 'translateX(' + W.px([0, 1, 0, -1][Math.floor(t * 2) % 4]) + 'px)';
+  },
+});
+</script>
+<script>Cinematic.page();</script>
+</body>
+</html>

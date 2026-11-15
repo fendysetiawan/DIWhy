@@ -17,6 +17,7 @@
     .swatch i { display: block; height: 80px; margin-bottom: 16px; border: 4px solid var(--brand-cream); border-radius: 8px; }
 
     .logo { width: min(100%, 424px); image-rendering: pixelated; }
+    .scene { width: min(100%, 840px); image-rendering: pixelated; }
     .team-world { width: min(100%, 696px); image-rendering: pixelated; }
 
     .cast figure { width: 112px; text-align: center; }
@@ -47,6 +48,24 @@
       <div class="row">
         <button class="brand-button" type="button">START</button>
         <button class="brand-button" type="button">GIVE UP</button>
+      </div>
+      <p class="brand-text">Add <span class="brand-highlight">.brand-next</span> to the main "go on" button (START, SIGN ...): it always sits bottom centre.</p>
+    </section>
+
+    <section>
+      <p class="brand-text brand-highlight">People (.brand-list)</p>
+      <ul class="brand-list">
+        <li style="--who: var(--travis)"><span class="brand-name">Travis</span><span>Texas <span class="brand-arrow"></span> NYC / NJ, USA</span></li>
+        <li style="--who: var(--aidan)"><span class="brand-name">Aidan</span><span>Toronto, Canada</span></li>
+        <li style="--who: var(--gigi)"><span class="brand-name">Gigi</span><span>Panama <span class="brand-arrow"></span> New York, USA</span></li>
+        <li style="--who: var(--christian)"><span class="brand-name">Christian</span><span>California, USA</span></li>
+        <li style="--who: var(--rachel)"><span class="brand-name">Rachel</span><span>New York, USA</span></li>
+        <li style="--who: var(--ramy)"><span class="brand-name">Ramy</span><span>Cairo, Egypt <span class="brand-arrow"></span> Basel, Switzerland</span></li>
+        <li style="--who: var(--fendy)"><span class="brand-name">Fendy</span><span>Indonesia <span class="brand-arrow"></span> San Francisco, USA</span></li>
+      </ul>
+      <div class="row">
+        <button class="brand-button brand-selected" type="button">SELECTED</button>
+        <p class="brand-text">.brand-selected</p>
       </div>
     </section>
 
@@ -79,6 +98,21 @@
     </section>
 
     <section>
+      <p class="brand-text brand-highlight">Character select background</p>
+      <img class="scene" src="backgrounds/character-select.svg" alt="Night-time wooden stage with a glowing circle, a toolbox and eyes in the trees" />
+    </section>
+
+    <section>
+      <p class="brand-text brand-highlight">Scenes</p>
+      <img class="scene" src="cinematics/falling-house.svg" alt="The house front falls" />
+    </section>
+
+    <section>
+      <p class="brand-text brand-highlight">Music (sounds/music/), one loop per mood</p>
+      <div class="row" id="music"></div>
+    </section>
+
+    <section>
       <p class="brand-text brand-highlight">Characters</p>
       <div class="row cast" id="cast"></div>
     </section>
@@ -96,6 +130,9 @@
       ["travis-potter", "Travis"], ["aidan-newsome", "Aidan"], ["rachel-katz", "Rachel"], ["christian-huber", "Christian"],
       ["ramy-maher", "Ramy"], ["gigi-singh", "Gigi"], ["fendy-seitiawan", "Fendy"],
     ];
+    document.getElementById("music").innerHTML = ["home", "work", "uh-oh", "disaster", "temptation", "phone", "victory", "defeat"].map((m) =>
+      `<div><p class="brand-text">${m}</p><audio controls loop preload="none" src="sounds/music/${m}.mp3"></audio></div>`).join("");
+
     document.getElementById("cast").innerHTML =
       people.map(([id, name]) =>
         `<figure><div class="sprite"><img src="characters/${id}/front.svg" alt="${name}" /></div><figcaption class="brand-text">${name}</figcaption></figure>`

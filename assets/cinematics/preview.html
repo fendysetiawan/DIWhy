@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cinematic preview</title>
+<!-- Preview one scene, looping, with buttons. preview.html?scene=contract -->
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="cinematic.css">
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { display: grid; grid-template-rows: auto 1fr; gap: 16px; padding: 16px; box-sizing: border-box; }
+  nav a { text-decoration: none; }
+  nav { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  .screen { position: relative; width: 100%; max-width: calc((100vh - 120px) * 16 / 9); aspect-ratio: 16 / 9; margin: 0 auto; align-self: start; }
+</style>
+</head>
+<body class="brand-stars">
+<nav></nav>
+<div class="screen"></div>
+
+<script src="player.js"></script>
+<script src="pixel-art.js"></script>
+<script src="controls.js"></script>
+<script src="scenes/1-contract.js"></script>
+<script src="scenes/2-sold.js"></script>
+<script src="scenes/3-wall.js"></script>
+<script src="scenes/4-estimate.js"></script>
+<script>
+const SCENES = ["contract", "sold", "wall", "estimate"];
+const id = new URLSearchParams(location.search).get("scene") || SCENES[0];
+
+document.querySelector("nav").innerHTML = SCENES.map((s, n) =>
+  `<a class="brand-button${s === id ? " brand-selected" : ""}" href="?scene=${s}">${n + 1}. ${s}</a>`).join("");
+
+const screen = document.querySelector(".screen");
+const scene = Cinematic.create(id, Cinematic.film(screen));
+scene.show();
+
+const controls = addControls(screen, {
+  playing: () => scene.playing,
+  togglePlay: () => (scene.playing ? scene.pause() : scene.play()),
+  restart: () => scene.restart(),
+  muted: () => Cinematic.muted,
+  toggleSound: () => Cinematic.setMuted(!Cinematic.muted),
+});
+scene.events.addEventListener("change", controls.update);
+scene.events.addEventListener("end", () => scene.restart()); // loop
+scene.play();
+</script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DIWHY: basement</title>
+<!-- Project scene: finish the basement. The "before": bare concrete block walls with a damp patch,
+     open joists and low ducts, a bare bulb swinging on its cord, a sump pit catching drips from a
+     pipe, damp cardboard boxes. A loop.
+     Open it to watch it on its own (add ?controls for pause/restart/sound). -->
+<link rel="stylesheet" href="../shared/cinematic.css">
+</head>
+<body>
+<script src="../shared/player.js"></script>
+<script src="../shared/pixel-art.js"></script>
+<script id="scene">
+Cinematic.scene("finish-basement", {
+  duration: 6,
+  holdEnd: true, // keeps swinging and dripping for as long as it's on screen
+  cues: [],
+  init(kit) {
+    const P = W.pal(kit), R = W.rng(23);
+    // The basement, straight on, on the 480 x 270 art grid. Lit by the bulb and a little high window.
+    const room = W.paint(480, 270, g => {
+      // concrete block wall, offset courses, mortar lines, speckles
+      g.r(0, 30, 480, 186, P.cream2);
+      for (let y = 46, row = 0; y < 216; y += 16, row++) {
+        g.r(0, y, 480, 1, P.peach);
+        for (let x = (row % 2) * -16; x < 480; x += 32) { g.r(x, y + 1, 1, 15, P.peach); g.r(x + 1, y + 1, 30, 1, P.creamL, 0.5); g.r(x + 30, y + 1, 1, 15, P.peach2, 0.4); }
+      }
+      for (let i = 0; i < 260; i++) g.p(R() * 480, 46 + R() * 170, R() < 0.5 ? P.peach2 : P.creamL, 0.6);
+      // the damp patch creeping up from the floor, white salts round its edge, a crack through it
+      for (let i = 0; i < 16; i++) { const x = 56 + R() * 84, y = 172 + R() * 40; g.oval(x, y, 8 + R() * 12, 6 + R() * 12, P.blue3, 0.13); }
+      for (let i = 0; i < 9; i++) { const x = 70 + R() * 56, y = 196 + R() * 16; g.oval(x, y, 4 + R() * 6, 4 + R() * 6, P.slate, 0.15); }
+      for (let x = 48; x < 148; x++) { const y = 170 + Math.round(Math.sin(x * 0.13) * 5 + Math.sin(x * 0.41) * 2 + Math.abs(x - 98) * 0.35); g.p(x, y, P.brownL, 0.5); g.dith(x, y - 3, 1, 3, P.creamL, x, 0.7); }
+      for (let i = 0; i < 40; i++) { const x = 70 + i * 0.6 + Math.round(Math.sin(i * 0.7) * 2); g.p(x, 150 + i * 1.6, P.brown2, 0.7); }
+      // a little high window, grimy, letting in grey daylight
+      g.r(358, 52, 56, 24, P.wood); g.r(362, 55, 48, 18, P.blue2); g.dith(362, 55, 48, 18, P.blueL, 1, 0.5); g.r(386, 55, 2, 18, P.wood);
+      g.r(362, 67, 48, 6, P.leaf2, 0.5); g.r(358, 76, 56, 2, P.wood2);
+      // open joists overhead and the low ducts slung under them
+      g.r(0, 0, 480, 30, P.brown2);
+      for (let x = 6; x < 480; x += 36) { g.r(x, 0, 14, 30, P.wood); g.r(x, 0, 2, 30, P.woodL); g.r(x + 13, 0, 1, 30, P.wood2); }
+      g.r(0, 28, 480, 2, P.wood2);
+      g.r(0, 30, 480, 18, P.slate); g.r(0, 30, 480, 2, P.blue2, 0.6); g.r(0, 46, 480, 2, P.slate2);
+      for (let x = 0; x < 480; x += 48) { g.r(x, 30, 1, 18, P.slate2); g.r(x + 1, 30, 1, 18, P.blue2, 0.4); }
+      g.r(120, 48, 28, 14, P.slate); g.r(120, 48, 28, 1, P.blue2, 0.6); g.r(124, 62, 20, 2, P.slate2); // a branch duct, low enough to bump your head on
+      // the copper water pipe, with a weeping joint over the sump
+      g.r(0, 52, 480, 3, P.terra); g.r(0, 52, 480, 1, P.terraL); g.r(300, 50, 6, 7, P.terra2); g.r(301, 50, 2, 1, P.terraL);
+      // the slab floor: patched and cracked, wet under the damp patch
+      g.r(0, 214, 480, 2, P.peach2); g.r(0, 216, 480, 54, P.peach);
+      g.dith(0, 216, 480, 54, P.peach2, 0, 0.35);
+      for (let i = 0; i < 50; i++) g.p(150 + i * 3, 236 + Math.round(Math.sin(i * 0.6) * 3) + (i > 25 ? 6 : 0), P.brown, 0.6);
+      g.oval(100, 222, 50, 5, P.blue3, 0.35); g.oval(92, 221, 20, 2, P.blueL, 0.4);
+      // the sump pit, its lid off, dark water inside; the discharge pipe up the wall
+      g.oval(302, 246, 34, 11, P.slate2); g.oval(302, 245, 34, 2, P.creamL, 0.5); g.oval(302, 248, 30, 8, P.ink); g.oval(302, 250, 26, 5, P.blue3);
+      g.r(326, 60, 5, 190, P.creamL); g.r(330, 60, 1, 190, P.cream2); g.r(325, 88, 7, 3, P.cream2); g.r(325, 150, 7, 3, P.cream2);
+      g.r(340, 238, 24, 4, P.slate); g.r(340, 238, 24, 1, P.blue2, 0.6); // the lid, tossed aside
+      // damp cardboard boxes stacked against the wall, the bottom one sagging
+      const box = (x, y, w, h, wet) => {
+        g.r(x + 3, y + h, w, 2, P.ink, 0.25); g.r(x, y, w, h, P.woodL); g.r(x, y, w, 2, P.cream, 0.6); g.r(x + w - 3, y, 3, h, P.wood, 0.6);
+        g.r(x + w / 2 - 3, y, 6, h, P.terraL, 0.6); if (wet) { g.r(x, y + h - 10, w, 10, P.wood, 0.7); g.dith(x, y + h - 12, w, 2, P.wood, 0, 0.6); }
+      };
+      box(378, 182, 64, 34, true); box(446, 190, 34, 26, true); box(386, 148, 50, 34); box(396, 122, 34, 26);
+      g.r(20, 200, 40, 16, P.leaf2, 0.8); g.r(20, 200, 40, 2, P.leafL, 0.6); g.r(36, 196, 8, 4, P.leaf3); // an old paint can
+    });
+    // the bare bulb on its cord, painted at a few swing offsets
+    const bulbs = [-4, -3, -2, -1, 0, 1, 2, 3, 4].map(dx => W.paint(40, 92, g => {
+      for (let y = 0; y < 72; y++) g.p(20 + Math.round(dx * y / 72), y, P.ink);
+      const bx = 20 + dx;
+      g.r(bx - 3, 72, 6, 6, P.brown2); g.r(bx - 3, 72, 2, 6, P.brownL);
+      g.oval(bx, 84, 7, 8, P.goldL); g.oval(bx - 2, 83, 3, 4, P.creamL); g.r(bx - 1, 85, 3, 2, P.gold);
+      for (let y = 78; y < 88; y++) g.p(bx + 5, y, P.slate); // the pull chain
+    }));
+    const glow = W.paint(200, 150, g => { for (let k = 0; k < 6; k++) g.oval(100, 75, 100 - k * 16, 75 - k * 12, P.goldL, 0.06); });
+    const drop = W.paint(2, 3, g => { g.r(0, 0, 2, 3, P.blueL); g.p(0, 0, P.creamL); });
+    const rings = [3, 7, 11, 15].map(rx => W.paint(34, 10, g => { g.oval(17, 5, rx, Math.max(1, rx / 3), P.blueL, 0.8); g.oval(17, 5, rx - 1, Math.max(1, rx / 3 - 1), P.blue3); }));
+
+    const cam = kit.h('<div class="cam" style="width:1920px;height:1080px"></div>');
+    cam.append(W.layer(kit, room, 0, 0, 480, 270));
+    this.bulbs = bulbs; this.rings = rings;
+    this.glow = W.layer(kit, glow, 140, 39, 200, 150);
+    this.bulb = W.layer(kit, bulbs[4], 220, 30, 40, 92);
+    this.drop = W.layer(kit, drop, 302, 57, 2, 3);
+    this.ring = W.layer(kit, rings[0], 285, 245, 34, 10);
+    cam.append(this.glow, this.ring, this.drop, this.bulb);
+    const root = kit.h('<div class="ground" style="background:var(--cream2)"></div>');
+    root.append(cam);
+    kit.stage.append(root);
+  },
+  render(t) {
+    const f = v => ((v % 1) + 1) % 1;
+    // the bulb swings gently on its cord; its glow on the wall swings with it
+    const dx = Math.round(Math.sin(t * 2.1) * 4);
+    if (this.dx !== dx) { this.dx = dx; this.bulb.style.backgroundImage = 'url(' + this.bulbs[dx + 4] + ')'; }
+    this.glow.style.left = W.px(140 + dx) + 'px';
+    this.glow.style.opacity = (0.85 + 0.15 * (Math.floor(t * 9) % 3 === 0)).toFixed(2);
+    // a drip falls from the weeping joint into the sump and rings out
+    const q = f(t / 2);
+    this.drop.style.opacity = q < 0.45 ? 1 : 0;
+    this.drop.style.top = W.px(q < 0.2 ? 57 : 57 + Math.pow(Math.min(1, (q - 0.2) / 0.25), 2) * 190) + 'px';
+    const r = Math.floor((q - 0.45) / 0.1);
+    this.ring.style.opacity = r >= 0 && r < 4 ? 1 : 0;
+    if (r >= 0 && r < 4 && this.r !== r) { this.r = r; this.ring.style.backgroundImage = 'url(' + this.rings[r] + ')'; }
+  },
+});
+</script>
+<script>Cinematic.page();</script>
+</body>
+</html>

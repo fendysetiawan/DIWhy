@@ -14,3 +14,7 @@
   letter-spacing: 0.04em;
   color: var(--brand-cream);
 }
+
+/* "press any key": shown only when the browser blocks the logo sound until a click */
+.splash-hint { position: absolute; bottom: 10vh; left: 0; right: 0; text-align: center; color: var(--brand-sky); animation: splash-blink 1s steps(2, start) infinite; }
+@keyframes splash-blink { to { visibility: hidden; } }

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DIWHY: contract</title>
+<!-- Scene: the contract. Open it to watch it on its own (add ?controls for pause/restart/sound).
+     The app loads the "scene" style and script from this file. -->
+<link rel="stylesheet" href="shared/cinematic.css">
+<style id="scene-style">
+/* scene 1: the contract */
+.film .contract-terms p { position: absolute; left: 72px; margin: 0; font: 20px/20px "Press Start 2P", monospace; color: var(--brown); white-space: nowrap; }
+.film .contract-prompt span { position: absolute; font: 16px/16px "Press Start 2P", monospace; color: var(--terra); }
+.film .contract-x { left: 52px; top: 684px; font-size: 32px !important; line-height: 32px !important; }
+.film .contract-label { left: 72px; top: 728px; font-size: 20px !important; line-height: 20px !important; }
+.film .contract-pad { position: absolute; left: 64px; top: 620px; width: 384px; height: 96px; image-rendering: pixelated; cursor: crosshair; touch-action: none; }
+</style>
+</head>
+<body>
+<script src="shared/player.js"></script>
+<script src="shared/pixel-art.js"></script>
+<script id="scene">
+// The small print on the contract, one per ruled line (11 lines, up to 20 characters each). Edit freely.
+const CONTRACT_TERMS = [
+  "SOLD AS IS. VERY IS.",
+  "ROOF: MOSTLY ON",
+  "BASEMENT: A POOL",
+  "WIRED BY RACCOONS",
+  "STAIRS: COUNT VARIES",
+  "SMELLS INCLUDED",
+  "DOORS CLOSE, MAYBE",
+  "DON'T TOUCH SWITCH",
+  "WALLS HOLD UP STUFF",
+  "NO REFUNDS",
+  "BUYER FIXES IT ALL",
+];
+
+Cinematic.scene("contract", {
+  duration: 3.2,
+  holdAt: 1.8, // the paper is open: wait here until the player signs
+  // [seconds, sound] - sounds are listed in player.js
+  cues: [
+    [0.05, "roll"],
+  ],
+  init(kit) {
+    const P = W.pal(kit);
+    // The desk, seen from above: warm planks, a leather mat, a succulent, coffee and a pen. Lit from the upper left.
+    const desk = W.paint(500, 285, g => {
+      g.r(0, 0, 500, 285, P.wood);
+      for (let y = 0, i = 0; y < 285; y += 24, i++) {
+        const r = W.rng(i + 3); g.r(0, y, 500, 1, P.woodL); g.r(0, y + 23, 500, 1, P.wood2);
+        for (let k = 0; k < 16; k++) g.r(r() * 500, y + 3 + r() * 18, 18 + r() * 60, 1, P.wood2, 0.45);
+        const j = (i % 2 ? 120 : 300) + (i * 37) % 70; g.r(j, y + 1, 1, 22, P.wood2); g.r(j + 1, y + 1, 1, 22, P.woodL, 0.6);
+        g.oval(60 + (i * 97) % 420, y + 12, 3, 2, P.wood2, 0.6);
+      }
+      for (let k = 0; k < 6; k++) g.oval(80, 50, 230 - k * 30, 150 - k * 20, P.goldL, 0.05);
+      g.r(150, 22, 206, 236, P.ink, 0.28); g.r(146, 18, 206, 236, P.terra2); g.r(146, 18, 206, 2, P.terra); g.r(146, 18, 2, 236, P.terra);
+      for (let x = 152; x < 346; x += 6) { g.r(x, 23, 3, 1, P.peach, 0.6); g.r(x, 248, 3, 1, P.peach, 0.6); }
+      for (let y = 26; y < 248; y += 6) { g.r(151, y, 1, 3, P.peach, 0.6); g.r(346, y, 1, 3, P.peach, 0.6); }
+      // succulent
+      g.oval(64, 66, 28, 24, P.ink, 0.3); g.oval(60, 60, 26, 23, P.terra2); g.oval(59, 59, 24, 21, P.terra); g.oval(58, 58, 19, 16, P.brown);
+      for (let k = 0; k < 10; k++) { const a = k * 0.628, x = 58 + Math.cos(a) * 11, y = 58 + Math.sin(a) * 9; g.oval(x + 1, y + 1, 6, 4, P.leaf3); g.oval(x, y, 6, 4, P.leaf2); g.oval(x - 1, y - 1, 3, 2, P.leaf); }
+      for (let k = 0; k < 6; k++) { const a = k * 1.05 + 0.3; g.oval(58 + Math.cos(a) * 5, 58 + Math.sin(a) * 4, 4, 3, P.leaf); g.p(57 + Math.cos(a) * 5, 57 + Math.sin(a) * 4, P.leafL); }
+      g.oval(58, 58, 3, 3, P.leafL);
+      // coffee mug
+      g.oval(430, 76, 28, 27, P.ink, 0.3); g.r(450, 64, 12, 5, P.cream2); g.r(458, 64, 4, 18, P.cream2); g.r(450, 78, 12, 4, P.cream2); g.r(458, 66, 2, 14, P.peach, 0.5);
+      g.oval(424, 70, 26, 26, P.blue); g.oval(424, 70, 24, 24, P.cream2); g.oval(423, 69, 23, 23, P.cream); g.oval(424, 70, 19, 19, P.brown2); g.oval(423, 69, 16, 16, P.brown); g.oval(418, 64, 5, 3, P.brownL);
+      // pen
+      for (let i = 0; i < 56; i++) { const x = 52 + i, y = 238 - Math.round(i * 0.5); const c = i < 5 ? P.brownL : i < 8 ? P.gold : P.blue; g.r(x, y, 1, 4, c); g.p(x, y, i < 8 ? P.goldL : P.blueL); g.p(x, y + 3, i < 8 ? P.brown : P.blue3); g.p(x + 3, y + 5, P.ink, 0.25); }
+      for (let i = 40; i < 52; i++) g.p(52 + i, 236 - Math.round(i * 0.5), P.gold);
+    });
+    const paper = W.paint(140, 200, g => {
+      g.r(0, 0, 140, 200, P.cream); g.r(0, 0, 2, 200, P.creamL); g.r(134, 0, 6, 200, P.cream2); g.r(0, 194, 140, 6, P.cream2); g.r(0, 198, 140, 2, P.peach);
+      const r = W.rng(9); for (let k = 0; k < 120; k++) g.p(r() * 134, r() * 194, P.cream2);
+      g.r(64, 30, 4, 12, P.terra2); g.r(72, 30, 4, 12, P.terra2); g.oval(70, 24, 11, 11, P.terra2); g.oval(69, 23, 10, 10, P.terra); g.oval(69, 23, 6, 6, P.terra2, 0.5); g.oval(66, 20, 4, 3, P.terraL);
+      for (let y = 52; y <= 152; y += 10) g.r(18, y, 104, 1, P.peach, 0.75);
+      g.r(18, 178, 96, 1, P.brown);
+    });
+    const roll = W.paint(148, 10, g => { g.r(0, 0, 148, 10, P.cream2); g.r(0, 1, 148, 2, P.creamL); g.r(0, 7, 148, 2, P.peach); g.r(0, 9, 148, 1, P.brown); g.r(0, 1, 2, 8, P.peach2); g.r(146, 1, 2, 8, P.peach2); });
+    const puff = W.paint(6, 6, g => { g.oval(3, 3, 3, 3, P.creamL, 0.8); g.p(2, 2, P.creamL); });
+    const cam = kit.h('<div class="cam contract-cam" style="width:2000px;height:1140px;transform-origin:0 0"></div>');
+    cam.append(W.layer(kit, desk, 0, 0, 500, 285, 'contract-desk'));
+    this.puffs = [0, 1, 2, 3, 4, 5].map(() => { const p = W.layer(kit, puff, 0, 0, 6, 6, 'contract-puff'); cam.append(p); return p; });
+    this.shadow = kit.h('<div class="contract-shadow" style="position:absolute;left:744px;top:88px;width:560px;height:0;background:color-mix(in srgb, var(--second) 30%, transparent)"></div>');
+    this.wrap = kit.h('<div class="contract-paper" style="position:absolute;left:728px;top:72px;width:560px;height:40px;overflow:hidden"></div>');
+    this.wrap.append(W.layer(kit, paper, 0, 0, 140, 200));
+    // the small print, sitting on the ruled lines (lines are 10 art px apart from y 52)
+    const terms = kit.h('<div class="contract-terms"></div>');
+    CONTRACT_TERMS.slice(0, 11).forEach((line, k) => {
+      const el = document.createElement("p"); el.textContent = line;
+      el.style.top = (52 + k * 10) * 4 - 24 + "px"; terms.append(el);
+    });
+    // sign here: an X, a label under the line, and a pad the player draws on
+    this.prompt = kit.h('<div class="contract-prompt"><span class="contract-x">X</span><span class="contract-label">SIGN HERE</span></div>');
+    const pad = document.createElement("canvas"); pad.width = 96; pad.height = 24; pad.className = "contract-pad";
+    this.wrap.append(terms, this.prompt, pad);
+    this.sign(kit, pad, terms); this.pad = pad;
+    this.roll = W.layer(kit, roll, 178, 0, 148, 10, 'contract-roll');
+    cam.append(this.shadow, this.wrap, this.roll);
+    const root = kit.h('<div class="ground" style="background:var(--brown)"></div>');
+    root.append(cam);
+    kit.stage.append(root); this.cam = cam;
+  },
+  // The player signs with the mouse or a finger (any mark counts), in the same brown as the small print. Ink is drawn in whole art pixels.
+  sign(kit, pad, terms) {
+    const g = pad.getContext("2d");
+    let ink = 0, down = false, last = null;
+    const at = (e) => { const r = pad.getBoundingClientRect(); return [Math.floor((e.clientX - r.left) / r.width * pad.width), Math.floor((e.clientY - r.top) / r.height * pad.height)]; };
+    const dot = (x, y) => { g.fillRect(x, y, 1, 1); ink++; };
+    const line = ([x0, y0], [x1, y1]) => { const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0), 1); for (let i = 0; i <= n; i++) dot(Math.round(x0 + (x1 - x0) * i / n), Math.round(y0 + (y1 - y0) * i / n)); };
+    pad.onpointerdown = (e) => { if (!this.ready) return; g.fillStyle = getComputedStyle(terms.firstChild).color; /* same ink as the small print */ down = true; pad.setPointerCapture(e.pointerId); last = at(e); dot(...last); };
+    pad.onpointermove = (e) => { if (!down) return; const p = at(e); line(last, p); last = p; };
+    // once there's ink on the line, tell the page (it enables its SIGN button, then calls release)
+    pad.onpointerup = () => { down = false; if (ink > 0 && !this.signed) { this.signed = true; kit.signal("signed"); } };
+    this.clear = () => { g.clearRect(0, 0, pad.width, pad.height); ink = 0; this.signed = false; };
+  },
+  reset() { this.clear(); },
+  render(t, kit) {
+    this.ready = t >= 1.8;
+    this.pad.classList.toggle("ready", this.ready); // .contract-pad.ready: you can sign now
+    // zoomed in on the contract: 1.25x keeps the art pixels whole (4 px -> 5 px)
+    this.cam.style.transform = 'translate(-300px, -50px) scale(1.25)';
+    const hh = Math.round(10 + 190 * eo(seg(t, -0.9, 1.5)));
+    this.wrap.style.height = hh * 4 + 'px'; this.shadow.style.height = Math.max(0, hh - 2) * 4 + 'px';
+    this.roll.style.top = (18 + hh - 5) * 4 + 'px'; this.roll.style.opacity = 1 - seg(t, 1.45, 1.7);
+    this.puffs.forEach((p, k) => {
+      const q = ((t * 0.45 + k / 6) % 1 + 1) % 1;
+      p.style.left = W.px(420 + Math.sin(q * 5 + k) * 4) + 'px'; p.style.top = W.px(62 - q * 40) + 'px';
+      p.style.opacity = q < 0.15 ? 0.4 : q > 0.7 ? 0.3 : 0.75;
+    });
+  },
+});
+</script>
+<script>Cinematic.page();</script>
+</body>
+</html>

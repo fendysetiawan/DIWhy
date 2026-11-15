@@ -1,5 +1,4 @@
-// The demo for the front door: splash, pick a character, sign the contract, click through the story,
-// answer the contractor.
+// The demo for the front door: splash, pick a character, sign the contract, click through the story.
 // It ends when the page moves on to the game, where pages/game.js takes over.
 //
 // Every element it touches is listed in ../selectors.js. Settings are in ../config.js.
@@ -33,19 +32,17 @@ export async function run(a) {
   await a.sleep(900);
   await a.click(SEL.selectStart);
 
-  // ---- the contract: sign, then the green check
-  await a.waitFor(SEL.deedPad);
-  await a.sleep(1300);
-  await a.drag(SEL.deedPad, signature());
-  await a.sleep(500);
-  await a.click(SEL.deedCheck);
-
-  // ---- the story: read each line, click to go on, answer the contractor
+  // ---- the story: sign the contract, then read each line and click on; it ends by going to the game
+  let signed = false;
   for (;;) {
-    const [el, which] = await a.waitForAny([SEL.replyButton, SEL.captionReady]);
-    if (which === 0) {
-      await a.sleep(1200); // let the quote sink in
-      await a.click(el);
+    const [, which] = await a.waitForAny([SEL.captionReady, signed ? ".never" : SEL.contractPadReady]);
+    if (which === 1) {
+      // the contract: wait for the paper to unroll, sign on the line, then SIGN
+      signed = true;
+      await a.sleep(600);
+      await a.drag(SEL.contractPad, signature());
+      await a.sleep(500);
+      await a.click(SEL.contractSign);
     } else {
       const length = (document.querySelector(SEL.captionText)?.textContent || "").length;
       await a.sleep(Math.min(3200, 500 + length * 22)); // time to read it
