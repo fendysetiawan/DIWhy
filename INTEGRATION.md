@@ -11,7 +11,7 @@ Everyone works in their own folder. This page says how the folders connect, so a
                                                                  |
 /frontend/   the gameplay page: walk the house, take on a glowing DIY spot ----> POST /api/games {project, owner}
                                                                  |
-/frontend/?game=<id>   the same page  <---- GET game, POST choices / quote / payments ---->  /api
+/frontend/?game=<id>   the same page  <---- GET game, POST choices / quote / payments / giveup ---->  /api
                                                                                                     ^
                                                                                   reads  events/*.csv
 ```
@@ -37,6 +37,8 @@ Run the whole thing with `npm run play` in `backend/`, then open http://127.0.0.
   - `answer_key`: one quality per option, in order: `good`, `ok`, `wrong`, `excessive`. This drives the consequences, the NPC advice and the score.
   - Optional columns `cost_1..3` and `days_1..3` set an option's numbers by hand. Without them the backend derives them from the quality and the `category`.
 - **What the CSVs don't say** lives in `backend/src/content/`: what each quality costs (`consequences.ts`), which events follow which (`links.ts`), and each project's contractor quote and title (`projects.ts`).
+
+- **Giving up.** `POST /api/games/:id/giveup` ends the game with the contractor taking over. The report then has `contractorBill` (rush job, fixing your fix, call-out fee). `game-link.js` calls it when the player taps the red "Give up." reply in the contractor's chat, and shows the bill in place of the DIY report. There are two endings: the job finishes or the limits run out (`complete` or `failed`), or the player gives up (`failed`, `failure: "giveup"`).
 
 - **The phone's writer.** `POST /api/games/:id/phone` has a local Qwen3 8B model (through Ollama) write the cast's texts and the suggested replies on the phone buttons, grounded in the game's facts and checked before they show (see `backend/API.md`). `game-link.js` asks for the advice and reaction texts, and for the answer when the player taps a button. If Ollama is off or slow, the page's own lines and buttons are used. The hands-free demo skips it, so the demo says the same thing every time.
 
@@ -74,8 +76,8 @@ Search for `INTEGRATION` to find every one. They are all small, they do nothing 
 These are for the team, not for any one person:
 
 1. **How a player finds a job (decided).** Ramy's glowing DIY spots are the way: the story has no "where do you start?" any more. Walking to a spot and saying "Take it on" starts the backend game for that spot's job (`SPOT_PROJECT` in `game-link.js`: kitchen wall is wall removal, bathroom is toilet replacement, dryer is dryer replacement). Still open: his animated elevation views could play between the backend's events, and the other nine jobs have no spot yet. Both need Ramy and Travis together.
-2. **Two sets of numbers.** Ramy's page has its own costs and outcomes for its three jobs (`PROJECTS`, `OUTCOME` in `index.html`). The backend has its own (`consequences.ts`). They differ, so the same job costs different amounts in each.
-3. **Two dryer event sets.** `events/dryer_replace_events.csv` (17 events, a first draft following the plan's smoke, dust, wall, beehive chain) and `frontend/dryer_vent_events.csv` (5 events, Ramy's, about fire and gas). Worth merging into one.
+2. **Two sets of numbers (decided: the backend owns them).** The backend's `consequences.ts` and `projects.ts` are the only rules. Ramy's page still carries its own copies (`PROJECTS`, `OUTCOME`, `BREAKS` in `index.html`) from when it ran on its own. They are dead weight with a backend game, and are to be removed from `index.html`.
+3. **Dryer events (decided).** `events/dryer_replace_events.csv` (17 events) is the only dryer set. Ramy's 5-event draft (`frontend/dryer_vent_events.csv`: lint, bird nest, gas line, vent maze, duct tape) is deleted. Fendy: the gas line and bird nest ideas are not in the 17 and may be worth adding.
 4. **The dryer draft is mine.** Fendy, please review `events/dryer_replace_events.csv`. It uses your columns and `answer_key` convention.
 5. **Story scene 3** (the living room and the AI render) has no art yet. A placeholder card stands in.
 6. **YouTube and ChatGPT on the phone.** Ramy's phone now has them: a how-to video (1 to 2.5 game hours) makes the job's surprise card mark the right answer, and ChatGPT is quicker but skips steps. The backend already knows which answer is right (`answer_key`) and uses it for the neighbor's, parent's, friend's and clerk's advice. A natural next step is for those two apps to ask the backend, for example "reveal the good answer for the next event, at a cost in days", so researching a job changes the real game. In a backend game the two apps currently do nothing to it. Needs Ramy and Travis together.

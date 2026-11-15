@@ -37,7 +37,7 @@ npm run e2e         # plays the whole demo in a real Chrome and photographs it (
 |---|---|
 | **An event CSV** (add, edit or remove rows; change an `answer_key`) | Run `npm test`. A **new CSV** needs an entry in `PROJECT_DEFS` in `backend/src/content/projects.ts` (a test tells you). A **removed or renamed event id** needs `backend/src/content/links.ts` fixed. If the test **"the fixed game still tells a good story"** fails, the demo needs a new seed: see [Keeping the demo alive](#keeping-the-demo-alive). |
 | **How answers cost** (`content/consequences.ts`), **a contractor quote** or **the balance** | Run `npm test` (the balance tests cover every job). Check the demo story test too. |
-| **The API or the JSON contract** (`service/types.ts`, `GameService`, `server/http.ts`) | Update `backend/API.md`, `client/GameClient.ts`, `frontend/game-link.js`. The demo reads `debug.choiceQualities` and the `outcome`, so check `demo/`. Update `INTEGRATION.md` if the flow changed. |
+| **The API or the JSON contract** (`service/types.ts`, `GameService`, `server/http.ts`) | Update `backend/API.md`, `client/GameClient.ts`, `frontend/game-link.js`. The demo reads `debug.choiceQualities` and the `outcome`, so check `demo/`. The give-up ending (`POST /giveup`, `report.contractorBill`) is part of the contract too. Update `INTEGRATION.md` if the flow changed. |
 | **The gameplay page** (`frontend/index.html`) | **Keep the lines marked `INTEGRATION`** (search for it) and `pay()`, `settle()`, `crackPhone()`. After pulling or merging upstream changes to this file, check those lines are still there. **Do not rename ids or classes listed in `demo/selectors.js`.** If you added something the player must click, see [Adding something the player clicks](#adding-something-the-player-clicks). Run `npm run e2e`. |
 | **`frontend/game-link.js`** (the event card, the report, the bank) | Run the link tests (`npm test`). The `dw-` classes are demo selectors. Keep `window.DIWHY_LINK`. |
 | **A front-door screen** (`app/screens/`) | Update `demo/pages/app.js` and `demo/selectors.js`. Keep `createScreen` and `leave` in `screens/screen.js`. Run `npm run e2e`. |
@@ -104,4 +104,4 @@ Give it a stable `id` or class. Add an entry to `REGISTRY` in `demo/selectors.js
 
 ## Open decisions
 
-These are for the team, listed in `INTEGRATION.md`: which jobs get a glowing spot, two sets of cost numbers, two dryer event sets, and the story's missing living-room art. If your task touches one, tell the user before choosing.
+These are for the team, listed in `INTEGRATION.md`: which jobs get a glowing spot, removing the page's leftover copies of the rules from `frontend/index.html` (the backend owns them), and the story's missing living-room art. If your task touches one, tell the user before choosing.
