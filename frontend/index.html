@@ -154,7 +154,6 @@ html[data-theme="dark"] .note::before{background:rgba(255,255,255,.32)}
 .stat.over .sub b{color:#dc2626}
 #s-time .fill{background:var(--teal)}
 #s-budget .fill{background:#eab308}
-#s-health .fill{background:hsl(var(--h,120),62%,44%)}
 
 .note.tasks-note{flex:0 1 auto;min-height:0;padding-top:24px;transform:rotate(.9deg);transform-origin:top right}
 .note.tasks-note::before{transform:rotate(-2deg);margin-left:-40px}
@@ -302,15 +301,19 @@ body.inside{background:#231912}
 .talk p{margin:3px 0 0;font-size:14px;line-height:1.4}
 body.in-scene .talk{display:none}
 .talk .photo{position:relative;width:150px;margin-top:8px;border-radius:6px;overflow:hidden;background:#1a1612;box-shadow:0 2px 8px rgba(0,0,0,.3)}
-.talk .photo svg{display:block;width:100%;height:auto;filter:blur(2.2px) brightness(.85) contrast(.9)}   /* not very clear */
+.talk .photo svg{display:block;width:100%;height:auto;filter:blur(1.3px) brightness(.9)}   /* not very clear */
 .talk .photo span{position:absolute;left:6px;bottom:4px;font-size:9px;font-weight:600;color:rgba(255,255,255,.6);letter-spacing:.04em}
 .props{position:fixed;inset:0;z-index:1;pointer-events:none}
 body.in-diy .props{display:none}
 .prop{position:absolute;image-rendering:pixelated}
 .prop svg{display:block;width:100%;height:100%}
+.prop.shadow{filter:blur(1.2px);opacity:.92;transform-origin:50% 100%;animation:lurk 2.6s ease-in-out infinite}   /* not clear what it is */
+@keyframes lurk{0%,100%{transform:scale(1,1)}50%{transform:scale(1.04,1.08)}}
+.prop.ratrun{transform:scaleX(-1)}
 .prop.rat{transform-origin:50% 100%;animation:sniff .5s ease-in-out infinite alternate}
 @keyframes sniff{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-6%) rotate(3deg)}}
-.prop.ghost{animation:whistle 1.8s ease-in-out infinite}
+.prop.ghost{filter:drop-shadow(0 0 5px rgba(190,225,255,.85));animation:haunt 2.8s ease-in-out infinite}   /* Halloween ghosts, until the pipe is fixed */
+@keyframes haunt{0%,100%{transform:translate(0,0);opacity:.9}50%{transform:translate(4%,-9%);opacity:.55}}
 .prop.smoke{transform-origin:50% 100%;animation:smoke 1.2s ease-in-out infinite alternate}
 @keyframes smoke{from{transform:translateY(0) scale(1)}to{transform:translateY(-8%) scale(1.06)}}
 .prop.plaster{animation:crumble 2.4s steps(4) infinite}
@@ -541,6 +544,20 @@ html[data-theme="dark"] .diy-sprite,html[data-theme="dark"] .diy canvas{filter:b
 .modal .est{font-size:13px;font-weight:650;margin-bottom:14px}
 .modal .row{display:flex;gap:8px}
 .modal .row .yes{background:#facc15;color:#2b1a12;border-color:transparent}
+.end-card{width:min(440px,calc(100vw - 32px));z-index:10}
+.end-card h3{font-size:22px;line-height:1.25}
+.end-card .bill{list-style:none;margin:0 0 10px;padding:0;max-height:34vh;overflow:auto}
+.end-card .bill li{display:grid;grid-template-columns:1fr auto;gap:0 10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.end-card .bill li b{font-weight:650}
+.end-card .bill li i{grid-column:1 / -1;font-style:normal;font-size:11px;color:var(--ink-2)}
+.end-card .tot{display:flex;justify-content:space-between;font-size:15px;font-weight:700;margin:6px 0 2px}
+.end-card .tot.q{font-size:13px;font-weight:600;color:var(--ink-2)}
+.end-card .verdict{margin:10px 0 14px;font-weight:600;color:var(--ink)}
+.end-card.robot-card{top:30%}   /* above the robots */
+.end-card.robot-card h3{font-size:24px}
+.robots{position:fixed;inset:0;z-index:3;pointer-events:none}
+.robot{position:absolute;image-rendering:pixelated;filter:drop-shadow(0 4px 3px rgba(0,0,0,.35))}
+.robot svg{display:block;width:100%;height:100%}
 #diyAsk .eyebrow{color:#ca8a04}
 #eventCard{top:64%}
 #eventCard.open{transform:translate(-50%,-50%)}
@@ -769,10 +786,6 @@ html[data-theme="dark"] .diy-sprite,html[data-theme="dark"] .diy canvas{filter:b
     <div class="head"><span class="ink-label">Budget</span><span class="val" id="v-budget"></span></div>
     <div class="bar"><div class="track"></div><div class="fill"></div><div class="over"></div><div class="plan"></div><div class="now"></div></div>
     <div class="sub"><span id="p-budget">Contractor: $24,000</span><b id="d-budget"></b></div>
-  </div>
-  <div class="stat" id="s-health">
-    <div class="head"><span class="ink-label">Health</span><span class="val" id="v-health"></span></div>
-    <div class="bar"><div class="track"></div><div class="fill"></div></div>
   </div>
 
 </section>
@@ -1303,10 +1316,15 @@ const plan = { days:PLAN_DAYS, budget:PLAN_BUDGET };   /* the contractor's curre
 /* On its own, the page measures the job you took on: its days against the contractor's days, and what you
    spent at the hardware store against the contractor's price. Before a job there is nothing to measure.
    (With a backend game, the backend sets the numbers as before.) */
-let job = null;   /* { id, start (game day), spent, done } */
-const jobDay = () => job ? S.time * PLAN_DAYS - job.start : 0;
+let job = null;   /* the job being worked on now */
+/* every job you start adds to the post-it: its quote to the contractor's numbers, its days and store money to yours */
+const jobs = [];  /* { id, title, quote:{ days, budget }, start, end, extra, spent, done } */
+const daysOf = j => ((j.end != null ? j.end : S.time * PLAN_DAYS) - j.start) + (j.extra || 0);
+const jobDay = () => jobs.reduce((t, j) => t + daysOf(j), 0);
+const totalSpent = () => jobs.reduce((t, j) => t + j.spent, 0);
+function syncPlan() { plan.days = jobs.reduce((t, j) => t + j.quote.days, 0); plan.budget = jobs.reduce((t, j) => t + j.quote.budget, 0); }
 const S = { time:.6, budget:.68, health:.78 };
-if (/[?&]over/.test(location.search)) { if (LIVE) { S.time = 1.12; S.budget = 1.25; } else { plan.days = 6; plan.budget = 6500; job = { id:'wall', start:S.time * PLAN_DAYS - 8, spent:8100, done:false }; } S.health = .41; } /* ?over starts past the contractor's quote */
+if (/[?&]over/.test(location.search)) { if (LIVE) { S.time = 1.12; S.budget = 1.25; } else { job = { id:'wall', title:'Open up the kitchen wall', quote:{ days:6, budget:6500 }, start:S.time * PLAN_DAYS - 8, end:null, extra:0, spent:8100, done:false }; jobs.push(job); syncPlan(); } S.health = .41; } /* ?over starts past the contractor's quote */
 const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 const money = n => '$' + Math.round(n).toLocaleString('en-US');
 
@@ -1319,17 +1337,15 @@ function setBar(id, v) {
 }
 function render() {
   const own = !LIVE;   /* on its own: the current job; with a backend: the backend's numbers */
-  const day = own ? jobDay() : S.time*PLAN_DAYS, spent = own ? (job ? job.spent : 0) : S.budget*PLAN_BUDGET;
-  setBar('time', day/plan.days); setBar('budget', spent/plan.budget); setBar('health', S.health);
-  $('#v-time').textContent = own && !job ? 'No job yet' : 'Day ' + (own ? Math.floor(day) + 1 : Math.floor(day)) + ' of ' + plan.days;
-  $('#v-budget').textContent = own && !job ? 'Nothing spent' : money(spent) + ' of ' + money(plan.budget);
-  $('#p-time').textContent = own && !job ? 'Pick a glowing DIY spot' : 'Contractor: ' + plan.days + ' days';
+  const day = own ? jobDay() : S.time*PLAN_DAYS, spent = own ? totalSpent() : S.budget*PLAN_BUDGET;   /* on its own: all the jobs you started, together */
+  setBar('time', day/plan.days); setBar('budget', spent/plan.budget);
+  $('#v-time').textContent = own && !jobs.length ? 'No job yet' : own ? (Math.round(day * 2) / 2) + ' of ' + plan.days + ' days' : 'Day ' + Math.floor(day) + ' of ' + plan.days;   /* on its own: days used on all jobs against the quoted days */
+  $('#v-budget').textContent = own && !jobs.length ? 'Nothing spent' : money(spent) + ' of ' + money(plan.budget);
+  $('#p-time').textContent = own && !jobs.length ? 'Pick a glowing DIY spot' : 'Contractor: ' + plan.days + ' days';
   const held = heldTotal();
-  $('#p-budget').textContent = own && !job ? 'The quote shows up here' : 'Contractor: ' + money(plan.budget) + (held ? ' · ' + money(held) + ' on hold' : '');
-  $('#d-time').textContent = own && !job ? '' : day > plan.days ? '+' + Math.ceil(day-plan.days) + ' days over' : Math.ceil(plan.days-day) + ' days left';
-  $('#d-budget').textContent = own && !job ? '' : spent > plan.budget ? '+' + money(spent-plan.budget) + ' over' : money(plan.budget-spent) + ' left';
-  $('#v-health').textContent = Math.round(S.health*100) + '%';
-  $('#s-health').style.setProperty('--h', Math.round(S.health*120));
+  $('#p-budget').textContent = own && !jobs.length ? 'The quote shows up here' : 'Contractor: ' + money(plan.budget) + (held ? ' · ' + money(held) + ' on hold' : '');
+  $('#d-time').textContent = own && !jobs.length ? '' : day > plan.days ? '+' + Math.ceil(day-plan.days) + ' days over' : Math.ceil(plan.days-day) + ' days left';
+  $('#d-budget').textContent = own && !jobs.length ? '' : spent > plan.budget ? '+' + money(spent-plan.budget) + ' over' : money(plan.budget-spent) + ' left';
 }
 function applyFx(fx) { if (!fx) return; for (const k in fx) S[k] = k === 'health' ? clamp(S[k]+fx[k],.05,1) : Math.max(0, S[k]+fx[k]); render(); }
 
@@ -1369,17 +1385,29 @@ function openChat(id) {
 $('#backBtn').onclick = e => { e.stopPropagation(); setApp('messages'); };
 /* the contractor's quote: pinned on top of the chat, Update asks for a new one */
 let lastQuote = null;   /* the contractor's latest repair quote, shown while no job is running */
+/* the contractor's current quote, on its own: always a little above your numbers, more so the worse it gets */
+let trouble = 0, contractorNow = null;   /* trouble: quick fixes that bit back, fixes that broke, corners cut */
+function freshQuote() {
+  const base = { days:Math.max(plan.days, Math.ceil(jobDay())), budget:Math.max(plan.budget, totalSpent()) };
+  const m = 1.06 + Math.min(.8, .08 * trouble) + Math.random() * .04;
+  const prev = contractorNow || { days:0, budget:0 };
+  return { days:Math.max(prev.days, base.days + 1 + Math.floor(trouble / 2)), budget:Math.max(prev.budget + 50, Math.round(base.budget * m / 50) * 50) };
+}
 function renderQuote() {
-  const q = lastQuote && (!job || job.done) ? lastQuote : plan;
+  const q = !LIVE && contractorNow && jobs.length && job && !job.done ? contractorNow : lastQuote && (!job || job.done) ? lastQuote : plan;
   $('#quoteVal').textContent = q.days + ' day' + (q.days > 1 ? 's' : '') + ', ' + money(q.budget);
   $('#quoteBar').style.display = current === 'contractor' ? 'flex' : 'none';
 }
 $('#quoteBtn').onclick = e => {
   e.stopPropagation();
-  plan.days = Math.max(10, plan.days + [-1, 1, 2, 2, 3, 4][Math.floor(Math.random()*6)]);
-  plan.budget = Math.max(8000, plan.budget + Math.round((Math.random()*2900 - 300) / 50) * 50);
-  const line = TEXTS.contractorQuote[Math.floor(Math.random()*TEXTS.contractorQuote.length)]
-    .replace('{days}', plan.days).replace('{price}', money(plan.budget));
+  /* (with a backend game, game-link.js replaces this button) */
+  let line;
+  if (!jobs.length) line = 'Start something first. Then I will tell you what it really costs.';
+  else {
+    contractorNow = freshQuote();   /* the post-it keeps the original quotes; this is what it would cost now */
+    line = TEXTS.contractorQuote[Math.floor(Math.random()*TEXTS.contractorQuote.length)]
+      .replace('{days}', contractorNow.days).replace('{price}', money(contractorNow.budget));
+  }
   msgs.contractor.push({ t:line, me:false });
   const d = document.createElement('div'); d.className = 'bub'; d.textContent = line;
   $('#msgs').appendChild(d); $('#msgs').scrollTop = 1e6;
@@ -1405,8 +1433,8 @@ function renderReplies() {
     renderList();
     if (window.DIWHY_HOOKS && window.DIWHY_HOOKS.onReply) window.DIWHY_HOOKS.onReply(current, r.t);   /* INTEGRATION: the backend's phone answers back (game-link.js) */
     if (r.act) { settle(r.act === 'confirm'); renderReplies(); }
-    if (current === 'contractor' && r.red) setTimeout(() => contractorArrives(), 1200);
-    if (current === 'contractor' && !r.red && typeof saidMyself === 'function') saidMyself();   /* "Give up.": the contractor shows up in person */
+    if (current === 'contractor' && r.red) setTimeout(() => contractorArrives(), 1200);   /* "Give up.": the contractor shows up in person */
+    if (current === 'contractor' && !r.red && typeof saidMyself === 'function') saidMyself();   /* "I'll do it myself.": the contractor answers back */
   });
 }
 
@@ -1472,7 +1500,7 @@ function deliver(id, text) {
    The money leaves the budget at once and the bank texts how much was charged.
    (The earlier fraud check, with "Yes, it was me" / "No, block it", was removed on request;
    settle() and heldTotal() stay because the backend link relies on them.)                  */
-const BANK = { id:'bank', name:'Bank', role:'Fraud alerts', bank:true };
+const BANK = { id:'bank', name:'Bank', role:'Alerts', bank:true };
 C.push(BANK); byId.bank = BANK;
 msgs.bank = [{ t:'Welcome to mobile banking. We text you about anything unusual on your card.', me:false }];
 unread.bank = 0;
@@ -2201,11 +2229,7 @@ function updateHotspots(ch) {
     const dx = Math.max(sp.r.x - ch.x, 0, ch.x - (sp.r.x + sp.r.w)), dy = Math.max(sp.r.y - ch.y, 0, (ch.y - FOOT_H) - (sp.r.y + sp.r.h));
     const d = Math.hypot(dx, dy), on = d < 70 && !frozen;
     el.classList.toggle('lit', on);
-    if (sp.project && FLOORS[scene]) {   /* entering the room lights the thing to fix; coming close shows the label */
-      if (!sp.rooms) sp.rooms = FLOORS[scene].rooms.filter(o => !o.underWall && overlaps(o.r, sp.r, 24));
-      const here = roomAt(ch.x, ch.y - 6);
-      el.classList.toggle('room', !!here && sp.rooms.includes(here) && !frozen);
-    }
+    if (sp.project) el.classList.toggle('room', !frozen);   /* a job to do glows as soon as you are on its floor; coming close shows the label */
     if (on && d < best) { best = d; nearSpot = sp; }
   });
 }
@@ -2520,7 +2544,7 @@ const told = {};
 setInterval(() => {
   if (LIVE) return;   /* INTEGRATION: the backend drives budget and time */
   if (!job || job.done) return;
-  if (!told.budget && job.spent > plan.budget) { told.budget = true; receive('partner'); }
+  if (!told.budget && totalSpent() > plan.budget) { told.budget = true; receive('partner'); }
   if (!told.time && jobDay() > plan.days) { told.time = true; receive('contractor'); }
 }, 2000);
 /* =============================================================================== */
@@ -2543,8 +2567,9 @@ function startProject(id) {
   if (LIVE && window.DIWHY_HOOKS && window.DIWHY_HOOKS.onStartProject) { frozen = false; window.DIWHY_HOOKS.onStartProject(id); return; }   /* INTEGRATION: the backend plays this job */
   const p = PROJECTS[id];
   run = { id, p, step:0, t:0, cost:p.cost, days:p.days, health:-.04, paused:false, last:performance.now(), small:0 };   /* small: corners cut */
-  job = { id, start:S.time * PLAN_DAYS, spent:0, done:false };   /* the post-it now measures this job */
-  plan.days = p.quote.days; plan.budget = p.quote.budget; told.budget = told.time = false; render(); renderQuote();
+  job = jobs.find(j => j.id === id && !j.done);   /* back to a job you walked away from: it keeps its days and money */
+  if (!job) { job = { id, title:p.title, quote:{ ...p.quote }, start:S.time * PLAN_DAYS, end:null, extra:0, spent:0, done:false }; jobs.push(job); }
+  syncPlan();   /* its quote joins the contractor's numbers */ told.budget = told.time = false; render(); renderQuote();
   setTimeout(() => receive('contractor'), 2500);   /* word gets around */
   document.querySelectorAll('.diy-need').forEach(x => x.remove());   /* nothing left over from a job you walked away from */
   $('#diyTitle').textContent = p.title;
@@ -2557,7 +2582,7 @@ function diyCard() {
   const p = run.p;
   $('#diySteps').querySelectorAll('li').forEach((li, i) => { li.className = i < run.step ? 'done' : i === run.step ? 'now' : ''; });
   const total = p.steps.length; $('#diyProg').style.width = Math.min(100, (run.step + (p.steps[run.step] && p.steps[run.step][0] !== 'EVENT' ? run.t : 0)) / total * 100) + '%';
-  $('#diyCost').textContent = `Spent at the store: ${money(job ? job.spent : 0)} of ${money(plan.budget)}`;
+  $('#diyCost').textContent = `Spent at the store: ${money(job ? job.spent : 0)} of ${money(job ? job.quote.budget : 0)}`;
 }
 function diyTick() {
   if (!run) return;
@@ -2624,10 +2649,11 @@ function leaveProject(r, finished) {
       if (r.id === 'fence' && typeof setFenceGap === 'function') setFenceGap(false);   /* the fence is whole again */
       if (r.id === 'wall') { FLOORS.ground.walls.find(w => w.id === 'diyWall').off = true; SCENES.ground.img = paintFloor('ground'); if (scene === 'ground') { sceneImg = SCENES.ground.img; showYard(); } }
       buildHots();
-      job.done = true; render();   /* the money was spent at the store; nothing more to pay */
+      job.done = true; job.end = S.time * PLAN_DAYS; render();   /* the money was spent at the store; nothing more to pay */
+      if (typeof logJob === 'function') logJob(r);   /* for the bill at the end */
       setTimeout(() => receive('partner'), 6000); if (r.id === 'wall') setTimeout(() => receive('neighbor'), 9000);
       if (r.p.quote.budget >= 900 && Math.random() < .1) setTimeout(crackPhone, 1400);
-      mayBreak(r);   /* good fixes rarely break, quick fixes more often */   /* a big fix: sometimes the phone hits the floor */
+      mayBreak(r); trouble += r.small || 0;   /* good fixes rarely break, quick fixes more often */   /* a big fix: sometimes the phone hits the floor */
     }
     frozen = false; fadeEl.classList.remove('on'); updateHotspots(chars[selected]);
   }, 320);
@@ -2814,8 +2840,13 @@ setInterval(() => {   /* walk close to the partner or the neighbor and they star
 /* "Give up.": the contractor shows up in person */
 const GIVE_UP = ['Took you long enough. I will take it from here.', 'Step away from the drywall. Slowly.', 'Do not worry, I have seen worse. Not much worse, but worse.', 'My crew starts Monday. Put the hammer down.'];
 function contractorArrives(tries) {
-  if (visit('contractor', oneOf(GIVE_UP), 9000)) return;
+  if (visit('contractor', oneOf(GIVE_UP), 9000)) { if (!LIVE) crewStarts(0); return; }
   if ((tries || 0) < 20) setTimeout(() => contractorArrives((tries || 0) + 1), 3000);
+  else if (!LIVE) contractorTakesOver();   /* could not walk in: they fix it all anyway */
+}
+function crewStarts(n) {   /* once the contractor has had their say, the game ends */
+  if (NPCS.contractor.talking) { setTimeout(contractorTakesOver, 5000); return; }
+  if (n < 60) setTimeout(() => crewStarts(n + 1), 500); else contractorTakesOver();
 }
 window.DIWHY_DEBUG = { visit, contractorArrives, goBuy:() => goBuy(), comeOver:(r) => comeOver(r, lineFor(r)), pending:(r) => { pendingVisit = r; },
   state:() => ({ scene, visitor, frozen, npcs:Object.fromEntries(Object.entries(NPCS).map(([r, n]) => { const ch = charOf(r); return [r, { scene:n.scene, talking:n.talking, path:n.path.length, at:ch ? [Math.round(ch.x), Math.round(ch.y)] : null, last:lastTalk[r] ? Math.round((performance.now() - lastTalk[r]) / 1000) + ' s ago' : 'never' }]; })) }) };   /* for testing in the console */
@@ -3089,19 +3120,22 @@ function diyMove(dt) {
 const SCEN = {
   rat:   { project:'chimney', active:false, revealed:false, photo:true,
            line:'I saw a monster in the living room last night! By the fireplace. Look, I got a picture.',
-           reveal:'That is no monster. It is a rat, standing on its back legs, sniffing for food. It gets in through the chimney.',
-           prop:{ scene:'ground', x:322, y:668, kind:'rat' } },
+           reveal:'A rat! It was standing on its back legs by the fireplace, sniffing for food, and it just shot up the chimney. That is how it gets in.',
+           prop:{ scene:'ground', x:328, y:668, kind:'shadow' } },
   ghost: { project:'pipe', active:false, revealed:false, photo:false,
            line:'I heard the ghost in the downstairs bathroom again last night. Whistling, behind the sink. I am not going in there.',
-           reveal:'That is no ghost. The pipe behind the sink whistles every time the water runs.',
-           prop:{ scene:'ground', x:1060, y:205, kind:'ghost' } },
+           reveal:'Ghosts? Or is that whistling coming from the pipe behind the sink?',
+           prop:{ scene:'ground', x:1050, y:290, kind:'ghost' } },
 };
 const scenQueue = ['rat', 'ghost', 'car'];
-let lastInput = performance.now();
+let lastInput = performance.now(), lastJobAt = performance.now();   /* lastJobAt: the last moment a DIY job was going */
+setInterval(() => { if (run || document.body.classList.contains('in-scene')) lastJobAt = performance.now(); }, 1000);
 ['keydown', 'pointerdown', 'wheel'].forEach(ev => addEventListener(ev, () => { lastInput = performance.now(); }, { passive:true }));
 
 /* the blurry photo the partner shows */
-const PHOTO = `<div class="photo"><svg viewBox="0 0 40 26" aria-hidden="true"><rect width="40" height="26" fill="#1a1612"/><rect x="5" y="4" width="13" height="18" fill="#3a2a22"/><ellipse cx="25" cy="17" rx="4" ry="6" fill="#6d665c"/><circle cx="26" cy="9.5" r="3" fill="#6d665c"/><circle cx="24.5" cy="6.5" r="1.3" fill="#6d665c"/><circle cx="28" cy="6.8" r="1.3" fill="#6d665c"/><circle cx="27.4" cy="9.2" r=".5" fill="#ffd27a"/><path d="M21 22c-4 1-6 2-9 1" stroke="#6d665c" fill="none"/></svg><span>IMG_0412.JPG</span></div>`;
+/* the rat standing on its back legs, as a shadow: one traced SVG outline (20 x 24 units), used on the floor and in the photo */
+const RAT_SHADOW = 'M6 23c.6-3 1.4-6 1.8-9 .3-2 .1-3.6-.5-5-1-.4-1.5-1.5-1-2.5.6-1.3 1.8-1.4 2.6-.5.6-1.3 1.7-1.6 2.6-1.3.8-1.2 2.4-1 2.7.3.3 1.2-.5 2.3-1.6 2.5l-.3 1c1.5.5 3 1.3 4.4 1.4l.4 1.3-3.3.3c1.4 1 2.2 2.3 1.9 3.4-1.2-.6-2.4-1.1-3.2-1.1.5 2.6.7 5.3.6 8.1 1.4.8 2.8 1.1 4.6 1.2v.9Z';
+const PHOTO = `<div class="photo"><svg viewBox="0 0 40 26" aria-hidden="true"><defs><radialGradient id="phGlow" cx=".18" cy=".95" r=".9"><stop offset="0" stop-color="#7a5a3a"/><stop offset=".55" stop-color="#3a2c22"/><stop offset="1" stop-color="#141110"/></radialGradient></defs><rect width="40" height="26" fill="url(#phGlow)"/><rect y="21" width="40" height="5" fill="#1d1712"/><path d="M4 26v-7h9v7M5.5 26v-5h6v5" fill="none" stroke="#120e0b" stroke-width="1.2"/><path fill="#0b0908" opacity=".88" transform="translate(11 -1.2) scale(.92)" d="${RAT_SHADOW}"/></svg><span>IMG_0412.JPG</span></div>`;
 let talkExtraFor = null;   /* { role, html }: extra content for that person's next words */
 function talkAs(name, label, text, ms) {
   talkEl.innerHTML = `<span class="av">${face(name)}</span><div><b>${name}</b><i>${label}</i><p>${text}</p></div>`;
@@ -3111,18 +3145,31 @@ function talkAs(name, label, text, ms) {
 /* the rat and the "ghost" in the plan */
 const propsEl = document.createElement('div'); propsEl.className = 'props'; yard.after(propsEl);   /* above the plan, under the labels */
 const PROP_HTML = {
+  shadow:`<svg viewBox="0 0 20 24"><path fill="#0b0908" d="${RAT_SHADOW}"/></svg>`,
   rat:'<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="#2b1a12" d="M6 3h4v1h1v3h-1v1h1v5h1v1h1v1H4v-1h1V8h1V7H5V4h1z"/><path fill="#8b8378" d="M7 4h2v3H7zM6 8h4v5H6z"/><path fill="#a59c90" d="M7 9h2v3H7z"/><path fill="#e8a0a0" d="M5 3h1v1H5zM10 3h1v1h-1zM7 13h1v1H7zM9 13h1v1H9z"/><path fill="#111" d="M8 5h1v1H8z"/><path fill="#b8a99a" d="M12 13h2v1h-2zM14 12h1v1h-1z"/></svg>',
-  ghost:'<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="#cfe8f5" d="M3 9h1v5H3zM4 8h3v1H4zM6 9h1v3H6zM2 13h2v2H2zM5 12h2v2H5zM10 3h1v6h-1zM11 2h3v1h-3zM13 3h1v4h-1zM9 8h2v2H9zM12 6h2v2h-2z"/></svg>',
+  ghost:'<svg viewBox="0 0 24 24"><g fill="#f4f7fb" stroke="#2b1a12" stroke-width=".6" stroke-linejoin="round"><path d="M4 21V10a5.5 5.5 0 0 1 11 0v11l-1.8-1.6-1.9 1.6-1.8-1.6-1.8 1.6-1.9-1.6z"/><path d="M15.5 13.5V9.6a3 3 0 0 1 6 0v3.9l-1-.9-1 .9-1-.9-1 .9-1-.9z" opacity=".75"/></g><g fill="#15181c"><ellipse cx="7.6" cy="10" rx="1.1" ry="1.5"/><ellipse cx="11.4" cy="10" rx="1.1" ry="1.5"/><ellipse cx="9.5" cy="14" rx="1.2" ry="1.6"/><circle cx="17.6" cy="10" r=".6"/><circle cx="19.4" cy="10" r=".6"/></g></svg>',
 };
 const propEls = {};
 Object.entries(SCEN).forEach(([key, s]) => { const el = document.createElement('span'); el.className = 'prop ' + s.prop.kind; el.style.display = 'none'; el.innerHTML = PROP_HTML[s.prop.kind]; propsEl.appendChild(el); propEls[key] = el; });
 function layoutProps() {
   Object.entries(SCEN).forEach(([key, s]) => {
-    const el = propEls[key], on = s.active && !doneProjects[s.project] && scene === s.prop.scene;
+    if (s.running) return;   /* the rat is dashing off */
+    const el = propEls[key], on = s.active && !doneProjects[s.project] && scene === s.prop.scene && !(s.prop.kind === 'shadow' && s.revealed);   /* an unclear shadow by the fireplace until you come close */
     el.style.display = on ? '' : 'none'; if (!on) return;
-    const k = view.k, sz = 64 * k;
+    const k = view.k, sz = ({ shadow:120, ghost:150 }[s.prop.kind] || 64) * k;   /* the shadow is cast big */
     Object.assign(el.style, { width:sz + 'px', height:sz + 'px', left:(view.ox + s.prop.x * k - sz / 2) + 'px', top:(view.oy + s.prop.y * k - sz) + 'px' });
   });
+}
+/* come close and the shadow turns out to be a rat: it dashes into the fireplace and up the chimney */
+function ratRunsOff(s) {
+  const el = propEls.rat; s.running = true; el.innerHTML = PROP_HTML.rat; el.classList.remove('shadow'); el.classList.add('ratrun');
+  const t0 = performance.now(), from = [s.prop.x, s.prop.y], to = [286, 590];
+  const tick = setInterval(() => {
+    const t = Math.min(1, (performance.now() - t0) / 800), k = view.k, sz = 40 * k;
+    const x = from[0] + (to[0] - from[0]) * t, y = from[1] + (to[1] - from[1]) * t;
+    Object.assign(el.style, { display:scene === s.prop.scene ? '' : 'none', width:sz + 'px', height:sz + 'px', left:(view.ox + x * k - sz / 2) + 'px', top:(view.oy + y * k - sz) + 'px', opacity:t > .8 ? (1 - t) * 5 : 1 });
+    if (t >= 1) { clearInterval(tick); s.running = false; el.style.display = 'none'; el.style.opacity = ''; }
+  }, 30);
 }
 const fitBeforeProps = fit;
 fit = () => { fitBeforeProps(); layoutProps(); };
@@ -3130,13 +3177,13 @@ fit = () => { fitBeforeProps(); layoutProps(); };
 /* doing nothing for a minute: the partner comes over with the next problem */
 setInterval(() => {
   if (LIVE || frozen || document.body.classList.contains('in-scene') || !scenQueue.length || visitor) return;
-  if (performance.now() - lastInput < 60000) return;
-  if (scenQueue[0] === 'car') { if (scene === 'yard') return; scenQueue.shift(); lastInput = performance.now(); carCrash(); return; }   /* it happens while the player is inside */
+  if (performance.now() - lastInput < 60000 && performance.now() - lastJobAt < 60000) return;   /* nothing pressed, or no job going, for a minute */
+  if (scenQueue[0] === 'car') { if (scene === 'yard') return; scenQueue.shift(); lastInput = lastJobAt = performance.now(); carCrash(); return; }   /* it happens while the player is inside */
   const key = scenQueue[0], s = SCEN[key];
   talkExtraFor = s.photo ? { role:'partner', html:PHOTO } : null;
   const ok = NPCS.partner.scene === scene ? comeOver('partner', s.line) : visit('partner', s.line, 12000);
   if (!ok) { talkExtraFor = null; return; }
-  scenQueue.shift(); lastInput = performance.now();
+  scenQueue.shift(); lastInput = lastJobAt = performance.now();
   s.active = true; buildHots(); layoutProps(); renderYT(); renderChips();
   setTimeout(() => contractorQuote(key === 'rat' ? 'the rat in the chimney' : 'the whistling pipe', PROJECTS[s.project].quote), 6000);
 }, 2000);
@@ -3146,7 +3193,7 @@ setInterval(() => {
   const p = chars[selected];
   Object.values(SCEN).forEach(s => {
     if (!s.active || s.revealed || scene !== s.prop.scene || doneProjects[s.project]) return;
-    if (Math.hypot(p.x - s.prop.x, p.y - s.prop.y) < 120 && !talkEl.classList.contains('show')) { s.revealed = true; talkAs(owner, 'You', s.reveal, 8000); }
+    if (Math.hypot(p.x - s.prop.x, p.y - s.prop.y) < 120 && !talkEl.classList.contains('show')) { s.revealed = true; if (s.prop.kind === 'shadow') { ratRunsOff(s); const say = () => talkEl.classList.contains('show') && !talkEl.textContent.includes(s.reveal) ? setTimeout(say, 1500) : talkAs(owner, 'You', s.reveal, 8000); setTimeout(say, 900); }   /* waits for whoever is talking */ else talkAs(owner, 'You', s.reveal, 8000); }
   });
 }, 300);
 
@@ -3325,6 +3372,8 @@ function breakJob(id) {
   PROJECTS[id] = Object.assign({}, p, { title:b.title, short:b.short, quote:{ ...b.quote },
     steps:b.steps ? b.steps.map((s, i) => s === 'EVENT' ? ['EVENT'] : [s, p.steps[i][1] || 3]) : p.steps });
   doneProjects[id] = false; if (SCEN['brk_' + id]) SCEN['brk_' + id].active = true;
+  trouble += 2;   /* the contractor's quotes climb */
+  if (typeof started === 'object') delete started[id];   /* the repair joins the list once you start it */
   if (id === 'fence') setFenceGap(true);
   buildHots(); layoutProps(); updateHotspots(chars[selected]);
   partnerSays(b.partner);
@@ -3374,15 +3423,165 @@ DRAW.fence = (step, t) => {
   if (step === 5) sparkle(80, 150, 380, 90, t, 7);
 };
 /* ===================================================================================== */
-window.DIWHY_DEBUG.scen = { idle:() => { lastInput = performance.now() - 61000; }, travel:(f) => travel(f, 900, 600, 'front'), state:() => ({ scene, q:scenQueue.slice(), rat:SCEN.rat, ghost:SCEN.ghost, talk:talkEl.textContent, photo:!!talkEl.querySelector('.photo'), job, run:run && run.id, spent:job && job.spent }), go:(x, y) => { chars[selected].x = x; chars[selected].y = y; }, start:(id) => startProject(id), bite:biteBack, brk:(id) => breakJob(id), car:() => carCrash() };   /* for testing */
+/* =====================================================================================
+   THE END
+   1. You fixed everything yourself, and nothing broke for 5 minutes: you win.
+   2. You told the contractor "Give up.": they walk in, fix everything, and hand you a bigger bill.
+   Either way, robots walk in afterwards: should you have waited 5 years, they could have done it all.
+   (Only on its own; with a backend game the backend has its own ending and report.)
+   ===================================================================================== */
+const WIN_HOLD = 300000;   /* 5 minutes with everything fixed */
+const ledger = [];         /* every job you finished: { id, title, job, quote } (job.spent keeps counting bite-backs) */
+let winSince = null, gameOver = false;
+const openJobs = () => Object.keys(PROJECTS).filter(id => {
+  const spot = Object.values(SPOTS).flat().find(s => s.project === id);
+  return spot && (!spot.when || spot.when()) && !doneProjects[id];
+});
+function logJob(r) { if (job && r && r.id) ledger.push({ id:r.id, title:r.p.title, job, quote:{ ...job.quote } }); }
+setInterval(() => {
+  if (LIVE || gameOver || run || document.body.classList.contains('in-scene')) return;
+  const allDone = ['wall', 'bath', 'dryer'].every(id => doneProjects[id]) && !openJobs().length;
+  if (!allDone) { winSince = null; return; }
+  if (winSince === null) { winSince = performance.now(); talkAs(owner, 'You', 'Everything is fixed. If nothing breaks in the next 5 minutes, I win.', 7000); return; }
+  if (performance.now() - winSince >= WIN_HOLD) endGame('win');
+}, 1000);
+
+/* the card at the end */
+const endEl = document.createElement('div'); endEl.className = 'modal end-card'; endEl.id = 'endCard'; document.body.appendChild(endEl);
+const sum = (a, f) => a.reduce((t, x) => t + f(x), 0);
+const storeSpent = (logged) => logged + (job && !ledger.some(l => l.job === job) ? job.spent : 0);   /* plus the job you walked away from */
+function endGame(kind, bill) {
+  if (gameOver) return; gameOver = true;
+  frozen = true; held.length = 0; syncPad(); hideTalk();
+  const spent = sum(ledger, l => l.job.spent), quoted = sum(ledger, l => l.quote.budget), days = Math.round(sum(ledger, l => daysOf(l.job))), qdays = sum(ledger, l => l.quote.days);
+  const rows = ledger.map(l => `<li><span>${l.title}</span><b>${money(l.job.spent)}</b><i>quote ${money(l.quote.budget)}</i></li>`).join('');
+  if (kind === 'win') {
+    endEl.innerHTML = `<div class="eyebrow">Game over</div><h3>You did it yourself!</h3>
+      <p>Everything is fixed, and nothing broke for 5 whole minutes.</p>
+      <ul class="bill">${rows}</ul>
+      <div class="tot"><span>You spent</span><b>${money(spent)}</b></div>
+      <div class="tot q"><span>The contractor quoted</span><b>${money(quoted)}</b></div>
+      <p class="verdict">${spent <= quoted ? `You saved ${money(quoted - spent)}.` : `You paid ${money(spent - quoted)} more than the contractor asked.`} ${days} day${days === 1 ? '' : 's'} of work against the contractor's ${qdays}.</p>
+      <div class="row"><button class="yes" id="endNext">Continue</button></div>`;
+  } else {
+    endEl.innerHTML = `<div class="eyebrow">Game over</div><h3>The contractor fixed everything</h3>
+      <p>The crew came in, sighed loudly, and fixed it all.${bill.redo ? ' Including what you fixed.' : ''}</p>
+      <ul class="bill">${bill.rows}</ul>
+      <div class="tot"><span>The contractor's bill</span><b>${money(bill.total)}</b></div>
+      <div class="tot q"><span>Their quotes added up to</span><b>${money(bill.quoted)}</b></div>
+      ${storeSpent(spent) ? `<p class="verdict">Plus the ${money(storeSpent(spent))} you already spent at the hardware store.</p>` : '<p class="verdict">At least you never set foot in the hardware store.</p>'}
+      <div class="row"><button class="yes" id="endNext">Continue</button></div>`;
+  }
+  endEl.classList.add('open');
+  $('#endNext').onclick = e => { e.stopPropagation(); endEl.classList.remove('open'); robotsArrive(); };
+}
+
+/* 2. "Give up.": the contractor walks in, then fixes everything */
+function contractorTakesOver() {
+  if (LIVE || gameOver) return;
+  const left = openJobs();   /* everything still broken or waiting */
+  const redo = ledger.filter(l => !left.includes(l.id));   /* what you already did, they "touch up" too */
+  const lines = [
+    ...left.map(id => { const q = PROJECTS[id].quote; return { t:PROJECTS[id].title, q:q.budget, c:Math.round(q.budget * 1.35 / 10) * 10, note:'rush job' }; }),
+    ...redo.map(l => ({ t:l.title, q:0, c:Math.round(l.quote.budget * .3 / 10) * 10, note:'fixing your fix' })),
+    { t:'Call-out fee', q:0, c:250, note:'you called' },
+  ];
+  const bill = { rows:lines.map(l => `<li><span>${l.t}</span><b>${money(l.c)}</b><i>${l.note}</i></li>`).join(''), total:sum(lines, l => l.c), redo:redo.length, quoted:sum(left, id => PROJECTS[id].quote.budget) };
+  fadeEl.classList.add('on');
+  setTimeout(() => {
+    if (run) { const r = run; run = null; diyEl.classList.remove('open'); document.body.classList.remove('in-diy', 'in-scene'); evEl.classList.remove('open'); }
+    left.forEach(id => { doneProjects[id] = true; Object.entries(SCEN).forEach(([, s]) => { if (s.project === id) s.active = false; }); });
+    if (left.includes('wall')) { FLOORS.ground.walls.find(w => w.id === 'diyWall').off = true; SCENES.ground.img = paintFloor('ground'); if (scene === 'ground') { sceneImg = SCENES.ground.img; showYard(); } }
+    if (fenceGap) setFenceGap(false);
+    scenQueue.length = 0; buildHots(); layoutProps();
+    if (job) { job.done = true; } plan.budget = bill.total; render(); renderQuote();
+    fadeEl.classList.remove('on');
+    endGame('giveup', bill);
+  }, 600);
+}
+
+/* ---------- the tasks post-it: the DIY jobs you can see, nothing else ---------- */
+const jobProg = {}, finishedAt = {}, started = {};
+/* permits: the only tasks that move without you (the office works on them) */
+const PERMITS = [{ t:'Apply for the deck permit', prog:.1 }, { t:'Renew the plumbing permit', prog:0 }];
+let permitIx = 0, permitDoneAt = 0;
+const PRIO = { wall:'high', bath:'high', dryer:'normal' };
+let taskSig = '';
+function syncTasks() {
+  if (LIVE) return;
+  if (run) { jobProg[run.id] = run.step / run.p.steps.length; started[run.id] = true; }
+  const pm = PERMITS[permitIx];
+  if (pm) { pm.prog = Math.min(1, pm.prog + .006); if (pm.prog >= 1 && !permitDoneAt) permitDoneAt = performance.now(); if (permitDoneAt && performance.now() - permitDoneAt > 2600) { permitIx++; permitDoneAt = 0; } }
+  ledger.forEach(l => { if (!finishedAt[l.id + l.title]) finishedAt[l.id + l.title] = performance.now(); });
+  const now = performance.now();
+  const recent = ledger.filter(l => now - finishedAt[l.id + l.title] < 2600 && doneProjects[l.id]).map(l => ({ key:'d' + l.id + l.title, t:l.title, p:PRIO[l.id] || 'urgent', prog:1, done:true }));
+  const open = openJobs().filter(id => started[id]).map(id => ({ key:id + PROJECTS[id].title, id, t:PROJECTS[id].title, p:(PRIO[id] && !/again|leaking|burnt|falling|leaning/i.test(PROJECTS[id].title)) ? PRIO[id] : 'urgent', prog:jobProg[id] || 0, active:!!run && run.id === id }));
+  open.sort((a, b) => (b.p === 'urgent') - (a.p === 'urgent'));
+  const permit = pm ? [{ key:'permit' + permitIx, t:pm.t, p:'normal', prog:pm.prog, done:pm.prog >= 1 }] : [];
+  const list = [...recent, ...open, ...permit];
+  const sig = list.map(x => x.key + (x.done ? '+' : '') + (x.active ? '*' : '')).join('|');
+  if (sig !== taskSig) {
+    taskSig = sig;
+    taskList.innerHTML = list.length ? list.map(x => `<div class="task${x.done ? ' done' : ''}${x.active ? ' active' : ''}" data-key="${x.key}"><div class="check" role="checkbox" aria-checked="${!!x.done}"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <div class="tb"><div class="tt">${x.t}</div><div class="tm"><span class="chip ${x.p}">${x.p}</span></div><div class="prog"><i style="width:${Math.round(x.prog * 100)}%"></i></div></div></div>`).join('')
+      : '<div class="task done"><div class="tb"><div class="tt">Nothing started yet. Find a glowing DIY spot.</div></div></div>';
+  } else list.forEach(x => { const el = taskList.querySelector(`[data-key="${x.key}"] .prog i`); if (el) el.style.width = Math.round(x.prog * 100) + '%'; });
+}
+if (!LIVE) setInterval(syncTasks, 1000);
+
+/* 3. the robots */
+const ROBOT = (f) => {   /* a sleek humanoid robot seen from the side: white shell, black visor, jointed limbs */
+  const O = '#2b1a12', W = '#eef0f2', G = '#b9c1c8', D = '#2a2e33', V = '#0e1114';
+  const s = (d, c) => `<path d="${d}" fill="${c}" stroke="${O}" stroke-width=".7" stroke-linejoin="round"/>`;
+  const back = f ? [s('M10 24h3l-1 8H9z', G), s('M9 32.5h3l-2 8.5H7z', G), s('M5 41h5v2H5z', D)]
+                 : [s('M10.5 24h3v8.5h-3z', G), s('M10.5 32.5h3V41h-3z', G), s('M10 41h5v2h-5z', D)];
+  const front = f ? [s('M12.5 24h3l2.5 8h-3z', W), s('M15 32h3l1 9h-3z', W), s('M14.8 31.2h3v1.6h-3z', D), s('M16 41h5.5v2H16z', D)]
+                  : [s('M12 24h3.2l.3 8.5h-3.2z', W), s('M12.3 32.5h3.2l-.2 8.5h-3.2z', W), s('M12.2 31.6h3.4v1.6h-3.4z', D), s('M12.2 41h5.5v2h-5.5z', D)];
+  const arm = f ? [s('M10.5 9.5h3l-1.2 6.5h-3z', W), s('M9.3 16h3l-2.6 5h-3z', W), s('M9 15.3h3v1.4H9z', D), s('M5.6 20.6h3v2.2h-3z', D)]
+                : [s('M12 9.5h3l1.2 6.5h-3z', W), s('M13.2 16h3l2.8 4.2h-3z', W), s('M13 15.3h3v1.4h-3z', D), s('M16 20h3v2.2h-3z', D)];
+  return `<svg viewBox="0 0 24 44">${back.join('')}
+    ${s('M9.5 21h6.5l.5 3.5h-7.5z', W)}${s('M10.5 18.5h5l-.3 2.6h-4.6z', D)}
+    ${s('M8.2 8.5h8l1.3 2.2v5.6l-1.2 2.4h-6.4L8 16.4z', W)}<path d="M9.5 12.6h7.2M13 8.8v9.4" stroke="${G}" stroke-width=".6"/>
+    ${s('M11.3 7h2.6v1.8h-2.6z', D)}
+    ${s('M10.4 .2h4.4l1.4 1.3v4.8l-1.4 1.2h-4.4l-.9-1.2V1.5z', V)}${s('M9.5 1.4l1.3-1.1v7.2l-1.3-1.2z', W)}<path d="M13 2.2h2.4" stroke="#4a5866" stroke-width=".7"/>
+    ${front.join('')}${arm.join('')}</svg>`;
+};
+const robotLayer = document.createElement('div'); robotLayer.className = 'robots'; document.body.appendChild(robotLayer);
+function robotsArrive() {
+  const p = chars[selected], n = 4, t0 = performance.now(), bots = [];
+  for (let i = 0; i < n; i++) { const el = document.createElement('span'); el.className = 'robot'; robotLayer.appendChild(el); bots.push({ el, from:-120 - i * 110, to:p.x + [-230, -125, 125, 230][i], y:p.y + (i % 2 ? 36 : -8) }); }
+  const tick = setInterval(() => {
+    const t = (performance.now() - t0) / 1000, k = view.k, w = 66 * k, h = 121 * k;
+    let walking = false;
+    bots.forEach((b, i) => {
+      const tt = Math.max(0, t - i * .35), x = Math.min(b.to, b.from + tt * 380);
+      const moving = x < b.to; walking = walking || moving;
+      if (b.frame !== ((moving && (tt * 6 | 0) % 2) ? 1 : 0) || !b.el.innerHTML) { b.frame = (moving && (tt * 6 | 0) % 2) ? 1 : 0; b.el.innerHTML = ROBOT(b.frame); }
+      Object.assign(b.el.style, { width:w + 'px', height:h + 'px', left:(view.ox + x * k - w / 2) + 'px', top:(view.oy + b.y * k - h) + 'px', transform:!moving && b.to > p.x ? 'scaleX(-1)' : '' });   /* once there, they face you */
+    });
+    if (!walking && !robotLayer.dataset.said) { robotLayer.dataset.said = '1'; setTimeout(showRobotCard, 700); }
+  }, 40);
+}
+function showRobotCard() {
+  endEl.innerHTML = `<div class="eyebrow">Meanwhile, in five years</div><h3>Should you have waited 5 years, robots could have done the entire job for you.</h3>
+    <p>No hardware store. No YouTube. No "I'll do it myself."</p>
+    <div class="row"><button class="yes" id="endAgain">Play again</button></div>`;
+  endEl.classList.add('open', 'robot-card');
+  $('#endAgain').onclick = e => { e.stopPropagation(); location.reload(); };
+}
+/* ===================================================================================== */
+if (!LIVE && /[?&]rat/.test(location.search)) setTimeout(() => { scenQueue.splice(scenQueue.indexOf('rat'), 1); SCEN.rat.active = true; travel('ground', 520, 640, 'left'); setTimeout(() => { buildHots(); layoutProps(); renderYT(); renderChips(); }, 700); }, 600);   /* ?rat: the shadow by the fireplace from the start */
+if (!LIVE && /[?&]ghost/.test(location.search)) setTimeout(() => { scenQueue.splice(scenQueue.indexOf('ghost'), 1); SCEN.ghost.active = true; travel('ground', 900, 372, 'front'); setTimeout(() => { buildHots(); layoutProps(); renderYT(); renderChips(); }, 700); }, 600);   /* ?ghost: the ghosts in the bathroom from the start */
+window.DIWHY_DEBUG.scen = { idle:() => { lastInput = lastJobAt = performance.now() - 61000; }, travel:(f) => travel(f, 900, 600, 'front'), state:() => ({ scene, plan:{ ...plan }, jobs:jobs.map(j => ({ id:j.id, quote:j.quote, spent:j.spent, days:+daysOf(j).toFixed(2) })), q:scenQueue.slice(), rat:SCEN.rat, ghost:SCEN.ghost, talk:talkEl.textContent, photo:!!talkEl.querySelector('.photo'), job, run:run && run.id, spent:job && job.spent }), go:(x, y) => { chars[selected].x = x; chars[selected].y = y; }, start:(id) => startProject(id), bite:biteBack, brk:(id) => breakJob(id), car:() => carCrash(), win:() => endGame('win'), giveUp:() => contractorTakesOver(), addSpent:(n) => { if (job) { job.spent += n; render(); } }, addDays:(n) => { if (job) { job.extra += n; render(); } }, hold:(ms) => { if (winSince !== null) winSince -= ms; }, doneAll:() => { ['wall', 'bath', 'dryer'].forEach(id => { doneProjects[id] = true; }); buildHots(); } };   /* for testing */
 /* ---------- stupid answers bite back: at once, or later (within 5 minutes) ---------- */
 function biteBack(ev, optText, key) {
   if (LIVE || !run) return null;
-  const jid = run.id, sev = key === 'wrong' ? 1 : .5, base = PROJECTS[jid].quote.budget;
+  const jid = run.id, jj = job, sev = key === 'wrong' ? 1 : .5, base = PROJECTS[jid].quote.budget;
   const cost = Math.round(base * (sev === 1 ? .12 + Math.random() * .1 : .05 + Math.random() * .05) / 10) * 10, days = sev === 1 ? 1 : .5;
   const fire = () => {
-    if (job && job.id === jid) job.spent += cost;   /* on top of the job; the quote stays */
-    S.time += days / PLAN_DAYS; S.health = clamp(S.health - .05 * sev, .05, 1); render();
+    if (jj) { jj.spent += cost; jj.extra += days; }   /* on top of that job; the quote stays */
+    trouble++;
+    render();
     deliver('bank', `Charged ${cents(cost)} for fixing what "${optText.toLowerCase()}" broke.`);
     const line = `Remember "${optText}"? It did not hold. Sorting it out cost ${money(cost)} and ${days === 1 ? 'a whole day' : 'half a day'}.`;
     if (!inPerson('partner', line)) deliver('partner', line);
@@ -3463,18 +3662,7 @@ function tick() {
   if (document.hidden) return;
   /* time runs with the day and night cycle (6 minutes a day); the date only turns over at dawn */
   S.time = Math.min(S.time + .9 / 360 / PLAN_DAYS, (Math.floor(S.time * PLAN_DAYS + 1e-6) + .999) / PLAN_DAYS);
-  /* the job's health suffers while it runs over budget or over time */
-  if (!LIVE && job && !job.done) {
-    if (job.spent > plan.budget) S.health = clamp(S.health - .0025, .05, 1);
-    if (jobDay() > plan.days) S.health = clamp(S.health - .0025, .05, 1);
-  }
-  const a = tasks.find(t => !t.done);
-  if (a) {
-    a.prog = Math.min(1, a.prog + .004 + Math.random()*.008);
-    const el = taskEl(a); if (el) el.querySelector('.prog i').style.width = Math.round(a.prog*100) + '%';
-    if (a.prog >= 1) completeTask(a);
-  }
-  if (S.time > 1.55) { S.time = .4; S.budget = .45; S.health = .82; plan.days = PLAN_DAYS; plan.budget = PLAN_BUDGET; }
+  syncTasks();   /* the post-it shows the real DIY jobs; nothing moves unless you work on it */
   render();
 }
 let last = null;
@@ -3487,7 +3675,7 @@ function notify() {
 function clock() { const d = new Date(); $('#clock').textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0'); }
 
 render(); renderList();
-if (!LIVE) { tasks.forEach(t => taskList.appendChild(makeTask(t))); markActive(); }   /* INTEGRATION: with ?game the backend supplies the tasks */
+if (!LIVE) syncTasks();   /* INTEGRATION: with ?game the backend supplies the tasks */
 clock();
 if (!LIVE) setInterval(tick, 900);   /* INTEGRATION: the demo loop is off with a backend game */
 setInterval(clock, 15000);
