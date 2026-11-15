@@ -171,7 +171,7 @@ To use it: `ollama pull qwen3:8b`, make sure Ollama is running (`ollama serve`, 
 
 ## Money and the bank
 
-Every choice that costs money becomes a `charge` with `status: "pending"`. A front end shows the bank's alert (the page texts "on hold. Was this you?" and keeps the money on hold) and asks the player. A page that is reloaded with a `pending` charge asks again.
+Every choice that costs money becomes a `charge` with `status: "pending"`. A front end shows the bank's fraud alert and asks the player.
 
 - `confirm: true` (**"Yes, it was me"**): nothing changes.
 - `confirm: false` (**"No, block it"**): the player blocked their own card. It costs a **day** and some stress, and the charge **still stands**. Answering the same charge twice does nothing more.

@@ -59,8 +59,8 @@ Search for `INTEGRATION` to find every one. They are all small, they do nothing 
 | Where | What | Why |
 |---|---|---|
 | Top of the script | `const LIVE = ...?(game|owner)=` | A game id (or an owner who has not picked a job yet) in the URL means the backend runs the game |
-| `settle()` | one line calling `DIWHY_HOOKS.onSettle` | The backend hears "Yes it was me" or "No, block it": `settle()` takes the oldest entry off `pending`, and the link posts `/payments` with that entry's `id` (entries without one, like the store's, are ignored) |
-| `pay()` | one line calling `DIWHY_HOOKS.onSettle(true, ...)` (**added by Ramy**) | On its own the page confirms every charge at once. With a backend game the link does not call `pay()` for the game's charges: it adds `{ id, amount, what }` to `DIWHY_HOOKS.pending` (exposed for this), texts the bank's question and the player answers in the bank chat; `heldTotal()` is the money on hold. `outcome.autoConfirmed` removes an ignored charge from the list |
+| `settle()` | one line calling `DIWHY_HOOKS.onSettle` | The backend hears "Yes it was me" or "No, block it" (no longer asked: see `pay()`) |
+| `pay()` | one line calling `DIWHY_HOOKS.onSettle(true, ...)` (**added by Ramy**) | The bank no longer asks the player; every charge is confirmed at once, so the backend always hears "yes" and `heldTotal()` stays 0 |
 | `setPhase()` | `&& !LIVE` on the dawn line | The backend decides what day it is |
 | `useSpot()` | `if (sp.project && LIVE && DIWHY_HOOKS.started) return` | Once the backend game is running, the other spots do nothing: one job per game |
 | `startProject()` | one line calling `DIWHY_HOOKS.onStartProject(id)` | Saying "Take it on" at a glowing spot starts the backend game for that job, instead of this page's local one |

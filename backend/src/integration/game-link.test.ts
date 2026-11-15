@@ -16,7 +16,7 @@ const lines = (n: string) => [1, 2, 3, 4, 5, 6, 7, 8].map((i) => `${n} line ${i}
 
 /** Stands in for the page's DIWHY_HOOKS. Records every call the link makes. */
 function makeHooks() {
-  const pending: Array<{ id?: number; amount: number; what: string }> = []; // the page's payments on hold
+  const pending: Array<{ amount: number; what: string }> = [];
   const hooks: any = {
     S: { time: 0.6, budget: 0.68, health: 0.78 },
     plan: { days: 30, budget: 24000 },
@@ -42,10 +42,10 @@ function makeHooks() {
     renderQuote: () => undefined,
     renderReplies: () => undefined,
     deliver: (id: string, text: string) => hooks.delivered.push([id, text]),
-    // Like the page: pay() only records and texts (it never holds anything), pending is the page's own list,
-    // and settle() takes the oldest entry off it, then tells the link.
-    pay: (amount: number, what: string) => hooks.paid.push([amount, what]),
-    pending,
+    pay: (amount: number, what: string) => {
+      pending.push({ amount, what });
+      hooks.paid.push([amount, what]);
+    },
     heldTotal: () => pending.reduce((a, p) => a + p.amount, 0),
     settleFirst: (ok: boolean) => {
       const p = pending.shift()!;
@@ -72,8 +72,7 @@ function makeHooks() {
     money: (n: number) => '$' + Math.round(n).toLocaleString('en-US'),
     onSettle: null,
     owner: () => 'Travis',
-    current: () => hooks.chat,
-    chat: null as string | null,
+    current: () => null,
     setCast: (owner: string, roles: Record<string, string>, focus: string) => (hooks.cast = { owner, roles, focus }),
   };
   document.body.append(hooks.taskList);
@@ -223,7 +222,7 @@ describe('game-link: starting up', () => {
     options()[2].click();
     await vi.waitFor(() => expect(document.getElementById('dwCostNote')?.textContent).toMatch(/That cost/), { timeout: WAIT });
     // Money on hold at the bank is not spent yet: the bar waits for "Yes, it was me".
-    if (hooks.pending.length) {
+    if (hooks.paid.length) {
       expect(hooks.S.budget).toBe(0);
       hooks.settleFirst(true);
       await vi.waitFor(() => expect((window as any).DIWHY_LINK.game().charge?.status).not.toBe('pending'), { timeout: WAIT });
@@ -421,146 +420,36 @@ describe('game-link: making choices', () => {
     expect(hooks.taskList.querySelector('.task:last-child')!.textContent).toContain('Finish the wall removal');
   });
 
-  /** Answer with the middle option until the bank has a question waiting. */
-  async function untilTheBankAsks(hooks: any) {
-    for (let i = 0; i < 6 && hooks.pending.length === 0; i++) {
+  it('sends every purchase through pay(), holding it back from the budget until the bank is answered', async () => {
+    const { hooks } = await boot();
+    for (let i = 0; i < 6 && hooks.paid.length === 0; i++) {
       await waitForOptions();
       options()[1].click();
       await vi.waitFor(() => expect(document.querySelectorAll('.dw-option[disabled]').length).toBe(0), { timeout: WAIT });
     }
-    expect(hooks.pending.length).toBeGreaterThan(0);
-  }
-
-  it('asks the bank about each purchase, holding it back from the budget until the player answers', async () => {
-    const { hooks } = await boot();
-    await untilTheBankAsks(hooks);
-    const charge = (window as any).DIWHY_LINK.game().charge;
-    expect(charge.status).toBe('pending');
-    expect(hooks.pending.at(-1)).toEqual({ id: charge.id, amount: charge.amount, what: charge.what });
-    expect(hooks.paid).toEqual([]); // nothing goes through pay(): that would confirm it at once
-    expect(hooks.delivered.filter(([id, t]: [string, string]) => id === 'bank' && /on hold\. Was this you\?/.test(t)).length).toBe(1);
+    expect(hooks.paid.length).toBeGreaterThan(0);
+    const [amount] = hooks.paid.at(-1)!;
+    expect(amount).toBeGreaterThan(0);
     // The page's budget bar shows only what the bank has confirmed: spent minus the amount on hold.
-    await vi.waitFor(() => {
-      const spent = hooks.S.budget * 24000 + hooks.heldTotal();
-      expect(Math.round(spent)).toBe((window as any).DIWHY_LINK.game().stats.spent);
-    });
-  });
-
-  it('refreshes the bank chat when it is open', async () => {
-    const { hooks } = await boot();
-    hooks.chat = 'bank';
-    let refreshed = 0;
-    hooks.renderReplies = () => refreshed++;
-    await untilTheBankAsks(hooks);
-    expect(refreshed).toBeGreaterThan(0);
+    const spent = (hooks.S.budget * 24000) + hooks.heldTotal();
+    const view = await (await fetch(`/api/games/${(window as any).DIWHY_LINK.game().id}`)).json();
+    expect(Math.round(spent)).toBe(view.stats.spent);
   });
 
   it('tells the backend when the player confirms the bank, and when they block their own card', async () => {
     const { hooks, id } = await boot();
-    await untilTheBankAsks(hooks);
-    const chargeId = (window as any).DIWHY_LINK.game().charge.id;
-    hooks.settleFirst(true); // "Yes, it was me."
-    await vi.waitFor(async () => expect((await (await fetch(`/api/games/${id}`)).json()).charge.status).toBe('confirmed'));
-
-    await waitForOptions();
-    await untilTheBankAsks(hooks);
-    expect((window as any).DIWHY_LINK.game().charge.id).not.toBe(chargeId);
+    for (let i = 0; i < 6 && hooks.paid.length === 0; i++) {
+      await waitForOptions();
+      options()[1].click();
+      await vi.waitFor(() => expect(document.querySelectorAll('.dw-option[disabled]').length).toBe(0), { timeout: WAIT });
+    }
     const before = await (await fetch(`/api/games/${id}`)).json();
     hooks.settleFirst(false); // "No, block it."
     await vi.waitFor(async () => {
       const after = await (await fetch(`/api/games/${id}`)).json();
       expect(after.charge.status).toBe('blocked');
-      expect(after.stats.daysElapsed).toBe(before.stats.daysElapsed + 1); // the clerk's card will not go through: a day lost
+      expect(after.stats.daysElapsed).toBe(before.stats.daysElapsed + 1);
     });
-  });
-
-  it("ignores payments with no id (the page's own store)", async () => {
-    const posts: string[] = [];
-    const { hooks } = await boot({ wrap: (real) => ((input: any, init?: any) => (String(input).includes('/payments') && posts.push(String(input)), real(input, init))) as typeof fetch });
-    hooks.onSettle(true, { amount: 40, what: 'grout' });
-    hooks.onSettle(false, undefined);
-    await new Promise((r) => setTimeout(r, 50));
-    expect(posts).toEqual([]);
-  });
-
-  it('lets a charge through, and says so, when the player ignores the bank and answers the next card', async () => {
-    const { hooks } = await boot();
-    await untilTheBankAsks(hooks);
-    const ignored = (window as any).DIWHY_LINK.game().charge.id;
-    await waitForOptions();
-    options()[1].click();
-    await vi.waitFor(() => expect((window as any).DIWHY_LINK.game().outcome.autoConfirmed).toBe(ignored), { timeout: WAIT });
-    await vi.waitFor(() => expect(hooks.pending.some((p: any) => p.id === ignored)).toBe(false));
-    expect(hooks.delivered).toContainEqual(['bank', 'No answer, so we let it through.']);
-  });
-
-  it('asks again after a reload, when a charge was still waiting', async () => {
-    const first = await boot();
-    await untilTheBankAsks(first.hooks);
-    const charge = (window as any).DIWHY_LINK.game().charge;
-    // Reload: a fresh page (new hooks, empty list) loads the same game.
-    document.body.innerHTML = '<button id="quoteBtn"></button><b id="quoteVal"></b>';
-    const again = makeHooks();
-    (window as any).DIWHY_HOOKS = again;
-    delete (window as any).DIWHY_LINK;
-    (0, eval)(SCRIPT);
-    await (window as any).DIWHY_LINK.ready;
-    expect(again.pending).toEqual([{ id: charge.id, amount: charge.amount, what: charge.what }]);
-    expect(again.delivered.some(([id, t]: [string, string]) => id === 'bank' && t.includes('on hold'))).toBe(true);
-    again.settleFirst(true);
-    await vi.waitFor(async () => expect((await (await fetch(`/api/games/${first.id}`)).json()).charge.status).toBe('confirmed'));
-  });
-
-  it('forgets the charge when the player gives up with the bank still asking: the bars show everything spent', async () => {
-    const { hooks } = await boot({ project: 'dryer-replacement', seed: 2 });
-    await untilTheBankAsks(hooks);
-    const held = hooks.pending[0];
-    hooks.chat = 'bank';
-    let refreshed = 0;
-    hooks.renderReplies = () => refreshed++;
-    hooks.onReply('contractor', 'Give up.');
-    await vi.waitFor(() => expect(document.querySelector('.dw-report')).not.toBeNull(), { timeout: WAIT });
-    const g = (window as any).DIWHY_LINK.game();
-    expect(g.charge.status, 'the backend lets it through on give-up').toBe('confirmed');
-    expect(hooks.pending.some((p: any) => p.id === held.id), 'the bank is still asking about a settled charge').toBe(false);
-    expect(refreshed, 'the open bank chat must stop offering "Yes, it was me"').toBeGreaterThan(0);
-    await vi.waitFor(() => expect(Math.round(hooks.S.budget * 24000)).toBe(g.stats.spent)); // nothing is held back any more
-  });
-
-  it('drops a charge the backend settled while the page looked away, when it resumes after a stale click', async () => {
-    const { hooks, bridge, id } = await boot();
-    await untilTheBankAsks(hooks);
-    const old = hooks.pending[0].id;
-    await waitForOptions();
-    // Another tab answers the card: the backend lets the old charge through and moves on (and may open a new one).
-    const now = (window as any).DIWHY_LINK.game();
-    const moved = await (await bridge(`/api/games/${id}/choices`, { method: 'POST', body: JSON.stringify({ choice: 0, eventId: now.event.id }) })).json();
-    options()[1].click(); // this click is stale
-    await vi.waitFor(() => expect((window as any).DIWHY_LINK.game().event.id).toBe(moved.event.id), { timeout: WAIT });
-    await vi.waitFor(() => expect(hooks.pending.some((p: any) => p.id === old)).toBe(false), { timeout: WAIT });
-    const open = (window as any).DIWHY_LINK.game().charge;
-    // whatever is left on the bank's list is the one question the backend still has open
-    expect(hooks.pending.map((p: any) => p.id)).toEqual(open && open.status === 'pending' ? [open.id] : []);
-    await vi.waitFor(() => expect(options().length).toBe(3), { timeout: WAIT });
-  });
-
-  it('tells the player when "No, block it" came too late, because the next answer had already let the charge through', async () => {
-    const { hooks } = await boot();
-    await untilTheBankAsks(hooks);
-    await waitForOptions();
-    options()[1].click(); // the answer is on its way...
-    hooks.settleFirst(false); // ...and so is "No, block it"
-    await vi.waitFor(() => expect(hooks.delivered.some(([who, t]: [string, string]) => who === 'bank' && /already gone through/.test(t))).toBe(true), { timeout: WAIT });
-    await waitForOptions(); // the game carries on
-  });
-
-  it('does not say "too late" for a block that worked', async () => {
-    const { hooks, id } = await boot();
-    await untilTheBankAsks(hooks);
-    hooks.settleFirst(false);
-    await vi.waitFor(async () => expect((await (await fetch(`/api/games/${id}`)).json()).charge.status).toBe('blocked'));
-    await new Promise((r) => setTimeout(r, 100));
-    expect(hooks.delivered.some(([, t]: [string, string]) => /already gone through/.test(t))).toBe(false);
   });
 
   it('has the cast react: the partner nags, the neighbor hears a blow-up, and so on', async () => {
@@ -573,10 +462,10 @@ describe('game-link: making choices', () => {
       await new Promise((r) => setTimeout(r, 20));
     }
     await new Promise((r) => setTimeout(r, 50));
-    const who = new Set(hooks.delivered.filter(([id]: [string]) => id !== 'bank').map(([id]: [string]) => id));
+    const who = new Set(hooks.delivered.map(([id]: [string]) => id));
     expect(who.size).toBeGreaterThanOrEqual(2);
-    // Lines come from the page's own chatter pools, never invented here (the bank speaks for itself).
-    for (const [id, text] of hooks.delivered.filter(([id]: [string]) => id !== 'bank')) {
+    // Lines come from the page's own chatter pools, never invented here.
+    for (const [id, text] of hooks.delivered) {
       const pool = hooks.pool[id] as string[];
       const own = (text as string).startsWith(`${id} line`);
       const advice = /"/.test(text as string);

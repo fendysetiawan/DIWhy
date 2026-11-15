@@ -1509,8 +1509,7 @@ function deliver(id, text) {
    pay(amount, what) is the ONE entry point for spending money in the game.
    The money leaves the budget at once and the bank texts how much was charged.
    (The earlier fraud check, with "Yes, it was me" / "No, block it", was removed on request;
-   settle() and heldTotal() stay because the backend link relies on them: with a backend game the
-   link holds each charge on `pending` and the player answers it in the bank chat.)          */
+   settle() and heldTotal() stay because the backend link relies on them.)                  */
 const BANK = { id:'bank', name:'Bank', role:'Alerts', bank:true };
 C.push(BANK); byId.bank = BANK;
 msgs.bank = [{ t:'Welcome to mobile banking. We text you about anything unusual on your card.', me:false }];
@@ -1540,7 +1539,7 @@ const CLERK_BLOCKED = [
 ];
 function pay(amount, what) {
   /* No fraud check any more: the money goes out at once and the bank texts what was charged.
-     (A backend game's charges bypass this: game-link.js puts them on `pending` and asks.) */
+     (pending stays empty, so heldTotal() is 0 and the bank chat shows no answer buttons.) */
   if (!LIVE) { if (job) job.spent += amount; else S.budget += amount / PLAN_BUDGET; }   /* counts against the current job */
   render();
   deliver('bank', `Charged ${cents(amount)} at ${STORE} (${what}).`);
@@ -3741,9 +3740,7 @@ if (!LIVE) setTimeout(notify, 6000);   /* one hello; after that people text when
    and crackPhone() as they are: the link relies on them. */
 window.DIWHY_HOOKS = {
   S, plan, PLAN_DAYS, PLAN_BUDGET, C, byId, TEXTS, pool, msgs, unread, tasks, taskList, LIVE,
-  render, renderList, renderChat, renderQuote, renderReplies, deliver, pay, heldTotal,
-  pending,                                          /* INTEGRATION: the payments on hold; the link adds the bank's questions to it (game-link.js askBank) */
-  crackPhone,
+  render, renderList, renderChat, renderQuote, renderReplies, deliver, pay, heldTotal, crackPhone,
   openPhone, openChat, makeTask, markActive, shuffle, clamp, money,
   onSettle: null,                                   /* set by game-link.js: (ok, payment) => void */
   onStartProject: null,                             /* set by game-link.js: (spotId) => void, called when you say yes to a DIY spot */

@@ -33,7 +33,6 @@ interface DemoConfig {
   spotAt: [number, number];
   policy: string[];
   finalePick: string;
-  blockTheCardOnCharge: number;
   story: { mustSee: string[]; minEvents: number; minBlowups: number; overrun: [number, number] };
 }
 
@@ -90,11 +89,6 @@ describe('demo: its settings are valid', () => {
     for (const q of [...DEMO.policy, DEMO.finalePick]) expect(['good', 'ok', 'wrong', 'excessive']).toContain(q);
   });
 
-  it("blocks one of the bank's questions, and that charge is one the demo will see", () => {
-    expect(Number.isInteger(DEMO.blockTheCardOnCharge) && DEMO.blockTheCardOnCharge >= 1).toBe(true);
-    expect(DEMO.blockTheCardOnCharge, 'the policy is shorter than the charge it must block').toBeLessThanOrEqual(DEMO.policy.length);
-  });
-
   it('plays at the speed the docs promise', () => {
     expect(DEMO.speed).toBe(1.5);
   });
@@ -106,26 +100,15 @@ async function playDemo(seed: number) {
   let v = await svc.createGame({ seed, project: DEMO.project, owner: DEMO.owner }, { debug: true });
   const events: string[] = [];
   let blowups = 0;
-  let charges = 0;
-  let blocked: { daysBefore: number; daysAfter: number; status: string } | null = null;
   for (let step = 0; v.status === 'playing' && step < 14; step++) {
     events.push(v.event!.id);
     const finale = v.event!.kind === 'finale';
     const index = chooseIndex(finale ? DEMO.finalePick : DEMO.policy[step % DEMO.policy.length], v.debug!.choiceQualities);
     v = await svc.choose(v.id, { choice: index, eventId: v.event!.id }, { debug: true });
     if (v.outcome!.blewUp) blowups++;
-    // The bank asks about the purchase, and the demo answers it: yes, except one charge it blocks.
-    if (v.charge && v.charge.status === 'pending') {
-      charges++;
-      const block = charges === DEMO.blockTheCardOnCharge;
-      const daysBefore = v.stats.daysElapsed;
-      const chargeId = v.charge.id;
-      v = await svc.payment(v.id, { chargeId, confirm: !block }, { debug: true });
-      if (block) blocked = { daysBefore, daysAfter: v.stats.daysElapsed, status: v.charge && v.charge.id === chargeId ? v.charge.status : 'gone' };
-    }
   }
   const overrun = v.stats.spent / v.quote.original.budget;
-  return { v, events, blowups, overrun, charges, blocked };
+  return { v, events, blowups, overrun };
 }
 
 function problems(r: Awaited<ReturnType<typeof playDemo>>): string[] {
@@ -136,8 +119,6 @@ function problems(r: Awaited<ReturnType<typeof playDemo>>): string[] {
   for (const id of s.mustSee) if (!r.events.includes(id)) out.push(`"${id}" never came up`);
   if (r.blowups < s.minBlowups) out.push(`no shortcut blew up (wanted ${s.minBlowups}+)`);
   if (r.overrun < s.overrun[0] || r.overrun > s.overrun[1]) out.push(`it ended ${r.overrun.toFixed(2)}x the contractor's quote (wanted ${s.overrun[0]} to ${s.overrun[1]})`);
-  if (r.charges < DEMO.blockTheCardOnCharge) out.push(`only ${r.charges} bank question(s), so charge ${DEMO.blockTheCardOnCharge} is never blocked`);
-  else if (!r.blocked || r.blocked.daysAfter - r.blocked.daysBefore !== 1) out.push('blocking the card did not cost the day it should');
   return out;
 }
 
@@ -150,14 +131,6 @@ describe('demo: the fixed game still tells a good story', () => {
       `The demo's story is no longer good with seed ${DEMO.seed}: ${found.join('; ')}. The events or the consequences changed. ` +
         `Find a new seed with: FIND_DEMO_SEED=1 npx vitest run src/demo/demo.test.ts --disable-console-intercept  then set \`seed\` in demo/config.js.`,
     ).toEqual([]);
-  });
-
-  it('gets at least as many bank questions as the one it blocks, and the block lands', async () => {
-    const r = await playDemo(DEMO.seed);
-    expect(r.charges).toBeGreaterThanOrEqual(DEMO.blockTheCardOnCharge);
-    expect(r.blocked, 'the blocked charge was never answered').not.toBeNull();
-    expect(r.blocked!.status).toBe('blocked');
-    expect(r.blocked!.daysAfter - r.blocked!.daysBefore).toBe(1);
   });
 });
 
