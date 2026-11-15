@@ -1,10 +1,11 @@
 import { copyFileSync, mkdtempSync, readdirSync, utimesSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it, vi } from 'vitest';
 import { projectSource } from './events';
 
-const real = new URL('../../../events/', import.meta.url).pathname;
+const real = fileURLToPath(new URL('../../../events/', import.meta.url)); // .pathname gives "/C:/..." on Windows
 
 /** A temp copy of the team's events folder that the test can edit. */
 function copyOfEvents() {

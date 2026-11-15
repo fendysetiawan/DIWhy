@@ -30,4 +30,8 @@ function backendApi(): Plugin {
   };
 }
 
-export default defineConfig({ plugins: [backendApi()] });
+export default defineConfig({
+  plugins: [backendApi()],
+  // The link tests play whole games in jsdom; on a slow or busy machine 5 s is not enough.
+  test: { testTimeout: 20000 },
+});

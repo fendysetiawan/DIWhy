@@ -11,6 +11,7 @@ import { bridgeFetch, realProjects } from '../testing';
 
 const SCRIPT = readFileSync(join(process.cwd(), '..', 'frontend', 'game-link.js'), 'utf8'); // tests run from backend/
 const ROLES = ['partner', 'clerk', 'contractor', 'parent', 'neighbor', 'friend'];
+const WAIT = 10000; // how long to wait for the link to react; generous, because a busy machine is slow in jsdom
 const lines = (n: string) => [1, 2, 3, 4, 5, 6, 7, 8].map((i) => `${n} line ${i}`);
 
 /** Stands in for the page's DIWHY_HOOKS. Records every call the link makes. */
@@ -98,7 +99,7 @@ async function boot(opts: { gameId?: string; seed?: number; project?: string; fe
 
 const card = () => document.getElementById('dwCard')!;
 const options = () => [...document.querySelectorAll<HTMLButtonElement>('.dw-option')];
-const waitForOptions = () => vi.waitFor(() => expect(options().length).toBe(3), { timeout: 3000 });
+const waitForOptions = () => vi.waitFor(() => expect(options().length).toBe(3), { timeout: WAIT });
 
 beforeEach(() => {
   delete (window as any).DIWHY_LINK;
@@ -192,21 +193,21 @@ describe('game-link: starting up', () => {
     document.body.insertAdjacentHTML('beforeend', '<div class="note"><div id="s-time"></div></div>'); // the stats post-it
     await waitForOptions();
     options()[2].click();
-    await vi.waitFor(() => expect(document.getElementById('dwCostNote')?.textContent).toMatch(/That cost/), { timeout: 3000 });
+    await vi.waitFor(() => expect(document.getElementById('dwCostNote')?.textContent).toMatch(/That cost/), { timeout: WAIT });
     // Money on hold at the bank is not spent yet: the bar waits for "Yes, it was me".
     if (hooks.paid.length) {
       expect(hooks.S.budget).toBe(0);
       hooks.settleFirst(true);
-      await vi.waitFor(() => expect((window as any).DIWHY_LINK.game().charge?.status).not.toBe('pending'), { timeout: 3000 });
+      await vi.waitFor(() => expect((window as any).DIWHY_LINK.game().charge?.status).not.toBe('pending'), { timeout: WAIT });
     }
     const g = (window as any).DIWHY_LINK.game();
     const target = g.stats.spent / hooks.PLAN_BUDGET;
     // The cost counts up to the new value, and never goes past it.
     expect(hooks.S.budget).toBeLessThanOrEqual(target);
-    await vi.waitFor(() => expect(hooks.S.budget).toBeCloseTo(target, 3), { timeout: 4000 });
+    await vi.waitFor(() => expect(hooks.S.budget).toBeCloseTo(target, 3), { timeout: WAIT });
     // Time never runs ahead of the backend's day, and gets there.
     expect(Math.floor(hooks.S.time * hooks.PLAN_DAYS + 1e-6)).toBeLessThanOrEqual(g.stats.daysElapsed);
-    await vi.waitFor(() => expect(Math.floor(hooks.S.time * hooks.PLAN_DAYS + 1e-6)).toBe(g.stats.daysElapsed), { timeout: 4000 });
+    await vi.waitFor(() => expect(Math.floor(hooks.S.time * hooks.PLAN_DAYS + 1e-6)).toBe(g.stats.daysElapsed), { timeout: WAIT });
     expect(created.stats.daysElapsed).toBe(0);
     await waitForOptions(); // let the game finish showing its next event before the next test
     (window as any).DIWHY_SPEED = 400;
@@ -367,7 +368,7 @@ describe('game-link: making choices', () => {
   it('lets the oldest finished rows slide away so the post-it does not overflow', async () => {
     const { hooks } = await boot({ seed: 2, project: 'wall-removal' });
     for (let i = 0; i < 7; i++) {
-      await vi.waitFor(() => expect(options().length >= 2 || document.querySelector('.dw-report')).toBeTruthy(), { timeout: 3000 });
+      await vi.waitFor(() => expect(options().length >= 2 || document.querySelector('.dw-report')).toBeTruthy(), { timeout: WAIT });
       if (document.querySelector('.dw-report')) break;
       options()[1].click();
       await new Promise((r) => setTimeout(r, 40));
@@ -384,7 +385,7 @@ describe('game-link: making choices', () => {
     for (let i = 0; i < 6 && hooks.paid.length === 0; i++) {
       await waitForOptions();
       options()[1].click();
-      await vi.waitFor(() => expect(document.querySelectorAll('.dw-option[disabled]').length).toBe(0), { timeout: 3000 });
+      await vi.waitFor(() => expect(document.querySelectorAll('.dw-option[disabled]').length).toBe(0), { timeout: WAIT });
     }
     expect(hooks.paid.length).toBeGreaterThan(0);
     const [amount] = hooks.paid.at(-1)!;
@@ -400,7 +401,7 @@ describe('game-link: making choices', () => {
     for (let i = 0; i < 6 && hooks.paid.length === 0; i++) {
       await waitForOptions();
       options()[1].click();
-      await vi.waitFor(() => expect(document.querySelectorAll('.dw-option[disabled]').length).toBe(0), { timeout: 3000 });
+      await vi.waitFor(() => expect(document.querySelectorAll('.dw-option[disabled]').length).toBe(0), { timeout: WAIT });
     }
     const before = await (await fetch(`/api/games/${id}`)).json();
     hooks.settleFirst(false); // "No, block it."
@@ -417,7 +418,7 @@ describe('game-link: making choices', () => {
       await waitForOptions().catch(() => undefined);
       if (!options().length) break;
       options()[2].click(); // the "excessive" or "wrong" end of the options, to give them something to say
-      await vi.waitFor(() => expect(document.querySelectorAll('.dw-option[disabled]').length).toBe(0), { timeout: 3000 });
+      await vi.waitFor(() => expect(document.querySelectorAll('.dw-option[disabled]').length).toBe(0), { timeout: WAIT });
       await new Promise((r) => setTimeout(r, 20));
     }
     await new Promise((r) => setTimeout(r, 50));
@@ -440,7 +441,7 @@ describe('game-link: the contractor and the end', () => {
     for (let i = 0; i < 4; i++) {
       await waitForOptions();
       options()[0].click();
-      await vi.waitFor(() => expect(document.querySelectorAll('.dw-option[disabled]').length).toBe(0), { timeout: 3000 });
+      await vi.waitFor(() => expect(document.querySelectorAll('.dw-option[disabled]').length).toBe(0), { timeout: WAIT });
     }
     document.getElementById('quoteBtn')!.click();
     await vi.waitFor(() => expect(hooks.msgs.contractor.length).toBe(2));
@@ -453,12 +454,12 @@ describe('game-link: the contractor and the end', () => {
     await boot({ seed: 2, project: 'dryer-replacement' });
     for (let i = 0; i < 14 && !document.querySelector('.dw-report'); i++) {
       // Most events have three options. The last step has two.
-      await vi.waitFor(() => expect(options().length >= 2 || document.querySelector('.dw-report')).toBeTruthy(), { timeout: 3000 });
+      await vi.waitFor(() => expect(options().length >= 2 || document.querySelector('.dw-report')).toBeTruthy(), { timeout: WAIT });
       if (document.querySelector('.dw-report')) break;
       options()[1].click();
       await new Promise((r) => setTimeout(r, 30));
     }
-    await vi.waitFor(() => expect(document.querySelector('.dw-report')).not.toBeNull(), { timeout: 4000 });
+    await vi.waitFor(() => expect(document.querySelector('.dw-report')).not.toBeNull(), { timeout: WAIT });
     const text = document.querySelector('.dw-report')!.textContent!;
     expect(text).toContain('Contractor quote');
     expect(text).toContain('$1,800');
@@ -477,7 +478,7 @@ describe('game-link: the elevation view', () => {
     expect(hooks.diyProgressed[0][1]).toBe("Spent $0 of the contractor's $10,000");
     options()[1].click();
     const latest = () => hooks.diyProgressed[hooks.diyProgressed.length - 1];
-    await vi.waitFor(() => expect(latest()[0]).toBeCloseTo(1 / 9), { timeout: 3000 });
+    await vi.waitFor(() => expect(latest()[0]).toBeCloseTo(1 / 9), { timeout: WAIT });
     const last = latest();
     expect(last[1]).toMatch(/^Spent \$[\d,]+ of the contractor's \$10,000$/);
   });
@@ -487,9 +488,9 @@ describe('game-link: the elevation view', () => {
     await waitForOptions();
     const latest = () => hooks.diyProgressed[hooks.diyProgressed.length - 1][2];
     const first = (window as any).DIWHY_LINK.game().event.title;
-    await vi.waitFor(() => expect(latest()).toEqual([{ title: first, done: false }]), { timeout: 3000 });
+    await vi.waitFor(() => expect(latest()).toEqual([{ title: first, done: false }]), { timeout: WAIT });
     options()[1].click();
-    await vi.waitFor(() => expect(latest().length).toBe(2), { timeout: 3000 });
+    await vi.waitFor(() => expect(latest().length).toBe(2), { timeout: WAIT });
     const now = (window as any).DIWHY_LINK.game().event.title;
     expect(latest()).toEqual([
       { title: first, done: true },
@@ -503,7 +504,7 @@ describe('game-link: giving up', () => {
     const { hooks, bridge, id } = await boot({ seed: 2, project: 'dryer-replacement' });
     await waitForOptions();
     hooks.onReply('contractor', 'Give up.'); // the page calls this when the red reply is tapped
-    await vi.waitFor(() => expect(document.querySelector('.dw-report')).not.toBeNull(), { timeout: 4000 });
+    await vi.waitFor(() => expect(document.querySelector('.dw-report')).not.toBeNull(), { timeout: WAIT });
     const text = document.querySelector('.dw-report')!.textContent!;
     expect(text).toContain('The contractor fixed everything');
     expect(text).toContain('rush job');

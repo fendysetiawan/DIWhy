@@ -9,6 +9,7 @@ import { createStaticHandler } from './static';
 // A throwaway "repo": three public folders, plus private things that must never be served.
 let root: string;
 let handler: Handler;
+let linked = false; // Windows only allows symlinks with Developer Mode or admin rights
 const get = (path: string, method = 'GET') => handler(new Request(`http://site.test${path}`, { method }));
 
 beforeAll(() => {
@@ -28,7 +29,12 @@ beforeAll(() => {
   writeFileSync(join(root, 'backend', 'package.json'), '{"private":"yes"}');
   writeFileSync(join(root, 'events', 'wall.csv'), 'id\n');
   writeFileSync(join(base, 'outside.txt'), 'top secret');
-  symlinkSync(join(base, 'outside.txt'), join(root, 'assets', 'escape.txt')); // points outside the repo
+  try {
+    symlinkSync(join(base, 'outside.txt'), join(root, 'assets', 'escape.txt')); // points outside the repo
+    linked = true;
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code !== 'EPERM') throw err;
+  }
   handler = createStaticHandler({ root, folders: ['app', 'frontend', 'assets'], entry: '/app/' });
 });
 
@@ -96,7 +102,8 @@ describe('what must never be served', () => {
     expect((await get('/assets/logos/logo.svg%00.png')).status).toBe(404);
   });
 
-  it('refuses a symlink that leads out of the repo', async () => {
+  it('refuses a symlink that leads out of the repo', async (ctx) => {
+    if (!linked) ctx.skip(); // this machine may not create symlinks; the check still runs where it can
     const res = await get('/assets/escape.txt');
     expect(res.status).toBe(404);
     expect(await res.text()).not.toContain('secret');
