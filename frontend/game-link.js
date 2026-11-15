@@ -276,10 +276,17 @@
     });
   }
 
+  // The player tapped a button (or one of the page's own). The contractor's red "Give up." ends the game.
+  let phoneReply = null;
+  H.onReply = (who, text) => {
+    if (who === 'contractor' && /^give up/i.test(String(text).trim())) return giveUp();
+    return phoneReply && phoneReply(who, text);
+  };
+
   if (SMART_PHONE) {
     H.suggested = (who) => suggested[who] || null;
     // The player tapped a button (or one of the page's own): the person answers, and new buttons appear.
-    H.onReply = async (who, text) => {
+    phoneReply = async (who, text) => {
       if (who === 'bank' || who === 'contractor' || !H.msgs[who]) return; // those two chats have their own fixed answers
       suggested[who] = []; // no stale buttons while they type
       showButtons(who);
@@ -572,23 +579,42 @@
 
   // ------------------------------------------------------------------ the end
 
+  let givingUp = false;
+  async function giveUp() {
+    if (givingUp || !game || game.status !== 'playing') return;
+    givingUp = true;
+    try {
+      game = await api(`/games/${GAME}/giveup`, { method: 'POST' });
+      syncNumbers(game);
+      endGame(game);
+    } catch (err) {
+      givingUp = false;
+      fail(err);
+    }
+  }
+
   function endGame(g) {
     hideCard();
     if (finishRow && g.status === 'complete') tickOff(finishRow);
     const r = g.report;
     if (!r) return;
     const failed = g.status === 'failed';
+    const bill = r.contractorBill;
     const row = (k, v) => `<tr><td>${k}</td><td>${v}</td></tr>`;
+    const billRows = bill
+      ? bill.rows.map((b) => `<tr><td>${esc(b.label)} (${esc(b.note)})</td><td>${money(b.cost)}</td></tr>`).join('')
+      : '';
     const wrap = document.createElement('div');
     wrap.className = 'dw-report-backdrop';
     wrap.innerHTML = `
       <section class="dw-report brand-window" role="dialog" aria-label="Final report">
-        <p class="brand-text brand-highlight">${failed ? 'DIY abandoned' : 'DIY complete'}</p>
+        <p class="brand-text brand-highlight">${bill ? 'Contractor called' : failed ? 'DIY abandoned' : 'DIY complete'}</p>
         <h2 class="brand-title">${esc(r.achievement.title)}</h2>
         <p class="brand-text">${esc(r.achievement.text)}</p>
         <p class="brand-text">${esc(r.outcome)}</p>
         <p class="brand-text dw-why">${esc(r.whyLine)}</p>
         <table>
+          ${bill ? billRows + row("The contractor's bill", money(bill.total)) : ''}
           ${row('Contractor quote', money(r.estimate))}
           ${row('You spent', money(r.actualCost))}
           ${row('Cost overrun', `${r.overrunPct.toLocaleString('en-US')}%`)}
@@ -711,7 +737,7 @@
     return showEvent(game);
   }
 
-  window.DIWHY_LINK = { ready: init(), game: () => game, choose };
+  window.DIWHY_LINK = { ready: init(), game: () => game, choose, giveUp };
 
   // The hands-free demo (see demo/): a visible mouse plays the game, starting once the game has loaded.
   if (DEMO) {

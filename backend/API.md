@@ -64,6 +64,7 @@ console.log(game.report.achievement.title);
 | `GET /api/games/:id` | none | `200` GameView | Safe to call any time, for example to resume after a reload. |
 | `POST /api/games/:id/choices` | `{ choice, eventId? }` | `200` GameView | Applies the choice, then picks the next event. |
 | `POST /api/games/:id/quote` | none | `200` GameView | The contractor re-quotes. Only ever goes up. |
+| `POST /api/games/:id/giveup` | none | `200` GameView | The player gives up and the contractor takes over. The game ends as `"failed"` with `failure: "giveup"`, and `report.contractorBill` says what the contractor charges. Answers `409 game_over` if the game has already ended. |
 | `POST /api/games/:id/payments` | `{ chargeId, confirm }` | `200` GameView | Answer the bank about the latest charge. |
 | `POST /api/games/:id/phone` | `{ with, kind, thread? }` | `200` PhoneView | A text from someone in the cast, and reply buttons, written by the local model. Read-only: it never changes the game. See below. |
 | `DELETE /api/games/:id` | none | `204` | Throws the game away. |
@@ -125,7 +126,7 @@ Every endpoint that returns a game returns this shape. Trimmed:
 | `cast` | Who the player is and who plays each role. The six roles are `partner`, `clerk`, `contractor`, `parent`, `neighbor`, `friend`. Dealt from the seed, so a replay has the same cast. |
 | `quote` | `original` is the contractor's quote and the baseline the player is judged against, always. `current` is what the contractor last said; `POST /quote` can raise it as problems turn up. |
 | `status` | `"playing"`, `"complete"` (the job got finished) or `"failed"`. |
-| `failure` | When `"failed"`: `"budget"`, `"time"` or `"stress"`. The game ends at 2.5 times the quote's money, 3 times its days, or stress 100 (`stats.budget` and `stats.maxDays` are those limits). |
+| `failure` | When `"failed"`: `"budget"`, `"time"`, `"stress"` or `"giveup"` (the player called the contractor in). The game ends at 2.5 times the quote's money, 3 times its days, or stress 100 (`stats.budget` and `stats.maxDays` are those limits). |
 | `stats` | The numbers to show. `riskDebt` is the hidden cost of shortcuts; hide it if you want the risk to stay secret. |
 | `charge` | The latest purchase, waiting for the bank: `{ id, amount, what, status }`. `status` is `pending`, `confirmed` or `blocked`. |
 | `outcome` | What the last choice did: its `quality`, what it cost, whether it `blewUp`, and whether the partner nagged. Use it to have the cast react. `null` at the start. |
@@ -134,7 +135,7 @@ Every endpoint that returns a game returns this shape. Trimmed:
 | `event` | What to decide now. `null` once the game is over. `kind` is `problem`, `temptation`, `humor` or `finale`. |
 | `event.choices[].cost`, `days` | Always `null`: nobody tells you what a DIY fix will cost. The fields exist so a price tag can come back later. |
 | `event.advice` | Someone's opinion, about two events in three: `{ from, pick }`. They might be wrong (see below). |
-| `report` | `null` while playing. When over: the contractor's quote against what happened, overrun percentage, days, problems ("times you asked why"), stress, a one-line outcome, a closing "why" line and an achievement. |
+| `report` | `null` while playing. When over: the contractor's quote against what happened, overrun percentage, days, problems ("times you asked why"), stress, a one-line outcome, a closing "why" line and an achievement. `report.contractorBill` is `null` unless the player gave up. Then it is `{ rows: [{ label, cost, note }], total, quoted }`: the job at a rush price (1.35 times the quote), a `fixing your fix` row (0.3 times the quote) if the player had started, and a $250 call-out fee. |
 
 ## The cast, advice and the partner
 

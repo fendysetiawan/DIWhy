@@ -463,6 +463,34 @@ describe('game-link: the contractor and the end', () => {
   });
 });
 
+describe('game-link: giving up', () => {
+  it(`the contractor's "Give up." reply ends the game and shows the contractor's bill`, async () => {
+    const { hooks, bridge, id } = await boot({ seed: 2, project: 'dryer-replacement' });
+    await waitForOptions();
+    hooks.onReply('contractor', 'Give up.'); // the page calls this when the red reply is tapped
+    await vi.waitFor(() => expect(document.querySelector('.dw-report')).not.toBeNull(), { timeout: 4000 });
+    const text = document.querySelector('.dw-report')!.textContent!;
+    expect(text).toContain('The contractor fixed everything');
+    expect(text).toContain('rush job');
+    expect(text).toContain('Call-out fee');
+    expect(text).toContain("The contractor's bill");
+    expect(text).toContain('$2,430'); // $1,800 quote x1.35 = $2,430, plus $250 call-out = $2,680
+    expect(text).toContain('$2,680');
+    expect(document.getElementById('dwCard')!.hidden).toBe(true);
+    const g = await (await bridge(`/api/games/${id}`)).json();
+    expect(g.failure).toBe('giveup');
+  });
+
+  it(`"I'll do it myself." does not give up`, async () => {
+    const { hooks, bridge, id } = await boot({ seed: 2, project: 'dryer-replacement' });
+    await waitForOptions();
+    hooks.onReply('contractor', "I'll do it myself.");
+    await new Promise((r) => setTimeout(r, 100));
+    expect((await (await bridge(`/api/games/${id}`)).json()).status).toBe('playing');
+    expect(document.querySelector('.dw-report')).toBeNull();
+  });
+});
+
 describe('game-link: when things go wrong', () => {
   it('says the game is gone when the server no longer knows it, and offers a fresh start', async () => {
     await boot({ gameId: 'does-not-exist' });
