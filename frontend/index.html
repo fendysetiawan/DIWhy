@@ -2439,7 +2439,7 @@ const DRAW = {
     const studs = step < 5 ? 7 : step === 5 ? Math.max(0, 7 - Math.floor(t * 8)) : 0;
     if (opened) {
       for (let k = 0; k < 7; k++) if (k < studs) fb(OX + 4 + k * 35, OY, 7, OH, '#c8945a');
-      if (step < 4) { fr(OX, 150, OW, 2, '#d13a2a'); fr(OX, 158, OW, 2, '#f2c94c'); }
+      if (step < 4 && !run.live) { fr(OX, 150, OW, 2, '#d13a2a'); fr(OX, 158, OW, 2, '#f2c94c'); }   /* INTEGRATION: with a backend game the wires are a surprise, shown by the event's pictures (elevation.js) */
     }
     if (step === 0) { for (let k = 0; k < 7; k++) { const sx = OX + 7 + k * 35; if (120 + t * 300 > sx) fr(sx, 142, 1, 6, '#2b1a12'); } const x = 120 + t * 300; fb(x - 8, 146, 16, 12, '#8c99a3'); fr(x - 5, 149, 10, 4, (t * 20 | 0) % 2 ? '#7ed957' : '#3f8f3f'); }
     if (step === 1) { const per = 2 * (OW + OH), n = Math.floor(t * per); for (let i = 0; i < n; i += 4) { const p = i < OW ? [OX + i, OY] : i < OW + OH ? [OX + OW, OY + i - OW] : i < 2 * OW + OH ? [OX + OW - (i - OW - OH), OY + OH] : [OX, OY + OH - (i - 2 * OW - OH)]; fr(p[0], p[1], 2, 2, '#2b1a12'); } }
@@ -2630,6 +2630,7 @@ function diyTick() {
   }
   const s2 = Math.min(run.step, p.steps.length - 1), drawStep = run.step >= p.steps.length ? p.steps.length - 1 : s2;
   DRAW[run.id](drawStep, run.step >= p.steps.length ? 1 : run.t);
+  if (run.live && window.DIWHY_ELEV) window.DIWHY_ELEV.draw(dg, run.id, performance.now());   /* INTEGRATION: the pictures for the open event card (elevation.js) */
   const working = !run.paused && !run.waitTool && run.atWork && run.step < p.steps.length && !(run.live && run.step >= run.limit);
   diySprite.classList.toggle('work', working);
   diyTool.classList.toggle('swing', working);
@@ -3746,6 +3747,7 @@ window.DIWHY_HOOKS = {
 </script>
 
 <!-- INTEGRATION: connects this page to the backend when the URL has ?game=<id>. Does nothing otherwise. -->
+<script src="elevation.js"></script>   <!-- INTEGRATION: the props that show what the event card is about (elevation.js) -->
 <script src="game-link.js"></script>
 
 </body>

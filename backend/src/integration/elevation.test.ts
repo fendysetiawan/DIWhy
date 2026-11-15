@@ -5,8 +5,10 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { parseCsv } from '../content/csv';
 
 const FRONTEND = join(process.cwd(), '..', 'frontend'); // tests run from backend/
+const EVENTS = join(process.cwd(), '..', 'events');
 const W = 533;
 const H = 300;
 
@@ -141,4 +143,34 @@ describe('the prop kit', () => {
     expect(() => ELEV.draw(fakeCtx().ctx, 'wall', 5)).not.toThrow();
     expect(() => ELEV.draw(fakeCtx().ctx, 'chimney', 5)).not.toThrow();
   });
+});
+
+describe('the visual column of the event files', () => {
+  const FILES: Array<[string, string]> = [
+    ['wall_removal_events.csv', 'wall'],
+    ['toilet_replace_events.csv', 'bath'],
+    ['dryer_replace_events.csv', 'dryer'],
+  ];
+
+  for (const [file, job] of FILES) {
+    it(`${file}: every row names props the kit can draw for ${job}`, () => {
+      const table = parseCsv(readFileSync(join(EVENTS, file), 'utf8').replace(/^﻿/, ''));
+      const col = table[0].map((h) => h.trim()).indexOf('visual');
+      expect(col, `${file} needs a visual column`).toBeGreaterThan(-1);
+      expect(table.length).toBeGreaterThan(1);
+      const { props, anchors } = ELEV.KIT;
+      for (const row of table.slice(1)) {
+        const tokens = (row[col] ?? '').trim().split(/\s+/).filter(Boolean);
+        expect(tokens.length, `${file} ${row[0]}: needs at least one visual token`).toBeGreaterThan(0);
+        for (const tok of tokens) {
+          const m = /^([a-z]+)(?::([a-z]+))?@([a-z]+)$/.exec(tok);
+          expect(m, `${file} ${row[0]}: "${tok}" is not prop[:variant]@anchor`).not.toBeNull();
+          const [, prop, variant, anchor] = m!;
+          expect(props[prop], `${file} ${row[0]}: unknown prop "${prop}"`).toBeDefined();
+          if (variant) expect(props[prop].variants ?? [], `${file} ${row[0]}: unknown variant "${variant}"`).toContain(variant);
+          expect(anchors[job][anchor], `${file} ${row[0]}: "${anchor}" is not an anchor of ${job}`).toBeDefined();
+        }
+      }
+    });
+  }
 });
