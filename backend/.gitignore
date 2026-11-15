@@ -3,3 +3,4 @@ dist/
 dist-server/
 e2e/out/
 .vitest/
+.games/

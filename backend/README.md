@@ -120,6 +120,10 @@ Use `addFlags` in a choice to unlock other events, and `gamble` for a hidden dic
 
 `EventDirector` is a single method: `selectEvent(state, candidates)`. `RandomDirector` is the default. `JevDirector` sends the game state and the candidate event ids to a local OpenJev server and samples the pick from the probabilities it returns. It only ever chooses among events the engine already approved. If the server is down, it falls back to random and says so in the debug payload. Choose it per game with `{ "director": "jev" }`. `COMPARISON.md` has results from 30 seeds per director.
 
+## Where games live
+
+`npm run play` saves each game as `backend/.games/game-<id>.json` (git ignores the folder), so games survive a restart. Games idle for 7 days are deleted, and so are the oldest ones beyond 1,000. Set `GAMES_DIR` to use another folder, or to an empty string to keep games in memory only. Run one server per directory: the per-game lock lives in the server process, so two servers on one folder can overwrite each other's moves. The tests use the in-memory store.
+
 ## Dev mode
 
 Dev mode adds a panel next to the reference page, and it's how you watch the Jev director work. The dev code is a separate chunk that's only downloaded when dev mode is on. It reads the API's `?debug=1` payload, so it shows the same thing against a remote backend.

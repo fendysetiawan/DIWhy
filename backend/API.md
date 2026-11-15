@@ -22,6 +22,7 @@ Settings (environment variables):
 | `HOST` | `127.0.0.1` | Interface to bind. `0.0.0.0` accepts other machines. |
 | `CORS_ORIGIN` | unset (no CORS headers) | Allowed origin for browsers on another origin, such as `http://localhost:3000`, or `*`. |
 | `EVENTS_DIR` | `../events` | Where the team's event CSVs are. |
+| `GAMES_DIR` | `backend/.games` | Where games are saved, one JSON file each, so they survive a restart. Set it to an empty string to keep games in memory only. |
 | `JEV_URL` | `http://127.0.0.1:8009/v1/systemone` | Where the Jev model server is. Set it to an empty string to turn the `jev` director off. |
 | `PHONE_URL` | `http://127.0.0.1:11434` | Where Ollama is, for the phone's writer. Set it to an empty string to turn the phone model off. |
 | `PHONE_MODEL` | `qwen3:8b` | Which Ollama model writes the texts. |
@@ -213,7 +214,7 @@ Every error has the same shape, and `code` is stable, so match on it and not on 
 - **One request per game at a time.** If two choices arrive together, the second waits for the first. With `eventId` set, it is then rejected as `stale_event`, so a double click can't apply twice.
 - **Slow calls.** With the `jev` director a choice can take a second or two while the model decides. Show a waiting state.
 - **Resuming.** Games live on the server, so keep the `id` (for example in the URL) and call `GET /api/games/:id` to pick up where the player left off.
-- **Limits.** The built-in store holds up to 1,000 games and drops any idle for 6 hours. A restart clears everything. To persist games, implement the three-method `GameStore` interface in `src/service/store.ts`. A test proves games survive a store that only keeps JSON text.
+- **Limits.** The built-in store holds up to 1,000 games and drops any idle for 6 hours. `npm run play` saves games to files instead (see `GAMES_DIR`), so a restart keeps them for 7 days. The memory store clears on restart. To use a database, implement the three-method `GameStore` interface in `src/service/store.ts`. A test proves games survive a store that only keeps JSON text.
 - **CORS.** Set `CORS_ORIGIN` when your front end runs on a different origin from the API. Responses, including errors, then carry the headers, and `OPTIONS` preflights are answered.
 
 ## Debug payload
