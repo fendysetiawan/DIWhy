@@ -83,19 +83,24 @@ export class Session {
     if (this.askIn <= 0) {
       this.askIn = ASK_EVERY;
       const id = this.state.id;
-      fetchGame(id).then(({ game, happened }) => this.state.apply(game, happened), (e) => this.recover(e));
+      fetchGame(id).then((update) => this.accept(id, update), (e) => this.recover(id, e));
     }
   }
 
   private send(action: Action): Promise<void> {
     const id = this.state.id;
     if (!id) return Promise.resolve();
-    return sendAction(id, action).then(({ game, happened }) => this.state.apply(game, happened), (e) => this.recover(e));
+    return sendAction(id, action).then((update) => this.accept(id, update), (e) => this.recover(id, e));
+  }
+
+  /** An answer for game `id`: show it, unless that game is over (PLAY AGAIN clears it while an answer is still on its way). */
+  private accept(id: string, { game, happened }: Update): void {
+    if (this.state.id === id) this.state.apply(game, happened);
   }
 
   /** The server forgot the game (it restarted): start a new one as the same character, and keep playing. */
-  private recover(error: unknown): void {
-    if (!(error instanceof ApiError) || error.status !== 404 || !this.state.player || this.recovering) {
+  private recover(id: string, error: unknown): void {
+    if (!(error instanceof ApiError) || error.status !== 404 || this.state.id !== id || !this.state.player || this.recovering) {
       console.warn(error);
       return;
     }
