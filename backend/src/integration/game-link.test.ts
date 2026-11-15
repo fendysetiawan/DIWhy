@@ -5,7 +5,7 @@
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../server/app';
 import { bridgeFetch, realProjects } from '../testing';
 
@@ -101,7 +101,34 @@ const card = () => document.getElementById('dwCard')!;
 const options = () => [...document.querySelectorAll<HTMLButtonElement>('.dw-option')];
 const waitForOptions = () => vi.waitFor(() => expect(options().length).toBe(3), { timeout: WAIT });
 
+// Every test evals the link again. The last test's instance would keep its timers (bar loop, typing,
+// waits) running against the new document and race the new one, so each test's timers are cleared at its end.
+const live = { timeouts: new Set<any>(), intervals: new Set<any>() };
+const realSetTimeout = globalThis.setTimeout;
+const realSetInterval = globalThis.setInterval;
+const realClearTimeout = globalThis.clearTimeout;
+const realClearInterval = globalThis.clearInterval;
+
+afterEach(() => {
+  live.timeouts.forEach((t) => realClearTimeout(t));
+  live.intervals.forEach((t) => realClearInterval(t));
+  live.timeouts.clear();
+  live.intervals.clear();
+  globalThis.setTimeout = realSetTimeout;
+  globalThis.setInterval = realSetInterval;
+});
+
 beforeEach(() => {
+  globalThis.setTimeout = ((fn: any, ms?: number, ...a: any[]) => {
+    const t = realSetTimeout(fn, ms, ...a);
+    live.timeouts.add(t);
+    return t;
+  }) as any;
+  globalThis.setInterval = ((fn: any, ms?: number, ...a: any[]) => {
+    const t = realSetInterval(fn, ms, ...a);
+    live.intervals.add(t);
+    return t;
+  }) as any;
   delete (window as any).DIWHY_LINK;
   document.getElementById('dwStyle')?.remove();
   document.head.querySelectorAll('link[href="/assets/style.css"]').forEach((l) => l.remove());
