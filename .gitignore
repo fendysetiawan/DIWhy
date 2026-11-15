@@ -1,7 +1,12 @@
-.venv/
+# Installed and built
+node_modules/
+dist/
 
-# Local-only: registry config and lockfile can contain internal registry URLs.
+# Only on your machine: secrets, npm settings, and the art and sound we made but don't use
+.env
 .npmrc
-package-lock.json
+unused-assets/
 
+# Logs and the OS
+*.log
 .DS_Store

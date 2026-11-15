@@ -1,0 +1,355 @@
+{
+  "id": "paint-room",
+  "title": "Paint the spare room",
+  "level": "Upstairs",
+  "spot": {
+    "x": 300,
+    "y": 560,
+    "w": 80,
+    "h": 60
+  },
+  "quote": {
+    "days": 3,
+    "money": 1200
+  },
+  "steps": [
+    {
+      "name": "Move the furniture",
+      "act": "push-pull",
+      "sound": "scraping",
+      "minutes": 60
+    },
+    {
+      "name": "Tape the edges",
+      "act": "measuring",
+      "sound": "scotch-tape",
+      "minutes": 90
+    },
+    {
+      "name": "Roll the walls",
+      "act": "paint-roller",
+      "sound": "paint-roller",
+      "tool": "roller-kit",
+      "minutes": 180
+    },
+    {
+      "name": "A second coat",
+      "act": "paint-roller",
+      "sound": "paint-roller",
+      "minutes": 180
+    }
+  ],
+  "surprises": [
+    {
+      "title": "Paint peels in sheets",
+      "description": "You scrape one flake, and a whole sheet peels off like a sunburn.",
+      "options": [
+        {
+          "text": "Paint right over it",
+          "quality": "wrong"
+        },
+        {
+          "text": "Scrape, sand, and prime",
+          "quality": "good"
+        },
+        {
+          "text": "Strip the whole room to bare drywall",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Lead paint shows up",
+      "description": "The house is from 1955, and the test swab just turned red.",
+      "options": [
+        {
+          "text": "Power-sand it smooth",
+          "quality": "wrong"
+        },
+        {
+          "text": "Use lead-safe prep with wet sanding",
+          "quality": "good"
+        },
+        {
+          "text": "Hire abatement for the whole house",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Cracks keep returning",
+      "description": "Diagonal cracks above the door. You patched them last year. They're back.",
+      "options": [
+        {
+          "text": "Have the framing and header checked",
+          "quality": "good"
+        },
+        {
+          "text": "Fill with flexible caulk and repaint",
+          "quality": "ok"
+        },
+        {
+          "text": "Underpin the foundation",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Nail pops appear",
+      "description": "Little round bumps everywhere. The drywall nails are backing out.",
+      "options": [
+        {
+          "text": "Drive screws beside them and patch",
+          "quality": "good"
+        },
+        {
+          "text": "Paint over the bumps",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace all the drywall",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Water stain appears",
+      "description": "Under the old paint, a brown ring near the ceiling. That water came from somewhere.",
+      "options": [
+        {
+          "text": "Find the leak before painting",
+          "quality": "good"
+        },
+        {
+          "text": "Cover it with stain-blocking primer only",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the whole ceiling",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Mold shows up",
+      "description": "Behind the dresser, the wall is speckled with mold.",
+      "options": [
+        {
+          "text": "Fix the moisture source and clean it",
+          "quality": "good"
+        },
+        {
+          "text": "Use mold-resistant paint over it",
+          "quality": "wrong"
+        },
+        {
+          "text": "Gut the room",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Outlet is scorched",
+      "description": "You take off an outlet cover, and the outlet behind it is black and melted.",
+      "options": [
+        {
+          "text": "Paint around it and leave it",
+          "quality": "wrong"
+        },
+        {
+          "text": "Power off, replace the outlet",
+          "quality": "good"
+        },
+        {
+          "text": "Rewire the room",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Wallpaper hides underneath",
+      "description": "The \"paint\" is actually painted-over wallpaper. And it's bubbling.",
+      "options": [
+        {
+          "text": "Replace all the drywall",
+          "quality": "excessive"
+        },
+        {
+          "text": "Strip the wallpaper and skim coat",
+          "quality": "good"
+        },
+        {
+          "text": "Glue down the bubbles and paint",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "Color looks wrong",
+      "description": "The swatch said \"Soft Sage.\" The wall says \"Hospital Hallway.\"",
+      "options": [
+        {
+          "text": "Test samples in daylight before choosing",
+          "quality": "good"
+        },
+        {
+          "text": "Live with it",
+          "quality": "ok"
+        },
+        {
+          "text": "Repaint the room three more times",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Trim paint won't stick",
+      "description": "The new latex peels off the trim with a fingernail. The old trim paint is oil-based.",
+      "options": [
+        {
+          "text": "Scuff and use a bonding primer",
+          "quality": "good"
+        },
+        {
+          "text": "Add another coat",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace all the trim",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Window gets painted shut",
+      "description": "The window you painted around is now sealed tight.",
+      "options": [
+        {
+          "text": "Pry it open with a screwdriver",
+          "quality": "wrong"
+        },
+        {
+          "text": "Cut the paint seal with a window zipper",
+          "quality": "good"
+        },
+        {
+          "text": "Replace the window",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Ceiling looks dingy",
+      "description": "The fresh walls make the ceiling look yellow and tired.",
+      "options": [
+        {
+          "text": "Leave it for another day",
+          "quality": "ok"
+        },
+        {
+          "text": "Install a drop ceiling",
+          "quality": "excessive"
+        },
+        {
+          "text": "Paint the ceiling too",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Whole house looks dull",
+      "description": "This room looks amazing. The rest of the house, less so.",
+      "options": [
+        {
+          "text": "Plan the next room for next month",
+          "quality": "good"
+        },
+        {
+          "text": "Paint just the parts guests see",
+          "quality": "ok"
+        },
+        {
+          "text": "Paint the whole house this week",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Accent wall idea strikes",
+      "description": "What if one wall had board-and-batten? Or wallpaper? Or both?",
+      "options": [
+        {
+          "text": "Add board-and-batten to every room",
+          "quality": "excessive"
+        },
+        {
+          "text": "Save it for after this job",
+          "quality": "good"
+        },
+        {
+          "text": "Draw the battens on with a marker",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Partner requests shelves",
+      "description": "Your partner: \"Since the walls are fresh, can we put up floating shelves?\"",
+      "options": [
+        {
+          "text": "Build a full built-in library",
+          "quality": "excessive"
+        },
+        {
+          "text": "Let the paint cure, then hang them",
+          "quality": "good"
+        },
+        {
+          "text": "Hang them now on the wet paint",
+          "quality": "wrong"
+        }
+      ]
+    }
+  ],
+  "video": {
+    "title": "Paint a room like a pro",
+    "channel": "Roll With It",
+    "length": "14:20",
+    "minutes": 90
+  },
+  "ask": {
+    "question": "How do I paint a room?",
+    "answer": "Fun project! 1. Buy paint. 2. Paint the walls. 3. Admire!",
+    "skipped": "It skipped taping, primer and the second coat."
+  },
+  "set": [
+    {
+      "name": "flap",
+      "x": 290,
+      "y": 125,
+      "w": 14,
+      "h": 8,
+      "animate": "wobble"
+    },
+    {
+      "name": "flake",
+      "x": 246,
+      "y": 146,
+      "w": 5,
+      "h": 3,
+      "animate": "drift",
+      "reach": 82,
+      "every": 4
+    },
+    {
+      "name": "drip",
+      "x": 177,
+      "y": 219,
+      "w": 2,
+      "h": 2,
+      "animate": "drip",
+      "reach": 10,
+      "every": 6
+    }
+  ]
+}

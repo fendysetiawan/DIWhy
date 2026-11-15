@@ -1,0 +1,335 @@
+{
+  "id": "smart-thermostat",
+  "title": "Put in a smart thermostat",
+  "level": "Ground",
+  "spot": {
+    "x": 808,
+    "y": 400,
+    "w": 30,
+    "h": 40
+  },
+  "quote": {
+    "days": 1,
+    "money": 250
+  },
+  "steps": [
+    {
+      "name": "Kill the power",
+      "act": "flashlight",
+      "sound": "circuit-breaker",
+      "minutes": 10
+    },
+    {
+      "name": "Unscrew the old one",
+      "act": "wrench",
+      "sound": "unscrew-cap",
+      "minutes": 20
+    },
+    {
+      "name": "Connect the wires",
+      "act": "ceiling-reach",
+      "sound": "wire-crimper-tool",
+      "tool": "voltage-tester",
+      "minutes": 40
+    },
+    {
+      "name": "Pair it with the app",
+      "act": "phone",
+      "sound": "beeping",
+      "minutes": 20
+    }
+  ],
+  "surprises": [
+    {
+      "title": "C-wire is missing",
+      "description": "The app wants a C-wire. Four wires, none labeled C.",
+      "options": [
+        {
+          "text": "Replace the whole HVAC system",
+          "quality": "excessive"
+        },
+        {
+          "text": "Use the spare wire as the C",
+          "quality": "good"
+        },
+        {
+          "text": "Install an adapter kit at the furnace",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "Wires lose their labels",
+      "description": "You forgot to take a photo. Now four anonymous wires dangle from the wall.",
+      "options": [
+        {
+          "text": "Call an HVAC tech",
+          "quality": "ok"
+        },
+        {
+          "text": "Connect them by color and hope",
+          "quality": "wrong"
+        },
+        {
+          "text": "Trace them at the furnace control board",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Transformer blows",
+      "description": "You crossed two wires. The furnace goes silent, and there's a faint burning smell.",
+      "options": [
+        {
+          "text": "Replace the furnace",
+          "quality": "excessive"
+        },
+        {
+          "text": "Replace the furnace fuse or transformer",
+          "quality": "good"
+        },
+        {
+          "text": "Keep flipping the breaker",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Heat pump runs backwards",
+      "description": "Turns out you have a heat pump. You ask for heat, and it blows cold air.",
+      "options": [
+        {
+          "text": "Swap wires until something works",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the heat pump",
+          "quality": "excessive"
+        },
+        {
+          "text": "Change the O/B setting in the app",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Wall rectangle shows",
+      "description": "The new thermostat is tiny. The old one left a big rectangle of unpainted wall.",
+      "options": [
+        {
+          "text": "Patch and paint the wall",
+          "quality": "ok"
+        },
+        {
+          "text": "Use a trim plate",
+          "quality": "good"
+        },
+        {
+          "text": "Repaint the whole hallway",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Furnace is ancient",
+      "description": "The furnace label says 1987. The thermostat app says \"incompatible.\"",
+      "options": [
+        {
+          "text": "Force it to work with jumper wires",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the furnace today",
+          "quality": "excessive"
+        },
+        {
+          "text": "Pick one that works with old systems",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "System short-cycles",
+      "description": "The heat clicks on and off every two minutes. The house has hiccups.",
+      "options": [
+        {
+          "text": "Tweak the cycles, check the filter",
+          "quality": "good"
+        },
+        {
+          "text": "Unplug it. Space heaters forever",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the HVAC system",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Wi-Fi can't reach",
+      "description": "The thermostat can't find Wi-Fi. Your router is in the farthest corner of the house.",
+      "options": [
+        {
+          "text": "Move the router to the hallway floor",
+          "quality": "ok"
+        },
+        {
+          "text": "Add a mesh Wi-Fi node",
+          "quality": "good"
+        },
+        {
+          "text": "Run Ethernet through the whole house",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Filter is filthy",
+      "description": "At the furnace, you find an air filter that's gray and fuzzy like an old sweater.",
+      "options": [
+        {
+          "text": "Install a whole-house air purifier",
+          "quality": "excessive"
+        },
+        {
+          "text": "Replace the filter",
+          "quality": "good"
+        },
+        {
+          "text": "Vacuum it and put it back",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "Old thermostat has mercury",
+      "description": "The old thermostat has a little glass bulb of mercury inside.",
+      "options": [
+        {
+          "text": "Take it to a hazardous waste drop-off",
+          "quality": "good"
+        },
+        {
+          "text": "Hire a hazmat crew",
+          "quality": "excessive"
+        },
+        {
+          "text": "Toss it in the trash",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Condensate line clogs",
+      "description": "You test the AC, and water starts pooling under the furnace.",
+      "options": [
+        {
+          "text": "Put a towel under it",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the AC unit",
+          "quality": "excessive"
+        },
+        {
+          "text": "Clear the condensate line",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Sun fools the sensor",
+      "description": "The thermostat sits next to a sunny window and thinks it's summer all afternoon.",
+      "options": [
+        {
+          "text": "Install zone control in every room",
+          "quality": "excessive"
+        },
+        {
+          "text": "Move the thermostat to another wall",
+          "quality": "ok"
+        },
+        {
+          "text": "Add a remote room sensor",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Smart home bug bites",
+      "description": "The thermostat works great. Now you want smart locks, lights, and blinds.",
+      "options": [
+        {
+          "text": "Buy them all and leave them in boxes",
+          "quality": "wrong"
+        },
+        {
+          "text": "Pick one device for next month",
+          "quality": "good"
+        },
+        {
+          "text": "Automate the entire house this weekend",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Duct cleaning ad appears",
+      "description": "The thermostat app suggests a duct cleaning service. With a coupon!",
+      "options": [
+        {
+          "text": "Check the filter and registers first",
+          "quality": "good"
+        },
+        {
+          "text": "Book a full duct replacement",
+          "quality": "excessive"
+        },
+        {
+          "text": "Vacuum the ducts with the shop vac",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "Partner feels cold",
+      "description": "Your partner: \"Now that it's smart, can the bedroom be warmer than the living room?\"",
+      "options": [
+        {
+          "text": "Install a zoned system with new dampers",
+          "quality": "excessive"
+        },
+        {
+          "text": "Put a space heater by the thermostat",
+          "quality": "wrong"
+        },
+        {
+          "text": "Set up a room sensor schedule",
+          "quality": "good"
+        }
+      ]
+    }
+  ],
+  "video": {
+    "title": "Smart thermostat install, C-wire and all",
+    "channel": "Spark Smart",
+    "length": "12:30",
+    "minutes": 80
+  },
+  "ask": {
+    "question": "How do I install a smart thermostat?",
+    "answer": "Easy! 1. Pull off the old one. 2. Connect the wires. 3. Download the app!",
+    "skipped": "It skipped the C-wire and labeling the wires."
+  },
+  "set": [
+    {
+      "name": "needle",
+      "x": 180,
+      "y": 40,
+      "w": 120,
+      "h": 112,
+      "animate": "wobble"
+    }
+  ]
+}

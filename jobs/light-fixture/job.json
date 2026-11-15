@@ -1,0 +1,354 @@
+{
+  "id": "light-fixture",
+  "title": "Hang a new light",
+  "level": "Ground",
+  "spot": {
+    "x": 360,
+    "y": 240,
+    "w": 80,
+    "h": 70
+  },
+  "quote": {
+    "days": 1,
+    "money": 400
+  },
+  "steps": [
+    {
+      "name": "Flip the breaker",
+      "act": "flashlight",
+      "sound": "circuit-breaker",
+      "minutes": 10
+    },
+    {
+      "name": "Take down the old light",
+      "act": "ceiling-reach",
+      "sound": "unscrew-cap",
+      "minutes": 40
+    },
+    {
+      "name": "Wire the new one",
+      "act": "ceiling-reach",
+      "sound": "wire-crimper-tool",
+      "tool": "wire-stripper",
+      "minutes": 60
+    },
+    {
+      "name": "Test it",
+      "act": "flashlight",
+      "sound": "light-switch",
+      "minutes": 10
+    }
+  ],
+  "surprises": [
+    {
+      "title": "Ground wire is missing",
+      "description": "You open the box and find two cloth-wrapped wires and zero ground. Vintage!",
+      "options": [
+        {
+          "text": "Rewire the whole house",
+          "quality": "excessive"
+        },
+        {
+          "text": "Have an electrician add a GFCI",
+          "quality": "good"
+        },
+        {
+          "text": "Connect the ground to the neutral",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Wire insulation crumbles",
+      "description": "You bend the old wire and the insulation flakes off like a croissant.",
+      "options": [
+        {
+          "text": "Rewire the whole floor",
+          "quality": "excessive"
+        },
+        {
+          "text": "Wrap the bare spots in electrical tape",
+          "quality": "wrong"
+        },
+        {
+          "text": "Cut back to good wire or replace the run",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Box is too small",
+      "description": "Old wires plus new wires do not fit in this tiny box. Not even close.",
+      "options": [
+        {
+          "text": "Swap in a larger box",
+          "quality": "good"
+        },
+        {
+          "text": "Rewire the whole room",
+          "quality": "excessive"
+        },
+        {
+          "text": "Cram everything in and push hard",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Box can't hold the weight",
+      "description": "The new fixture weighs 25 pounds. The box is held up by one rusty nail.",
+      "options": [
+        {
+          "text": "Install a rated box with a brace",
+          "quality": "good"
+        },
+        {
+          "text": "Hang it with drywall anchors",
+          "quality": "wrong"
+        },
+        {
+          "text": "Add a beam across the ceiling",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Breaker isn't labeled",
+      "description": "You flip six breakers. The light is still on. The fridge is not.",
+      "options": [
+        {
+          "text": "Shut off the main for the whole job",
+          "quality": "ok"
+        },
+        {
+          "text": "Work on it live with rubber gloves",
+          "quality": "wrong"
+        },
+        {
+          "text": "Find it with a circuit tester and label it",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Wire colors are wrong",
+      "description": "The white wire is hot. Someone before you had a creative streak.",
+      "options": [
+        {
+          "text": "Test it and mark it with tape",
+          "quality": "good"
+        },
+        {
+          "text": "Hire an electrician to redo every switch",
+          "quality": "excessive"
+        },
+        {
+          "text": "Guess and flip the switch",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Ceiling ring shows",
+      "description": "The new canopy is smaller than the old one. There's a ring of ugly ceiling around it.",
+      "options": [
+        {
+          "text": "Patch and repaint the ring",
+          "quality": "ok"
+        },
+        {
+          "text": "Replace the whole ceiling",
+          "quality": "excessive"
+        },
+        {
+          "text": "Add a ceiling medallion",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Ceiling white clashes",
+      "description": "Your patch is bright white. The ceiling is twenty years of a different white.",
+      "options": [
+        {
+          "text": "Repaint the whole ceiling",
+          "quality": "good"
+        },
+        {
+          "text": "Dab on more touch-up paint",
+          "quality": "wrong"
+        },
+        {
+          "text": "Repaint the whole house",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Dimmer starts buzzing",
+      "description": "The new LED fixture flickers, and the old dimmer hums like a mosquito.",
+      "options": [
+        {
+          "text": "Leave it; it'll stop eventually",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace every switch in the house",
+          "quality": "excessive"
+        },
+        {
+          "text": "Swap in an LED-compatible dimmer",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Knob and tube appears",
+      "description": "Behind the box: porcelain knobs and wires from your great-grandparents' era.",
+      "options": [
+        {
+          "text": "Rewire the whole house now",
+          "quality": "excessive"
+        },
+        {
+          "text": "Pack insulation around it and close up",
+          "quality": "wrong"
+        },
+        {
+          "text": "Have an electrician replace that run",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Popcorn texture falls",
+      "description": "Cutting the box hole showers you in popcorn texture from 1972.",
+      "options": [
+        {
+          "text": "Hire abatement for the whole house",
+          "quality": "excessive"
+        },
+        {
+          "text": "Stop and send a sample to a lab",
+          "quality": "good"
+        },
+        {
+          "text": "Keep going and sweep up later",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Insulation rains down",
+      "description": "Loose-fill attic insulation pours out of the hole and onto your head.",
+      "options": [
+        {
+          "text": "Wear a mask, bag it, and seal the hole",
+          "quality": "good"
+        },
+        {
+          "text": "Vacuum it with the house vacuum",
+          "quality": "wrong"
+        },
+        {
+          "text": "Re-insulate the whole attic",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Other fixtures look dated",
+      "description": "Your new fixture is stunning. Every other light now looks like a 1990s hotel.",
+      "options": [
+        {
+          "text": "Spray-paint the old fixtures gold",
+          "quality": "ok"
+        },
+        {
+          "text": "Replace them one at a time",
+          "quality": "good"
+        },
+        {
+          "text": "Replace every fixture this weekend",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Partner wants voice control",
+      "description": "Your partner: \"Could it work with voice commands?\"",
+      "options": [
+        {
+          "text": "Install a whole-home automation hub",
+          "quality": "excessive"
+        },
+        {
+          "text": "Tape a smart plug to the ceiling",
+          "quality": "wrong"
+        },
+        {
+          "text": "Use smart bulbs in the new fixture",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Ceiling fan tempts you",
+      "description": "It's hot, and you're already up here. What if this were a ceiling fan?",
+      "options": [
+        {
+          "text": "Stick with the fixture",
+          "quality": "good"
+        },
+        {
+          "text": "Install fans in every room",
+          "quality": "excessive"
+        },
+        {
+          "text": "Hang the fan from the old light box",
+          "quality": "wrong"
+        }
+      ]
+    }
+  ],
+  "video": {
+    "title": "Swap a ceiling light safely",
+    "channel": "Spark Smart",
+    "length": "9:40",
+    "minutes": 70
+  },
+  "ask": {
+    "question": "How do I change a ceiling light?",
+    "answer": "Simple! 1. Take down the old light. 2. Match the colors. 3. Done!",
+    "skipped": "It skipped turning off the breaker."
+  },
+  "set": [
+    {
+      "name": "glow",
+      "x": 120,
+      "y": 34,
+      "w": 240,
+      "h": 170,
+      "animate": "flicker"
+    },
+    {
+      "name": "fixture",
+      "x": 150,
+      "y": 40,
+      "w": 180,
+      "h": 100,
+      "animate": "blink",
+      "every": 3.4
+    },
+    {
+      "name": "moth",
+      "x": 238,
+      "y": 112,
+      "w": 7,
+      "h": 5,
+      "animate": "flutter",
+      "reach": 84,
+      "every": 3.5
+    }
+  ]
+}

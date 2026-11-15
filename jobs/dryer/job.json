@@ -1,0 +1,381 @@
+{
+  "id": "dryer",
+  "title": "Replace the dryer",
+  "level": "Basement",
+  "spot": {
+    "x": 889,
+    "y": 746,
+    "w": 81,
+    "h": 62
+  },
+  "quote": {
+    "days": 1,
+    "money": 900
+  },
+  "steps": [
+    {
+      "name": "Pull out the old dryer",
+      "act": "push-pull",
+      "sound": "groaning-metal",
+      "minutes": 30
+    },
+    {
+      "name": "Clean the vent",
+      "act": "dust-cough",
+      "sound": "insulation-rustling",
+      "tool": "vent-brush",
+      "minutes": 40
+    },
+    {
+      "name": "Connect the new one",
+      "act": "wrench",
+      "sound": "socket-wrench",
+      "minutes": 40
+    },
+    {
+      "name": "Run a test load",
+      "act": "flashlight",
+      "sound": "beeping",
+      "minutes": 20
+    }
+  ],
+  "surprises": [
+    {
+      "title": "Dryer starts smoking",
+      "description": "Oh no! The old dryer is smoking. Not metaphorically.",
+      "options": [
+        {
+          "text": "Keep running it with the door open",
+          "quality": "wrong"
+        },
+        {
+          "text": "Unplug it and start the replacement",
+          "quality": "good"
+        },
+        {
+          "text": "Gut the laundry room and start over",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Scorch marks behind it",
+      "description": "Behind the dryer, the wall is brown, warm, and weirdly proud of itself.",
+      "options": [
+        {
+          "text": "Cover it with a framed poster",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the scorched drywall",
+          "quality": "good"
+        },
+        {
+          "text": "Rebuild the whole laundry room wall",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Outlet has melted",
+      "description": "The dryer plug has fused to the outlet. It's modern art now.",
+      "options": [
+        {
+          "text": "Pry it out with a screwdriver",
+          "quality": "wrong"
+        },
+        {
+          "text": "Have an electrician swap outlet and cord",
+          "quality": "good"
+        },
+        {
+          "text": "Rewire the whole house",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Lint everywhere",
+      "description": "Behind the dryer: a lint ecosystem with its own weather.",
+      "options": [
+        {
+          "text": "Blow it into the next room",
+          "quality": "wrong"
+        },
+        {
+          "text": "Vacuum it up and clean out the vent",
+          "quality": "good"
+        },
+        {
+          "text": "Hire a duct cleaner for the whole house",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Vent hose is crushed",
+      "description": "The foil vent hose is folded flat like a sad accordion. No wonder it smoked.",
+      "options": [
+        {
+          "text": "Straighten it and tape it",
+          "quality": "ok"
+        },
+        {
+          "text": "Replace it with rigid metal duct",
+          "quality": "good"
+        },
+        {
+          "text": "Replace all the ductwork in the house",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Wall needs to open",
+      "description": "The vent disappears into the wall, packed solid. Somebody has to look.",
+      "options": [
+        {
+          "text": "Poke a coat hanger in and hope",
+          "quality": "wrong"
+        },
+        {
+          "text": "Cut a small access hole",
+          "quality": "good"
+        },
+        {
+          "text": "Take the whole wall down",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Beehive in the wall",
+      "description": "A low hum. Then a very large honeycomb, and its very concerned owners.",
+      "options": [
+        {
+          "text": "Spray it and keep cutting",
+          "quality": "wrong"
+        },
+        {
+          "text": "Call a beekeeper to remove the colony",
+          "quality": "good"
+        },
+        {
+          "text": "Fumigate the whole house",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Honey in the wall",
+      "description": "Behind the hive: years of honey in the drywall. It's sticky. It's everywhere.",
+      "options": [
+        {
+          "text": "Paint right over it",
+          "quality": "wrong"
+        },
+        {
+          "text": "Cut out the damp section and replace it",
+          "quality": "good"
+        },
+        {
+          "text": "Gut the whole wall and rebuild",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Drywall dust everywhere",
+      "description": "Opening the wall made a snowstorm. It's in the vents, the couch, and the dog.",
+      "options": [
+        {
+          "text": "Sweep it into the next room",
+          "quality": "wrong"
+        },
+        {
+          "text": "Seal it off and HEPA vacuum",
+          "quality": "good"
+        },
+        {
+          "text": "Pay for a whole-house deep clean",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Plug doesn't match",
+      "description": "Four-prong cord, three-prong outlet. The adapter says 'not recommended' in four languages.",
+      "options": [
+        {
+          "text": "Run it off an extension cord",
+          "quality": "wrong"
+        },
+        {
+          "text": "Install the matching four-prong outlet",
+          "quality": "good"
+        },
+        {
+          "text": "Swap in a three-prong cord",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "New dryer won't fit",
+      "description": "The new dryer is two inches wider than the alcove. Of course it is.",
+      "options": [
+        {
+          "text": "Knock out the wall studs",
+          "quality": "wrong"
+        },
+        {
+          "text": "Return it for one that fits",
+          "quality": "good"
+        },
+        {
+          "text": "Rebuild the laundry alcove bigger",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Floor is dented",
+      "description": "Sliding out the old dryer took a chunk of the floor with it.",
+      "options": [
+        {
+          "text": "Slide a rug over it",
+          "quality": "wrong"
+        },
+        {
+          "text": "Patch the damaged section",
+          "quality": "good"
+        },
+        {
+          "text": "Replace the flooring in the whole room",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "The cat is in the vent",
+      "description": "From deep inside the duct, a very small, very smug meow.",
+      "options": [
+        {
+          "text": "Run the dryer to coax him out",
+          "quality": "wrong"
+        },
+        {
+          "text": "Cut an opening and gently rescue the cat",
+          "quality": "good"
+        },
+        {
+          "text": "Replace the whole duct system",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Vent cap is clogged",
+      "description": "Outside, the vent flap is stuffed with a bird's nest. The bird is not leaving.",
+      "options": [
+        {
+          "text": "Poke it clear with a stick and walk away",
+          "quality": "ok"
+        },
+        {
+          "text": "Clean it and replace the vent cap",
+          "quality": "good"
+        },
+        {
+          "text": "Reroute the vent through the roof",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Stackable dreams",
+      "description": "The alcove is tall. A stacked washer and dryer would free up so much floor.",
+      "options": [
+        {
+          "text": "Balance the dryer on top of the washer",
+          "quality": "wrong"
+        },
+        {
+          "text": "Put it on the next project's list",
+          "quality": "good"
+        },
+        {
+          "text": "Rebuild the alcove tonight for stacking",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Smart dryer sale",
+      "description": "The store has a dryer that texts you when it's done. It also has opinions.",
+      "options": [
+        {
+          "text": "Keep the smoking one, it's basically fine",
+          "quality": "wrong"
+        },
+        {
+          "text": "Buy the basic model as planned",
+          "quality": "good"
+        },
+        {
+          "text": "Buy the smart one, subscription and all",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Partner requests a shelf",
+      "description": "Your partner: \"While the dryer's out, that shelf above it is crooked.\"",
+      "options": [
+        {
+          "text": "Leave the machine in pieces and fix it now",
+          "quality": "wrong"
+        },
+        {
+          "text": "Fix it once the dryer is hooked up",
+          "quality": "good"
+        },
+        {
+          "text": "Build a laundry room with custom cabinets",
+          "quality": "excessive"
+        }
+      ]
+    }
+  ],
+  "video": {
+    "title": "Dryer vent cleaning, step by step",
+    "channel": "Fix It Friday",
+    "length": "12:05",
+    "minutes": 80
+  },
+  "ask": {
+    "question": "How do I fix my dryer vent?",
+    "answer": "Here's a quick guide! 1. Pull the dryer out. 2. Clean the lint. 3. Push it back!",
+    "skipped": "It skipped unplugging it and replacing the foil hose."
+  },
+  "set": [
+    {
+      "name": "dryer",
+      "x": 175,
+      "y": 110,
+      "w": 130,
+      "h": 112,
+      "animate": "shake"
+    },
+    {
+      "name": "sock",
+      "x": 53,
+      "y": 58,
+      "w": 10,
+      "h": 6,
+      "animate": "orbit",
+      "reach": 16,
+      "every": 1.3
+    }
+  ]
+}

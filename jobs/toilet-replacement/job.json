@@ -1,0 +1,359 @@
+{
+  "id": "toilet-replacement",
+  "title": "Replace the toilet",
+  "level": "Ground",
+  "spot": {
+    "x": 1140,
+    "y": 140,
+    "w": 70,
+    "h": 70
+  },
+  "appears": {
+    "after": "bathroom-leak",
+    "from": "partner",
+    "news": "Now the downstairs toilet rocks when you sit on it. And the floor around it is damp."
+  },
+  "quote": {
+    "days": 2,
+    "money": 450
+  },
+  "steps": [
+    {
+      "name": "Shut off the water",
+      "act": "under-sink",
+      "sound": "unscrew-cap",
+      "minutes": 20
+    },
+    {
+      "name": "Lift off the old toilet",
+      "act": "carry-box",
+      "sound": "groaning-metal",
+      "minutes": 40
+    },
+    {
+      "name": "Set a new wax ring",
+      "act": "under-sink",
+      "sound": "sticky-glue",
+      "tool": "wax-ring",
+      "minutes": 30
+    },
+    {
+      "name": "Bolt it down",
+      "act": "wrench",
+      "sound": "socket-wrench",
+      "minutes": 30
+    }
+  ],
+  "surprises": [
+    {
+      "title": "Closet bolts rust solid",
+      "description": "The toilet bolts are rusted into one solid lump of sadness.",
+      "options": [
+        {
+          "text": "Twist until something gives",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the whole bathroom floor",
+          "quality": "excessive"
+        },
+        {
+          "text": "Cut them with a mini hacksaw",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Flange breaks",
+      "description": "The flange crumbles like a stale cookie when you lift the toilet.",
+      "options": [
+        {
+          "text": "Replace the drain line under the floor",
+          "quality": "excessive"
+        },
+        {
+          "text": "Install a flange repair ring",
+          "quality": "good"
+        },
+        {
+          "text": "Stack two wax rings",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Subfloor is rotten",
+      "description": "Around the drain, the subfloor is spongy. The old toilet has been leaking quietly for years.",
+      "options": [
+        {
+          "text": "Cut out and replace the rotten section",
+          "quality": "good"
+        },
+        {
+          "text": "Set the toilet on a plywood shim",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the whole bathroom subfloor",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Joist rot appears",
+      "description": "From below, the joist under the toilet is dark and soft.",
+      "options": [
+        {
+          "text": "Sister the joist",
+          "quality": "good"
+        },
+        {
+          "text": "Soak it in wood hardener",
+          "quality": "ok"
+        },
+        {
+          "text": "Reframe the bathroom floor",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Rough-in is odd",
+      "description": "The drain is 10 inches from the wall. Your new toilet needs 12.",
+      "options": [
+        {
+          "text": "Return it for a 10-inch rough-in toilet",
+          "quality": "good"
+        },
+        {
+          "text": "Use an offset flange",
+          "quality": "ok"
+        },
+        {
+          "text": "Move the drain",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Shutoff starts dripping",
+      "description": "You turn the toilet shutoff, and now it drips from the stem.",
+      "options": [
+        {
+          "text": "Repipe the bathroom",
+          "quality": "excessive"
+        },
+        {
+          "text": "Tighten the packing nut",
+          "quality": "ok"
+        },
+        {
+          "text": "Replace the shutoff valve",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Wax ring leaks",
+      "description": "First flush. A little puddle forms around the base. Not ideal.",
+      "options": [
+        {
+          "text": "Pull the toilet and reset with a new ring",
+          "quality": "good"
+        },
+        {
+          "text": "Buy a different toilet",
+          "quality": "excessive"
+        },
+        {
+          "text": "Caulk around the base to hold it in",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Toilet rocks",
+      "description": "The new toilet rocks side to side like a boat. The floor isn't level.",
+      "options": [
+        {
+          "text": "Level the whole bathroom floor",
+          "quality": "excessive"
+        },
+        {
+          "text": "Shim it with plastic shims and caulk",
+          "quality": "good"
+        },
+        {
+          "text": "Crank the bolts until it stops",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Floor tiles crack",
+      "description": "Removing the old toilet cracked two tiles, and the new base is smaller.",
+      "options": [
+        {
+          "text": "Retile the whole bathroom",
+          "quality": "excessive"
+        },
+        {
+          "text": "Replace the cracked tiles",
+          "quality": "good"
+        },
+        {
+          "text": "Pick a toilet with a bigger footprint",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "Sewer smell lingers",
+      "description": "A faint sewer smell hangs around after the install. Something isn't sealed.",
+      "options": [
+        {
+          "text": "Light a candle and move on",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the main stack",
+          "quality": "excessive"
+        },
+        {
+          "text": "Check the seal and the vent",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Ceiling below stains",
+      "description": "Downstairs, there's a brown ring on the ceiling right under the toilet.",
+      "options": [
+        {
+          "text": "Open a small section, dry it, and patch",
+          "quality": "good"
+        },
+        {
+          "text": "Paint over the stain",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the whole ceiling",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Tank bolt snaps",
+      "description": "One tank bolt snaps while you're tightening it. Porcelain is not forgiving.",
+      "options": [
+        {
+          "text": "Buy a new toilet",
+          "quality": "excessive"
+        },
+        {
+          "text": "Glue the tank to the bowl",
+          "quality": "wrong"
+        },
+        {
+          "text": "Install a new tank bolt kit",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Vanity looks old",
+      "description": "Next to the sparkly new toilet, the vanity looks like it survived a flood. It may have.",
+      "options": [
+        {
+          "text": "Paint it with leftover wall paint",
+          "quality": "ok"
+        },
+        {
+          "text": "Add it to the list",
+          "quality": "good"
+        },
+        {
+          "text": "Replace the vanity and faucet today",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Bidet seat tempts you",
+      "description": "The store has a fancy bidet seat with a heated seat and a nightlight.",
+      "options": [
+        {
+          "text": "Run an extension cord across the floor for it",
+          "quality": "wrong"
+        },
+        {
+          "text": "Buy it later once the toilet is settled",
+          "quality": "good"
+        },
+        {
+          "text": "Get a smart toilet with an app",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Partner complains about fan",
+      "description": "Your partner: \"While you're in there, the bathroom fan sounds like a jet engine.\"",
+      "options": [
+        {
+          "text": "Turn off the fan breaker forever",
+          "quality": "wrong"
+        },
+        {
+          "text": "Clean the fan grille for now",
+          "quality": "good"
+        },
+        {
+          "text": "Replace the fan and duct today",
+          "quality": "excessive"
+        }
+      ]
+    }
+  ],
+  "video": {
+    "title": "Replace a toilet the right way",
+    "channel": "Plumb Simple",
+    "length": "18:42",
+    "minutes": 110
+  },
+  "ask": {
+    "question": "How do I replace a toilet?",
+    "answer": "Easy one! 1. Lift off the old toilet. 2. Set the new one. 3. Tighten the bolts!",
+    "skipped": "It skipped shutting off the water and the new wax ring."
+  },
+  "set": [
+    {
+      "name": "ring",
+      "x": 208,
+      "y": 144,
+      "w": 64,
+      "h": 16,
+      "animate": "blink",
+      "every": 2
+    },
+    {
+      "name": "trickle",
+      "x": 239,
+      "y": 144,
+      "w": 2,
+      "h": 4,
+      "animate": "flicker"
+    },
+    {
+      "name": "drop",
+      "x": 183,
+      "y": 200,
+      "w": 2,
+      "h": 3,
+      "animate": "drip",
+      "reach": 30,
+      "every": 1.8
+    }
+  ]
+}

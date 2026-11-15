@@ -1,0 +1,338 @@
+{
+  "basin-wrench": {
+    "name": "a basin wrench",
+    "options": [
+      {
+        "name": "Bargain-bin wrench",
+        "price": 6,
+        "quality": "cheap",
+        "pitch": "This one? It'll do. Probably. Once."
+      },
+      {
+        "name": "Basin wrench",
+        "price": 24,
+        "quality": "right",
+        "pitch": "The basin wrench. Reaches up behind the sink. The pros use it."
+      },
+      {
+        "name": "42-piece plumbing kit",
+        "price": 95,
+        "quality": "premium",
+        "pitch": "The 42-piece plumbing kit! You'll use two pieces. The other 40 are for confidence."
+      }
+    ],
+    "askbot": 0
+  },
+  "stud-finder": {
+    "name": "a stud finder",
+    "options": [
+      {
+        "name": "Magnet stud finder",
+        "price": 8,
+        "quality": "cheap",
+        "pitch": "A magnet on a string. Your grandpa would be proud."
+      },
+      {
+        "name": "Electronic stud finder",
+        "price": 29,
+        "quality": "right",
+        "pitch": "Electronic. Beeps at studs. Simple."
+      },
+      {
+        "name": "Pro wall scanner",
+        "price": 89,
+        "quality": "premium",
+        "pitch": "The pro scanner sees studs, wires, pipes, and your future. On sale!"
+      }
+    ],
+    "askbot": 0
+  },
+  "wire-stripper": {
+    "name": "a wire stripper",
+    "options": [
+      {
+        "name": "Scissors, basically",
+        "price": 5,
+        "quality": "cheap",
+        "pitch": "Scissors work. Until they don't."
+      },
+      {
+        "name": "Wire stripper",
+        "price": 18,
+        "quality": "right",
+        "pitch": "A wire stripper. Does exactly one thing, perfectly."
+      },
+      {
+        "name": "Electrician's tool bag",
+        "price": 120,
+        "quality": "premium",
+        "pitch": "The full electrician's bag. You'll look so legit."
+      }
+    ],
+    "askbot": 0
+  },
+  "voltage-tester": {
+    "name": "a voltage tester",
+    "options": [
+      {
+        "name": "Lick-it-and-see method",
+        "price": 0,
+        "quality": "cheap",
+        "pitch": "Free! Just touch the wire and see. Kidding. Mostly."
+      },
+      {
+        "name": "Voltage tester pen",
+        "price": 22,
+        "quality": "right",
+        "pitch": "A tester pen. Beeps if it's live. Lifesaver, literally."
+      },
+      {
+        "name": "Smart multimeter with an app",
+        "price": 110,
+        "quality": "premium",
+        "pitch": "The smart multimeter has an app. The app has ads."
+      }
+    ],
+    "askbot": 1
+  },
+  "vent-brush": {
+    "name": "a vent brush",
+    "options": [
+      {
+        "name": "Bottle brush",
+        "price": 5,
+        "quality": "cheap",
+        "pitch": "A bottle brush. Bit short for a vent."
+      },
+      {
+        "name": "12 ft vent brush kit",
+        "price": 25,
+        "quality": "right",
+        "pitch": "The 12-foot vent kit. Does the job."
+      },
+      {
+        "name": "Drill-powered vent system",
+        "price": 69,
+        "quality": "premium",
+        "pitch": "Drill-powered! It'll clean the vent and maybe the neighbor's."
+      }
+    ],
+    "askbot": 1
+  },
+  "pry-bar": {
+    "name": "a pry bar",
+    "options": [
+      {
+        "name": "Butter knife",
+        "price": 3,
+        "quality": "cheap",
+        "pitch": "A butter knife. Bold."
+      },
+      {
+        "name": "24-inch pry bar",
+        "price": 19,
+        "quality": "right",
+        "pitch": "A 24-inch pry bar. Pops tack strips like nothing."
+      },
+      {
+        "name": "Demolition kit",
+        "price": 79,
+        "quality": "premium",
+        "pitch": "The demolition kit, sledgehammer included. For the whole house, ideally."
+      }
+    ],
+    "askbot": 1
+  },
+  "roller-kit": {
+    "name": "a roller kit",
+    "options": [
+      {
+        "name": "Kids' craft roller",
+        "price": 4,
+        "quality": "cheap",
+        "pitch": "A kids' craft roller. Adorable. Slow."
+      },
+      {
+        "name": "Roller, tray and extension",
+        "price": 28,
+        "quality": "right",
+        "pitch": "Roller, tray and extension. Done by dinner."
+      },
+      {
+        "name": "Paint sprayer",
+        "price": 199,
+        "quality": "premium",
+        "pitch": "A paint sprayer! Walls, floors, cat. Everything gets painted."
+      }
+    ],
+    "askbot": 0
+  },
+  "drill-driver": {
+    "name": "a drill",
+    "options": [
+      {
+        "name": "Corded drill from 1994",
+        "price": 15,
+        "quality": "cheap",
+        "pitch": "A corded drill from 1994. It has stories."
+      },
+      {
+        "name": "Cordless drill-driver",
+        "price": 89,
+        "quality": "right",
+        "pitch": "A cordless drill-driver. Every DIYer's best friend."
+      },
+      {
+        "name": "18-volt everything combo",
+        "price": 349,
+        "quality": "premium",
+        "pitch": "The 18-volt everything combo! You need the batteries. And the bag. And the bag's bag."
+      }
+    ],
+    "askbot": 2
+  },
+  "chimney-cap": {
+    "name": "a chimney cap",
+    "options": [
+      {
+        "name": "Chicken wire and zip ties",
+        "price": 9,
+        "quality": "cheap",
+        "pitch": "Chicken wire! Rats respect chicken wire. Probably."
+      },
+      {
+        "name": "Stainless cap with mesh",
+        "price": 79,
+        "quality": "right",
+        "pitch": "Stainless cap with mesh. Keeps out rats, birds and rain."
+      },
+      {
+        "name": "Custom copper chimney cap",
+        "price": 389,
+        "quality": "premium",
+        "pitch": "Hand-hammered copper. The rats will be jealous."
+      }
+    ],
+    "askbot": 0
+  },
+  "valve-washer-kit": {
+    "name": "a valve washer kit",
+    "options": [
+      {
+        "name": "A washer from the junk drawer",
+        "price": 2,
+        "quality": "cheap",
+        "pitch": "Junk drawer washer. Close enough is a size, right?"
+      },
+      {
+        "name": "Valve washer kit",
+        "price": 8,
+        "quality": "right",
+        "pitch": "Every size of washer. Eight bucks. Ghost gone."
+      },
+      {
+        "name": "Designer faucet",
+        "price": 240,
+        "quality": "premium",
+        "pitch": "Why fix it when you can replace it with Italian brass?"
+      }
+    ],
+    "askbot": 2
+  },
+  "fence-pickets": {
+    "name": "fence pickets",
+    "options": [
+      {
+        "name": "Scrap wood from the garage",
+        "price": 6,
+        "quality": "cheap",
+        "pitch": "Garage scraps. Rustic! Wobbly!"
+      },
+      {
+        "name": "Pressure-treated pickets",
+        "price": 45,
+        "quality": "right",
+        "pitch": "Pressure-treated pickets. Built for weather. And cars, a bit."
+      },
+      {
+        "name": "Vinyl fence, the whole side",
+        "price": 520,
+        "quality": "premium",
+        "pitch": "A whole new vinyl fence! Never paint again. Never afford anything again."
+      }
+    ],
+    "askbot": 0
+  },
+  "caulk-gun": {
+    "name": "a caulk gun",
+    "options": [
+      {
+        "name": "Squeeze tube and hope",
+        "price": 4,
+        "quality": "cheap",
+        "pitch": "Squeeze tube. Your hands will hate you."
+      },
+      {
+        "name": "Caulk gun and silicone",
+        "price": 16,
+        "quality": "right",
+        "pitch": "A caulk gun and a good tube. Neat lines."
+      },
+      {
+        "name": "Cordless caulking system",
+        "price": 179,
+        "quality": "premium",
+        "pitch": "Cordless caulking! It caulks while you think about caulking."
+      }
+    ],
+    "askbot": 0
+  },
+  "pipe-cutter": {
+    "name": "a pipe cutter",
+    "options": [
+      {
+        "name": "A hacksaw from the shed",
+        "price": 0,
+        "quality": "cheap",
+        "pitch": "Hacksaw. Jagged ends add character."
+      },
+      {
+        "name": "Pipe cutter and fittings",
+        "price": 35,
+        "quality": "right",
+        "pitch": "Clean cuts, push-fit fittings. Plumbers love these."
+      },
+      {
+        "name": "Pro press tool kit",
+        "price": 899,
+        "quality": "premium",
+        "pitch": "The press tool the pros rent. You could own it! Forever!"
+      }
+    ],
+    "askbot": 0
+  },
+  "wax-ring": {
+    "name": "a wax ring",
+    "options": [
+      {
+        "name": "Plain wax ring",
+        "price": 4,
+        "quality": "cheap",
+        "pitch": "Plain wax. Fine. Until it isn't."
+      },
+      {
+        "name": "Reinforced ring with flange",
+        "price": 9,
+        "quality": "right",
+        "pitch": "Reinforced with a flange. Seals right the first time."
+      },
+      {
+        "name": "Wax-free seal, lifetime warranty",
+        "price": 24,
+        "quality": "premium",
+        "pitch": "Wax-free! Lifetime warranty! On a toilet seal!"
+      }
+    ],
+    "askbot": 2
+  }
+}

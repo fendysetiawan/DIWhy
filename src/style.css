@@ -1,0 +1,788 @@
+/* The game's one stylesheet: the shared look first, then one section per level and widget,
+   each with all its rules inside its root class (.select { … }). */
+
+@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Press+Start+2P&display=swap");
+
+/* ─── brand ─── */
+
+:root {
+  --navy: #0c1450;
+  --blue: #2a44c0;
+  --sky: #9cc3ff;
+  --cream: #f7e8d1;
+  --hover: #ffd34d; /* every button under the pointer: gold, a colour no background uses */
+  --mine: #22c3a0; /* what you say: your texts, your choices */
+  --cream-dark: #e9dcc4; /* hover on something already cream */
+  --orange: #ff9f1c; /* the "!" in DIWHY?! */
+  --font: "Press Start 2P", monospace;
+  /* only two text sizes, both big: everything uses one of these */
+  --text: clamp(16px, 1.6vw, 20px);
+  --text-big: clamp(24px, 5vw, 40px);
+  /* a pixel corner, cut in one step */
+  --chip: polygon(4px 0, calc(100% - 4px) 0, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0 calc(100% - 4px), 0 4px);
+}
+
+* { box-sizing: border-box; }
+
+/* our big pixel cursors (48 x 48): the arrow everywhere, buttons too (no pointing hand); the pen where you sign */
+*, *::before, *::after { cursor: url("@art/cursors/arrow.svg") 1 1, auto; }
+
+html, body { height: 100%; margin: 0; overflow: hidden; }
+
+/* nothing the browser draws in its own style: our focus ring (a gold outline), our selection, our scrollbars */
+:focus-visible { outline: 4px solid var(--hover); outline-offset: 2px; }
+::selection { background: var(--hover); color: var(--navy); }
+* { scrollbar-width: thin; scrollbar-color: var(--navy) transparent; }
+
+body {
+  background: #000; /* between levels: every change fades through black */
+  color: var(--cream);
+  font: var(--text)/2 var(--font);
+  -webkit-font-smoothing: none; /* sharp pixels */
+  /* a game, not a page: no bounce, no text selection, no tap flash, no double-tap zoom */
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.title { font-size: var(--text-big); line-height: 1.5; margin: 0; }
+.text { margin: 0; }
+
+.button {
+  min-height: 56px; /* big and easy to tap */
+  padding: 16px 28px;
+  border: 4px solid var(--cream);
+  border-radius: 10px;
+  background: var(--blue);
+  color: var(--cream);
+  font: var(--text)/1 var(--font);
+  box-shadow: 0 6px 0 #080b1c;
+}
+.button:hover:not(:disabled) { background: var(--hover); color: var(--navy); border-color: var(--navy); } /* our hover: gold, with a navy edge, on any background */
+.button:active:not(:disabled), .button.pressed { translate: 0 6px; box-shadow: none; } /* pressed: by mouse, tap or key */
+.button:disabled { opacity: 0.4; }
+
+/* three kinds: primary (.button: the main action), secondary (the other choice), quiet (out of the way) */
+.button.secondary { background: #fff; color: var(--navy); border-color: var(--navy); } /* white: reads on cream and on dark */
+.button.quiet { background: transparent; border-color: transparent; box-shadow: none; opacity: 0.7; }
+.button.quiet:hover:not(:disabled), .button.secondary:hover:not(:disabled) { background: var(--hover); color: var(--navy); border-color: var(--navy); opacity: 1; }
+
+/* a square button with just an icon (the settings cog, the phone) */
+.icon-button { width: 56px; height: 56px; min-height: 0; padding: 8px; display: grid; place-items: center; }
+.icon-button img, .icon-button svg { width: 100%; height: 100%; image-rendering: pixelated; }
+
+/* a face in a circle: their own pixel sprite (head and shoulders) on white (the phone, the toasts) */
+.avatar { flex: none; width: 2.6em; height: 2.6em; border-radius: 50%; overflow: hidden; background: #fff; box-shadow: 0 0 0 3px var(--navy); }
+.avatar img { display: block; width: 110%; height: auto; margin: 6% 0 0 -5%; image-rendering: pixelated; }
+.avatar svg { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+
+/* the button row (START, SIGN, SKIP INTRO…): always bottom centre, above a phone's home bar */
+.actions {
+  position: fixed;
+  z-index: 10;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+}
+
+/* a job's steps: one segment each, green once done, the one you're on blinking (the job's note, the to-do list) */
+.progress { display: flex; gap: 6px; }
+.progress i { flex: 1; height: 16px; background: #e2c9a3; box-shadow: inset 0 0 0 2px #c9a87a; }
+.progress i.done { background: #3fbf5f; box-shadow: inset 0 -4px 0 #2f9e4f; }
+.progress i.now { background: #ffd34d; animation: blink 1s steps(2, start) infinite; }
+.progress.small { gap: 3px; }
+.progress.small i { height: 8px; }
+
+/* a card that pops up over everything (a job's surprise and how it went, the store's clerk): an icon and a title, a
+ line, then the choice */
+.popup { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; background: rgba(8, 11, 28, 0.55); }
+.popup[hidden] { display: none; }
+.card {
+  display: grid;
+  gap: 12px;
+  position: relative;
+  width: min(100%, 560px);
+  padding: 20px 24px 24px;
+  background: #fff;
+  color: var(--navy);
+  border: 4px solid var(--navy);
+  border-radius: 4px;
+  box-shadow: 8px 8px 0 #080b1c;
+  text-align: left;
+  animation: pop 0.2s steps(3) both;
+}
+.card > * { margin: 0; }
+/* the heading: an icon on the left (!, champagne, flames; each in the same square), the title in the card's colour */
+.card-head { display: flex; align-items: center; gap: 16px; }
+.card-icon { flex: none; display: grid; place-items: center; width: 112px; height: 112px; background: var(--cream); clip-path: var(--chip); }
+.card-icon img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.card-icon.tall { padding: 16px 0; } /* the ! is drawn tight to its edges */
+.card-title { color: #c0392b; font: inherit; }
+.card-hint { color: #8a6a4a; font-style: italic; }
+.card .button { justify-self: stretch; }
+.card.good, .card.done { border-color: #2f9e4f; }
+.card.wrong, .card.excessive { border-color: #c0392b; }
+.good .card-title, .done .card-title, .card-note { color: #2f7d3f; }
+.ok .card-title { color: #c8642c; }
+
+/* the picker: your choice in your colour (the teal of your texts), ◀ ▶ for the others; click it to go (the phone's
+   replies, a surprise's answers) */
+.picker { display: flex; align-items: center; gap: 4px; color: var(--navy); }
+.picker .picker-text { flex: 1; min-width: 0; margin: 0; padding: 10px 12px; border: 0; font: inherit; background: var(--mine); color: var(--navy); text-align: left; clip-path: var(--chip); box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.2); }
+.picker .picker-text:hover { background: var(--hover); }
+.picker .picker-text:focus-visible { outline: 4px solid var(--navy); outline-offset: 2px; }
+.picker-arrow { display: grid; place-items: center; width: 32px; height: 44px; border: 0; background: none; color: inherit; }
+.picker-arrow svg { width: 16px; height: 16px; }
+.picker-arrow.next { scale: -1 1; }
+
+/* ─── screens ─── */
+
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  background: var(--navy) url("@art/backgrounds/stars.svg") center / cover; /* the default: levels can set their own */
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); /* clear of notches */
+  text-align: center;
+  animation: fade-in 1s both;
+  transition: opacity 0.6s;
+}
+.screen.out { opacity: 0; }
+/* a level with a button row keeps room for it, so nothing sits under the buttons */
+.screen:has(> .actions) { padding-bottom: calc(max(16px, env(safe-area-inset-bottom)) + 96px); }
+
+@keyframes fade-in { from { opacity: 0; } }
+
+/* ─── the end, and the credits ─── */
+
+/* the party or the fire fills the window; the title on top, your character in the middle, the buttons below */
+.end {
+  justify-content: flex-start;
+  padding-top: calc(max(16px, env(safe-area-inset-top)) + 40px);
+  background: #000 center / cover no-repeat;
+  image-rendering: pixelated;
+
+  .title, .text { text-shadow: 0 4px 0 #080b1c; }
+  .end-stage { position: relative; width: min(80vw, 640px); aspect-ratio: 320 / 210; margin-top: 8px; }
+  .end-stage img { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+  .end-effect { opacity: 0.9; }
+  .end-stage { width: min(50vw, 300px); } /* the report's the main thing */
+}
+
+.credits .team { width: min(92vw, 1000px); max-height: calc(100dvh - 300px); object-fit: contain; image-rendering: pixelated; }
+
+/* ─── a DIY job ─── */
+
+/* the job's set fills the window, you in it; at the top, the job on a paper note (like the purchase agreement): which step,
+   the job, and the next step's button, or the surprise and its picker */
+.diy {
+  justify-content: flex-start;
+  padding-top: calc(max(16px, env(safe-area-inset-top)) + 96px); /* under the meters */
+  background: #000;
+
+  .diy-you { position: absolute; left: 6vw; bottom: 24px; height: min(40dvh, 320px); image-rendering: pixelated; }
+  .diy-note {
+    position: relative;
+    display: grid;
+    gap: 12px;
+    width: min(100%, 620px);
+    max-height: calc(100dvh - 140px);
+    overflow-y: auto;
+    padding: 20px 24px;
+    background: #f3e3c7;
+    color: #3a2618;
+    border-radius: 4px;
+    box-shadow: 8px 8px 0 #2a1a10;
+    text-align: left;
+  }
+  .diy-note > * { margin: 0; }
+  .diy-title { color: #3a2618; }
+  .diy-buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+  .diy-buttons .button:first-child { flex: 1; }
+  /* the job done: coins raining in */
+  .coins { position: absolute; inset: -120px 0 auto; height: 120px; pointer-events: none; }
+  .coin { position: absolute; left: var(--x); top: 0; width: 28px; height: 28px; animation: rain 0.9s var(--delay) steps(6) both; }
+  .coin svg { width: 100%; height: 100%; }
+}
+
+@media (max-width: 760px) {
+  .diy .diy-you { height: 28dvh; }
+}
+
+/* ─── the hardware store: the set (shelves, the clerk, the counter, you), and the note ─── */
+
+.store {
+  justify-content: flex-start;
+  padding-top: calc(max(16px, env(safe-area-inset-top)) + 96px); /* under the meters */
+  background: #000;
+
+  /* in the set's 1600 x 900 space: the clerk behind the counter, you in front of it, from behind */
+  .store-clerk { position: absolute; left: 46.5%; top: 60.8%; width: 7.1%; image-rendering: pixelated; }
+  .store-you { position: absolute; left: 30.7%; top: 70%; width: 8.6%; image-rendering: pixelated; }
+  .popup { background: none; } /* the store stays in view behind the clerk's card */
+}
+
+/* ─── sets: a DIY job's backdrop and its moving pieces ─── */
+
+/* the set fills the window (cropped at the sides or top, like a cover), and its pieces are placed in art pixels:
+   --px is one art pixel at the set's size, so every move below scales with it */
+.set {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100vw, calc(100dvh * 480 / 270));
+  aspect-ratio: 480 / 270;
+  translate: -50% -50%;
+  container-type: inline-size;
+  pointer-events: none;
+}
+.set-backdrop, .set-piece { position: absolute; image-rendering: pixelated; }
+.set-backdrop { inset: 0; width: 100%; height: 100%; }
+.set-piece { --px: calc(100cqw / 480); --reach: 0; --every: 1s; }
+.set-piece.wobble { animation: set-wobble 1.5s steps(1) infinite; }
+.set-piece.shake { animation: set-shake 0.28s steps(1) infinite; }
+.set-piece.drip { animation: set-drip var(--every) ease-in infinite; }
+.set-piece.ripple { animation: set-ripple var(--every) steps(1) infinite; }
+.set-piece.drift { animation: set-drift var(--every) steps(24) infinite; }
+.set-piece.blink { animation: set-blink var(--every) steps(1) infinite; }
+.set-piece.flicker { animation: set-flicker 1.1s steps(1) infinite; }
+.set-piece.sway { animation: set-sway 1.5s steps(8) infinite alternate; }
+.set-piece.swing { animation: set-swing var(--every) steps(40) infinite alternate; }
+.set-piece.sweep { animation: set-sweep var(--every) steps(30) infinite; }
+.set-piece.orbit { animation: set-orbit var(--every) steps(16) infinite; }
+.set-piece.flutter { animation: set-flutter var(--every) steps(24) infinite; }
+
+@keyframes set-wobble { 60% { translate: 0 calc(-1 * var(--px)); } 70% { translate: 0 0; } }
+@keyframes set-shake { 25% { translate: var(--px) 0; } 50% { translate: 0 calc(-1 * var(--px)); } 75% { translate: calc(-1 * var(--px)) 0; } }
+@keyframes set-drip { 0%, 15% { opacity: 0; translate: 0 0; } 16%, 45% { opacity: 1; translate: 0 0; } 84% { opacity: 1; translate: 0 calc(var(--reach) * var(--px)); } 85%, 100% { opacity: 0; translate: 0 calc(var(--reach) * var(--px)); } }
+@keyframes set-ripple { 0% { opacity: 0; } 85% { opacity: 1; } 95% { opacity: 0; } }
+@keyframes set-drift { 0% { translate: 0 0; opacity: 1; } 50% { translate: calc(8 * var(--px)) calc(var(--reach) * 0.5 * var(--px)); } 85% { opacity: 1; } 100% { translate: calc(4 * var(--px)) calc(var(--reach) * var(--px)); opacity: 0; } }
+@keyframes set-blink { 50% { opacity: 0; } }
+@keyframes set-flicker { 0% { opacity: 1; } 20% { opacity: 0.8; } 35% { opacity: 1; } 70% { opacity: 0.9; } 85% { opacity: 0.75; } }
+@keyframes set-sway { from { translate: calc(-4 * var(--px)) 0; } to { translate: calc(4 * var(--px)) 0; } }
+@keyframes set-swing { from { translate: calc(-1 * var(--reach) * var(--px)) 0; } to { translate: calc(var(--reach) * var(--px)) 0; } }
+@keyframes set-sweep { 0% { translate: 0 0; opacity: 1; } 35% { translate: calc(var(--reach) * var(--px)) 0; opacity: 1; } 36%, 100% { opacity: 0; } }
+@keyframes set-orbit { from { transform: rotate(0deg) translateX(calc(var(--reach) * var(--px))) rotate(0deg); } to { transform: rotate(360deg) translateX(calc(var(--reach) * var(--px))) rotate(-360deg); } }
+@keyframes set-flutter {
+  0% { translate: calc(var(--reach) * var(--px)) 0; }
+  25% { translate: 0 calc(16 * var(--px)); }
+  50% { translate: calc(-1 * var(--reach) * var(--px)) 0; }
+  75% { translate: 0 calc(-16 * var(--px)); }
+  100% { translate: calc(var(--reach) * var(--px)) 0; }
+}
+
+/* ─── HUD ─── */
+
+.menu-button {
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+  z-index: 100;
+}
+
+/* ─── splash ─── */
+
+.splash {
+  .hint { color: var(--sky); animation: blink 1s steps(2, start) infinite; }
+  .logo { display: flex; flex-direction: column; align-items: center; gap: 24px; animation: fade-in 0.6s both; }
+  .logo img { width: min(70vw, 424px); image-rendering: pixelated; }
+}
+
+@keyframes blink { to { visibility: hidden; } }
+
+/* ─── character select ─── */
+
+/* everyone in two rows (4 + 3), as big as fits between the title and START */
+.select {
+  justify-content: flex-end; /* everyone stands on the floor, just above START */
+  background: var(--navy) url("@art/backgrounds/character-select.svg") center bottom / cover;
+
+  .title { position: fixed; left: 0; right: 0; top: calc(max(16px, env(safe-area-inset-top)) + 32px); }
+  .characters {
+    --w: min(18vw, calc((100dvh - 300px) / 2.6)); /* one avatar's width */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px 24px;
+    width: calc(4 * var(--w) + 3 * 24px);
+  }
+  .pick { width: var(--w); padding: 0; border: 0; background: none; transition: opacity 0.2s; }
+  .pick img { display: block; width: 100%; aspect-ratio: 238 / 297; image-rendering: pixelated; pointer-events: none; }
+  .pick:focus-visible { outline: 4px solid var(--cream); outline-offset: 4px; }
+  /* everyone but the one you point at or picked fades back */
+  .characters:has(.pick:hover, .pick[aria-checked="true"]) .pick:not(:hover):not([aria-checked="true"]) { opacity: 0.35; }
+}
+
+/* phones: everyone in one row you swipe through */
+@media (max-width: 760px) {
+  .select .characters {
+    --w: min(40vw, calc((100dvh - 300px) * 0.8));
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    width: 100vw;
+    margin-inline: -16px;
+    padding: 8px 30vw;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .select .pick { flex: none; scroll-snap-align: center; }
+}
+
+/* ─── house: it falls ─── */
+
+/* the artwork (840 x 660) as big as it fits; the sky's horizon (y 178 of 270) sits on the house's ground line
+   (y 142 of 220), and the sky always fills the window. Then "!", then DIWHY?! */
+.house {
+  --w: min(129vw, 119dvh);
+  --sh: calc(var(--w) * 660 / 840);
+  --top: max(3dvh, calc((100dvh - 160px - var(--sh)) / 2)); /* tall screens: in the middle, above DIWHY?! */
+  --ground: calc(var(--top) - var(--sh) * 0.036 + var(--sh) * 142 / 220);
+  overflow: hidden;
+  background: #000;
+
+  .sky {
+    --skyh: max(calc(var(--ground) * 270 / 178), calc((100dvh - var(--ground)) * 270 / 92), calc(100vw * 270 / 480));
+    position: absolute;
+    left: 50%;
+    top: calc(var(--ground) - var(--skyh) * 178 / 270);
+    height: var(--skyh);
+    aspect-ratio: 480 / 270;
+    max-width: none;
+    transform: translateX(-50%);
+    image-rendering: pixelated;
+  }
+  .frame { position: absolute; left: 50%; top: calc(var(--top) - var(--sh) * 0.036); width: var(--w); aspect-ratio: 840 / 660; transform: translateX(-50%); }
+  .frame img { position: absolute; image-rendering: pixelated; }
+  .sky, .frame { opacity: 0; transition: opacity 0.3s; }
+  &.on .sky, &.on .frame { opacity: 1; }
+  .exclaim { visibility: hidden; }
+  &.bang .exclaim { visibility: visible; }
+
+  /* the game's name, like a logo: orange, a thick navy outline and a hard shadow, so it reads on any sky */
+  .name {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(104px + env(safe-area-inset-bottom)); /* above the button row */
+    color: var(--orange);
+    font-size: calc(var(--text-big) * 1.5);
+    text-shadow:
+      -4px 0 var(--navy), 4px 0 var(--navy), 0 -4px var(--navy), 0 4px var(--navy),
+      -4px -4px var(--navy), 4px -4px var(--navy), -4px 4px var(--navy), 4px 4px var(--navy),
+      0 10px #080b1c;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  &.named .name { opacity: 1; animation: pop 0.4s steps(4) both; }
+
+  /* dust: square puffs that grow, drift out and fade, in steps */
+  .dust {
+    position: absolute;
+    aspect-ratio: 1;
+    background: #c8a57a;
+    box-shadow: 4px 4px 0 #a98a63, -4px 2px 0 #e2c9a3;
+    opacity: 0;
+    pointer-events: none;
+    animation: dust 1.3s steps(8) forwards;
+  }
+}
+
+@keyframes bump { 50% { scale: 1.08; } }
+@keyframes float-up { 0% { translate: 0 0; opacity: 0; } 15% { opacity: 1; translate: 0 8px; } 75% { opacity: 1; } 100% { translate: 0 24px; opacity: 0; } }
+@keyframes sway-sign { to { translate: 4px -2px; } }
+@keyframes watch { from { width: 0; } to { width: 100%; } }
+@keyframes rain { from { translate: 0 -40px; opacity: 0; } 30% { opacity: 1; } to { translate: 0 200px; opacity: 0; } }
+@keyframes pop { from { transform: scale(0.4); } }
+@keyframes dust {
+  0% { opacity: 0.95; transform: translate(-50%, -50%) scale(0.4); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(2.2); }
+}
+
+/* ─── contract ─── */
+
+.contract {
+  background: #5a3a24;
+
+  .paper {
+    --ink: #3a2618; /* dark brown: the print and the signature */
+    --ink-faint: #c9a87a; /* the empty "type your name" hint */
+    width: min(92vw, 440px);
+    max-height: 100%; /* the level keeps room for the buttons; the paper scrolls */
+    min-height: 0;
+    overflow: auto;
+    padding: 24px 28px 20px;
+    background: #f3e3c7;
+    color: var(--ink);
+    border-radius: 4px;
+    box-shadow: 8px 8px 0 #2a1a10;
+    text-align: left;
+  }
+  /* the heading: the house and PURCHASE AGREEMENT, over a double rule */
+  .contract-head { display: grid; justify-items: center; gap: 4px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 6px double var(--ink); text-align: center; }
+  .contract-head > * { margin: 0; }
+  .contract-head .title { color: var(--ink); }
+  .contract-head svg { width: 48px; height: 42px; color: var(--ink); }
+  .terms { list-style: none; margin: 0; padding: 0; line-height: 1.6; }
+  .terms li { padding: 4px 0; border-bottom: 2px solid #e2c9a3; }
+  .sign-line, .sign-name { cursor: url("@art/cursors/pen.svg") 1 46, text; }
+  .sign-line { position: relative; display: flex; align-items: flex-end; gap: 8px; margin-top: 20px; border-bottom: 3px solid var(--ink); }
+  .sign-x { color: #c8642c; line-height: 1; padding-bottom: 4px; }
+  .signature { flex: 1; height: 44px; image-rendering: pixelated; }
+  /* the real text box, invisible over the line: it takes the typing, the canvas shows it */
+  .sign-name {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    font: var(--text) var(--font); /* 16px or more: phones don't zoom in on the box */
+    border: 0;
+    background: transparent;
+    color: transparent;
+    caret-color: transparent;
+    outline: none;
+    user-select: text;
+    -webkit-user-select: text;
+  }
+}
+
+/* ─── levels: places you walk around in ─── */
+
+.level {
+  display: block;
+  padding: 0;
+  overflow: hidden;
+  background: #2f4f1f;
+
+  /* the place in level units (its size is set by the level); the camera scales and moves it to fit the window */
+  .stage { --k: 1; position: absolute; left: 0; top: 0; transform-origin: 0 0; } /* --k: its scale; hints divide by it to stay one size on screen */
+  .piece { position: absolute; image-rendering: pixelated; }
+  .piece.sign { object-fit: contain; object-position: bottom; animation: sway-sign 2s steps(4) infinite alternate; } /* the rat, the ghost */
+  .character { position: absolute; image-rendering: pixelated; }
+
+  /* something you can use (a door, the stairs): its hint always floats above it, bobbing; close up the thing itself
+     glows (around its own shape, under anyone standing in front) and the hint says what you can do */
+  .piece.near {
+    filter: drop-shadow(0 0 4px #ffd66e) drop-shadow(0 0 14px #ffc53d) drop-shadow(0 0 32px rgba(255, 197, 61, 0.9)) brightness(1.25);
+    animation: glow 0.9s ease-in-out infinite alternate;
+  }
+  .spot { position: absolute; z-index: 10000; pointer-events: none; } /* just carries the hint: over everything */
+  .hint {
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: calc(var(--text) / var(--k));
+    line-height: 1;
+    white-space: nowrap;
+    translate: -50% 0;
+    animation: bob 1.2s steps(2) infinite;
+    opacity: 0; /* hidden until you're close by */
+    transition: opacity 0.2s;
+  }
+  .spot.close .hint { opacity: 1; }
+  .hint-name { padding: 0.5em 0.7em; border: calc(3px / var(--k)) solid var(--cream); border-radius: calc(6px / var(--k)); background: var(--blue); }
+  .hint-what { display: none; margin-top: 0.4em; padding: 0.4em 0.6em; border-radius: calc(6px / var(--k)); background: var(--cream); color: var(--navy); }
+  .hint::after { content: "▼"; margin-top: 0.2em; color: var(--cream); }
+  .spot.near .hint-what { display: block; }
+  /* a DIY job: orange with a wrench, so it never reads as a way to go (doors and stairs stay blue) */
+  .spot.job .hint-name { display: flex; align-items: center; gap: 0.5em; background: var(--orange); color: var(--navy); }
+  .hint-name svg { width: 1.2em; height: 1.2em; }
+  .spot.near .hint { animation-duration: 0.5s; } /* close up: it bobs faster */
+}
+
+@keyframes glow { to { filter: drop-shadow(0 0 6px #fff2c2) drop-shadow(0 0 22px #ffc53d) drop-shadow(0 0 48px rgba(255, 197, 61, 0.9)) brightness(1.4); } }
+
+@keyframes bob { 50% { transform: translateY(-0.5em); } }
+
+/* ─── meters ─── */
+
+/* across the top: days, money, health, side by side (clear of the sound button on the right) */
+.meters {
+  position: fixed;
+  z-index: 40;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: max(12px, env(safe-area-inset-top)) calc(max(16px, env(safe-area-inset-right)) + 72px) 14px max(16px, env(safe-area-inset-left));
+  background: #5a3a24; /* the wood brown */
+  border-bottom: 4px solid var(--cream);
+  box-shadow: 0 4px 0 #2a1a10;
+  line-height: 1.2;
+  white-space: nowrap;
+
+  /* the icon on the left, beside its name and value, with the bar under them */
+  .meter { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 6px 10px; }
+  .meter.bump { animation: bump 0.3s steps(3); }
+  .meter svg { grid-row: 1 / 3; width: 2em; height: 2em; image-rendering: pixelated; }
+  .meter b { text-align: right; color: #ffd34d; }
+  .meter em { font-style: normal; }
+  .meter b { grid-column: 3; }
+  .meter i { grid-column: 2 / -1; height: 16px; background: #2a1a10; box-shadow: inset 0 0 0 2px rgba(247, 232, 209, 0.25); }
+  .meter i::before { content: ""; display: block; width: calc(var(--amount) * 100%); height: 100%; background: #3fbf5f; transition: width 0.6s steps(8); } /* it slides, in steps */
+  .meter.bad i::before { background: #ef4444; }
+  /* a change floats up from its meter: green when it's good for you, red when it's bad */
+  .meter-delta { position: absolute; right: 0; top: 100%; padding: 2px 8px; background: #3fbf5f; color: var(--navy); clip-path: var(--chip); pointer-events: none; animation: float-up 1.6s steps(8) forwards; }
+  .meter-delta.bad { background: #ef4444; color: #fff; }
+  &[hidden] { display: none; }
+}
+
+/* narrow screens: still one row, just the icons and what you've used (the bar shows how much of the quote) */
+@media (max-width: 760px) {
+  .meters { gap: 12px; padding-top: max(10px, env(safe-area-inset-top)); padding-bottom: 10px; padding-right: calc(max(16px, env(safe-area-inset-right)) + 56px); }
+  .meters .meter { gap: 4px 6px; }
+  .meters .meter svg { width: 1.5em; height: 1.5em; }
+  .meters .meter-name, .meters .meter em { display: none; }
+  .menu-button { top: max(10px, env(safe-area-inset-top)); width: 44px; height: 44px; padding: 6px; }
+}
+
+/* ─── the end's report (and, when you give up, the contractor's bill) ─── */
+
+.bill {
+  width: min(100%, 520px);
+  padding: 16px 20px;
+  background: #f3e3c7;
+  color: #3a2618;
+  box-shadow: 8px 8px 0 #2a1a10;
+  text-align: left;
+
+  ul { display: grid; gap: 6px; margin: 0; padding: 0 0 10px; list-style: none; border-bottom: 4px double #3a2618; }
+  ul + ul { padding-top: 10px; }
+  li { display: grid; grid-template-columns: 1fr auto; gap: 0 12px; }
+  li i { grid-row: 2; font-style: normal; color: #8a6a4a; }
+  li b { grid-row: 1 / 3; grid-column: 2; align-self: center; }
+  .bill-total { display: flex; justify-content: space-between; margin: 10px 0 4px; color: #c0392b; }
+  p { margin: 0; }
+}
+
+/* ─── to-do list ─── */
+
+/* a popover like the phone: a post-it button bottom left (its badge in the post-it's colours), the list above it */
+.todo-button { position: fixed; z-index: 48; left: max(16px, env(safe-area-inset-left)); bottom: max(16px, env(safe-area-inset-bottom)); }
+.todo-button .badge { position: absolute; top: -10px; right: -10px; padding: 0 0.4em; background: #ffe58a; color: #3a2618; box-shadow: inset 0 0 0 2px #3a2618; font-style: normal; line-height: 1.5; clip-path: var(--chip); }
+.todo-button[hidden] { display: none; }
+.todo {
+  position: fixed;
+  z-index: 50;
+  left: max(16px, env(safe-area-inset-left));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  display: none;
+  width: min(calc(100vw - 32px), 400px);
+  max-height: calc(100dvh - 140px);
+  background: #ffe58a;
+  color: #3a2618;
+  box-shadow: 6px 6px 0 #2a1a10;
+
+  &.up { display: flex; flex-direction: column; animation: pop 0.12s steps(2) both; }
+  .todo-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 12px 12px 16px; border-bottom: 4px solid #e8c95a; }
+  .todo-head h2 { margin: 0; font: inherit; }
+  .todo-close { display: grid; place-items: center; width: 44px; height: 44px; border: 0; background: none; color: #3a2618; }
+  .todo-close svg { width: 24px; height: 24px; }
+  ol { display: grid; gap: 12px; margin: 0; padding: 16px; overflow-y: auto; list-style: none; }
+  li { display: flex; gap: 10px; }
+  li.done { opacity: 0.6; }
+  li.done b { text-decoration: line-through; }
+  .todo-box { flex: none; display: grid; place-items: center; width: 1.2em; height: 1.2em; box-shadow: inset 0 0 0 3px #3a2618; color: #2f7d3f; }
+  .todo-job { display: grid; gap: 4px; flex: 1; min-width: 0; }
+  .todo-place { color: #8a6a4a; }
+  .todo-flag { justify-self: start; padding: 0 6px; background: #3a2618; color: #ffe58a; font-style: normal; }
+}
+.todo-button.up { display: none; } /* open: the button became the list */
+
+/* ─── phone ─── */
+
+/* the phone button, bottom right, with the unread badge */
+.phone-button { position: fixed; z-index: 48; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); }
+.phone-button .badge { position: absolute; top: -10px; right: -10px; padding: 0 0.4em; background: #ef4444; color: #fff; font-style: normal; line-height: 1.5; clip-path: var(--chip); }
+.phone-button[hidden], .phone-button.up { display: none; }
+.shake { animation: shake 0.35s steps(4) 2; } /* the phone hitting the floor */
+@keyframes shake { 25% { translate: -6px 2px; } 50% { translate: 5px -3px; } 75% { translate: -3px 4px; } } /* open: the button became the phone */
+
+/* toasts: a text arriving pops up above the phone button; click it to read */
+.toasts {
+  position: fixed;
+  z-index: 47;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(max(16px, env(safe-area-inset-bottom)) + 76px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  width: min(380px, calc(100vw - 32px));
+}
+.toast { position: relative; width: 100%; animation: toast 0.2s steps(3) both; }
+/* the face and their name on top, what they said in a bubble across the whole card below */
+.toast-open {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px 12px;
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  background: var(--cream);
+  color: var(--navy);
+  font: inherit;
+  line-height: 1.5;
+  text-align: left;
+  clip-path: var(--chip);
+}
+.toast-open p { grid-column: 1 / -1; margin: 0; padding: 8px 10px; background: #fff; clip-path: var(--chip); }
+.toast-open:hover { background: var(--hover); }
+.toast-close { position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 44px; height: 44px; border: 0; background: none; color: var(--navy); }
+.toast .toast-close svg { width: 24px; height: 24px; image-rendering: pixelated; }
+.toast-close:hover { color: var(--orange); }
+@keyframes toast { from { opacity: 0; translate: 0 12px; } }
+
+/* while the phone is open, the level dims behind it */
+.scrim { position: fixed; inset: 0; z-index: 49; background: rgba(8, 11, 28, 0.55); opacity: 0; pointer-events: none; transition: opacity 0.1s steps(2); }
+.scrim.show { opacity: 1; pointer-events: auto; } /* behind an open popover (the phone, the to-do list): a click closes it */
+
+/* Ramy's phone, more pixel: stepped corners, hard bands. Hidden until it's open (.up): then it slides up, bottom right. */
+.phone {
+  --h: min(calc(100dvh - 120px), 680px); /* clear of the meters */
+  --w: min(calc(100vw - 32px), max(340px, calc(var(--h) * 0.5)));
+  --corner: polygon(8px 0, calc(100% - 8px) 0, calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px,
+    100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px),
+    calc(100% - 8px) 100%, 8px 100%, 8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px),
+    0 8px, 4px 8px, 4px 4px, 8px 4px);
+  position: fixed;
+  z-index: 50;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom)); /* where its button was: the button becomes the phone */
+  width: var(--w);
+  line-height: 1.5;
+  translate: 0 calc(100% + 40px);
+  visibility: hidden;
+  transition: translate 0.12s steps(3), visibility 0s 0.12s;
+
+  button { font: inherit; color: inherit; border: 0; background: none; padding: 0; text-align: left; }
+  .badge { padding: 0 0.4em; background: #ef4444; color: #fff; font-style: normal; clip-path: var(--chip); }
+  .phone-apps svg { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+  small { display: block; opacity: 0.6; }
+
+  /* the contractor's price, pinned at the top of their chat; a crack across the screen, once it fell */
+  /* a pinned message at the top of a chat (the contractor's quote): one line, like a messaging app's */
+  .phone-pinned { display: flex; align-items: center; gap: 8px; margin: 0; padding: 6px 12px; background: #e9dcc4; border-bottom: 4px solid #e2d3b8; }
+  .phone-pinned svg { flex: none; width: 1em; height: 1em; }
+  .phone-pinned span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .phone-crack { position: absolute; inset: 44px 8px 40px; width: calc(100% - 16px); height: calc(100% - 84px); pointer-events: none; z-index: 2; }
+  .phone-body {
+    display: flex;
+    flex-direction: column;
+    height: var(--h);
+    position: relative;
+    padding: 26px 10px 0;
+    background: #1a1b21;
+    clip-path: var(--corner);
+  }
+  .phone-body::before { content: ""; position: absolute; left: 50%; top: 10px; width: 64px; height: 6px; translate: -50% 0; background: #3a3b44; } /* the speaker */
+  .phone-bar { display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 12px; background: #000; color: #fff; }
+  .phone-bar > svg:first-of-type { margin-left: auto; } /* time and badge left; signal, battery and ✕ right */
+  .phone-close { display: grid; place-items: center; width: 40px; height: 40px; margin-right: -6px; }
+  .phone-close svg { width: 24px; height: 24px; margin: 0; }
+  .phone-close:hover { background: #333; }
+  .phone-bar svg { width: 1.4em; height: 1.4em; image-rendering: pixelated; }
+  .phone-view { flex: 1; display: flex; flex-direction: column; min-height: 0; background: var(--cream); color: var(--navy); }
+  .phone-home { flex: none; height: 28px; position: relative; }
+  .phone-home::after { content: ""; position: absolute; left: 50%; top: 10px; width: 30%; height: 6px; translate: -50% 0; background: #555; }
+
+  .phone-homescreen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    color: #fff;
+    background: linear-gradient(165deg, #9fd6c9 0 30%, #7cc0cf 30% 55%, #5aa9d6 55% 78%, #3b6688 78%);
+  }
+  &.night .phone-homescreen { background: linear-gradient(165deg, #24485a 0 30%, #1c3a4f 30% 55%, #15283f 55% 78%, #0b1322 78%); }
+  .phone-clock { margin: 0; text-align: center; font-size: var(--text-big); text-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); }
+  .phone-apps { display: grid; gap: 10px; }
+  .phone-apps button { display: flex; align-items: center; gap: 12px; padding: 8px; background: rgba(0, 0, 0, 0.25); clip-path: var(--chip); }
+  .phone-apps svg { width: 2.4em; height: 2.4em; flex: none; }
+  .phone-note { margin: 0; margin-top: auto; padding: 12px; background: rgba(255, 255, 255, 0.18); clip-path: var(--chip); }
+
+  .phone-head { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-bottom: 4px solid #e2d3b8; }
+  .phone-head .phone-back { display: grid; place-items: center; width: 40px; height: 40px; margin-left: -6px; color: var(--navy); }
+  .phone-back svg { width: 24px; height: 24px; }
+  .phone-view > .phone-note { margin: 16px; background: #e9dcc4; }
+
+  .phone-list { overflow-y: auto; }
+  /* WeTube: a red thumbnail with the length on it; a bar that fills while it plays */
+  .wetube-thumb { flex: none; position: relative; width: 96px; aspect-ratio: 16 / 9; background: #000 center / cover; image-rendering: pixelated; clip-path: var(--chip); }
+  .wetube-thumb::before { content: ""; position: absolute; left: 50%; top: 50%; translate: -30% -50%; border: 8px solid transparent; border-left: 12px solid #fff; } /* play */
+  .wetube-thumb i { position: absolute; right: 2px; bottom: 2px; padding: 0 3px; background: rgba(0, 0, 0, 0.75); color: #fff; font-style: normal; }
+  .wetube-bar { display: block; height: 8px; margin-top: 6px; background: #e2d3b8; }
+  .wetube-bar i { display: block; height: 100%; background: #ff2a3d; animation: watch 3s steps(12) both; }
+  .badge.watched { display: inline-block; margin-top: 4px; background: #3fbf5f; }
+
+  .phone-list button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border-bottom: 4px solid #e2d3b8; }
+  .phone-meta { flex: 1; min-width: 0; }
+  .phone-preview { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; opacity: 0.7; }
+
+  .phone-chat { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; overflow-y: auto; padding: 12px; } /* bubbles fit their text */
+  /* their messages: white, on the left; yours: teal, on the right */
+  .phone-chat p { margin: 0; max-width: 85%; padding: 10px 12px; background: #fff; clip-path: var(--chip); }
+  .phone-chat p.new { animation: bubble 0.2s steps(3) both; } /* only a message that just arrived pops in */
+  .phone-chat p.mine { align-self: flex-end; background: var(--mine); }
+  /* they're typing: three dots bouncing in turn */
+  .phone-chat .typing { display: flex; gap: 6px; padding: 14px 16px; }
+  .phone-chat .typing i { width: 8px; height: 8px; background: var(--navy); opacity: 0.4; animation: typing 0.9s steps(2) infinite; }
+  .phone-chat .typing i:nth-child(2) { animation-delay: 0.15s; }
+  .phone-chat .typing i:nth-child(3) { animation-delay: 0.3s; }
+  /* what you'll say: like a typed message waiting to send; ◀ ▶ show your other replies, the blue arrow sends it */
+  .phone-compose { padding: 8px; background: #e2d3b8; }
+
+  &.up { translate: 0 0; visibility: visible; transition: translate 0.12s steps(3); }
+
+  /* hover: gold, like every button */
+  .phone-view button:not(.picker-text):hover { background-color: var(--hover); }
+  .phone-view .phone-apps button:hover { background-color: var(--hover); color: var(--navy); }
+  button.pressed { translate: 0 3px; }
+}
+
+@keyframes bubble { from { opacity: 0; translate: 0 8px; } }
+@keyframes typing { 50% { translate: 0 -4px; opacity: 1; } }
+
+/* ─── settings menu ─── */
+
+.menu { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: rgba(8, 11, 28, 0.6); }
+.menu[hidden] { display: none; }
+.menu-card {
+  display: grid;
+  gap: 16px;
+  width: min(calc(100vw - 32px), 420px);
+  padding: 24px;
+  background: var(--navy);
+  border: 4px solid var(--cream);
+  box-shadow: 0 8px 0 #080b1c;
+  text-align: center;
+}
+.menu .menu-card .button { display: flex; justify-content: center; align-items: center; gap: 12px; }
+.menu .menu-card .button img { width: 1.6em; height: 1.6em; image-rendering: pixelated; }
+.menu .menu-card .button.danger { background: #ef4444; }
+
+/* ─── accessibility ─── */
+
+/* players who turn motion off get none (the standard rule; !important so nothing overrides it) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

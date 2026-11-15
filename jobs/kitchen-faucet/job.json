@@ -1,0 +1,372 @@
+{
+  "id": "kitchen-faucet",
+  "title": "Swap the kitchen faucet",
+  "level": "Ground",
+  "spot": {
+    "x": 600,
+    "y": 140,
+    "w": 80,
+    "h": 50
+  },
+  "quote": {
+    "days": 1,
+    "money": 350
+  },
+  "steps": [
+    {
+      "name": "Shut off the water",
+      "act": "under-sink",
+      "sound": "unscrew-cap",
+      "minutes": 20
+    },
+    {
+      "name": "Undo the old faucet",
+      "act": "wrench",
+      "sound": "socket-wrench",
+      "tool": "basin-wrench",
+      "minutes": 60
+    },
+    {
+      "name": "Fit the new faucet",
+      "act": "under-sink",
+      "sound": "metal-pipe",
+      "minutes": 60
+    },
+    {
+      "name": "Turn the water back on",
+      "act": "water-spray",
+      "sound": "water-dripping",
+      "minutes": 20
+    }
+  ],
+  "surprises": [
+    {
+      "title": "Shutoff valve seizes",
+      "description": "Oh no! The shutoff under the sink won't budge, and now it's dripping down your wrist.",
+      "options": [
+        {
+          "text": "Repipe the whole kitchen",
+          "quality": "excessive"
+        },
+        {
+          "text": "Shut off the main and replace the shutoff",
+          "quality": "good"
+        },
+        {
+          "text": "Crank harder with a pipe wrench",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Main valve fails",
+      "description": "Main closed, water still trickling. The valve has given up on life.",
+      "options": [
+        {
+          "text": "Replace every valve in the house",
+          "quality": "excessive"
+        },
+        {
+          "text": "Call the utility to shut off the street",
+          "quality": "good"
+        },
+        {
+          "text": "Work fast with a bucket and hope",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Mounting nuts seize",
+      "description": "The nuts are rusted solid. You're upside down, flashlight in your mouth.",
+      "options": [
+        {
+          "text": "Cut it out with an oscillating tool",
+          "quality": "ok"
+        },
+        {
+          "text": "Pull the whole sink out of the countertop",
+          "quality": "excessive"
+        },
+        {
+          "text": "Use penetrating oil and a basin wrench",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Supply line cracks",
+      "description": "Yikes! The old supply line snaps the moment you bend it.",
+      "options": [
+        {
+          "text": "Reuse the old line very gently",
+          "quality": "wrong"
+        },
+        {
+          "text": "Install new braided supply lines",
+          "quality": "good"
+        },
+        {
+          "text": "Wrap it in duct tape",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Faucet holes don't match",
+      "description": "Surprise! Your new faucet needs one hole. Your sink has three.",
+      "options": [
+        {
+          "text": "Replace the sink and countertop",
+          "quality": "excessive"
+        },
+        {
+          "text": "Cover the extra holes with a deck plate",
+          "quality": "good"
+        },
+        {
+          "text": "Fill the extra holes with caulk",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Cabinet floor rots",
+      "description": "Squish. The cabinet floor is soft and smells like a swamp.",
+      "options": [
+        {
+          "text": "Lay a plastic mat over it",
+          "quality": "wrong"
+        },
+        {
+          "text": "Remodel the whole kitchen",
+          "quality": "excessive"
+        },
+        {
+          "text": "Cut out and replace the cabinet floor",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "New sink doesn't fit",
+      "description": "The new sink is one inch too wide for the countertop cutout. Of course it is.",
+      "options": [
+        {
+          "text": "Return it for a sink that fits",
+          "quality": "good"
+        },
+        {
+          "text": "Force it in with a rubber mallet",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the countertop",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Backsplash looks dated",
+      "description": "Hmm. Next to your shiny new faucet, the backsplash looks straight out of 1987.",
+      "options": [
+        {
+          "text": "Retile the backsplash this weekend",
+          "quality": "excessive"
+        },
+        {
+          "text": "Paint over the tile with wall paint",
+          "quality": "wrong"
+        },
+        {
+          "text": "Add it to the someday list",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Partner requests bulb change",
+      "description": "Your partner calls from the hallway: \"While you're at it, can you change this bulb?\"",
+      "options": [
+        {
+          "text": "Leave the sink in pieces and do it now",
+          "quality": "wrong"
+        },
+        {
+          "text": "Smart lights in every room",
+          "quality": "excessive"
+        },
+        {
+          "text": "Change it once the faucet is done",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Pipe stub is too short",
+      "description": "You cut off the old valve, and now there's barely half an inch of pipe left to grab.",
+      "options": [
+        {
+          "text": "Use a push-fit valve made for short stubs",
+          "quality": "good"
+        },
+        {
+          "text": "Open the wall and repipe the run",
+          "quality": "excessive"
+        },
+        {
+          "text": "Solder on a pipe extension",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "Water utility is delayed",
+      "description": "The water utility can shut off the street valve... on Monday. It's Friday night.",
+      "options": [
+        {
+          "text": "Turn the street valve with a broom",
+          "quality": "wrong"
+        },
+        {
+          "text": "Cap the sink lines and wait until Monday",
+          "quality": "good"
+        },
+        {
+          "text": "Pay a plumber to freeze the pipe",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "Blade nicks the sink",
+      "description": "The oscillating tool slips. There's now a shiny scratch across your stainless sink.",
+      "options": [
+        {
+          "text": "Color it in with a silver marker",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the sink",
+          "quality": "excessive"
+        },
+        {
+          "text": "Buff it out with a scratch repair kit",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Fittings don't fit",
+      "description": "New lines: 3/8 inch. Your valves: 1/2 inch. The store closes in 20 minutes.",
+      "options": [
+        {
+          "text": "Wrap the threads in tape until it holds",
+          "quality": "wrong"
+        },
+        {
+          "text": "Grab the right adapters before close",
+          "quality": "good"
+        },
+        {
+          "text": "Buy one of every fitting in the aisle",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Countertop chips",
+      "description": "Crack! A chunk of laminate pops off while you're widening the cutout.",
+      "options": [
+        {
+          "text": "Replace the entire countertop",
+          "quality": "excessive"
+        },
+        {
+          "text": "Superglue the chip back on",
+          "quality": "ok"
+        },
+        {
+          "text": "Fill it with a color-matched repair kit",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Mold hides under cabinet",
+      "description": "Under the rotten floor: fuzzy black spots. Mold moved in and stopped paying rent.",
+      "options": [
+        {
+          "text": "Gut the kitchen to the studs",
+          "quality": "excessive"
+        },
+        {
+          "text": "Clean, dry, and treat the area",
+          "quality": "good"
+        },
+        {
+          "text": "Paint right over it",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Disposal starts groaning",
+      "description": "The garbage disposal just made a noise like a dying walrus.",
+      "options": [
+        {
+          "text": "Install a commercial-grade disposal today",
+          "quality": "excessive"
+        },
+        {
+          "text": "Pour drain cleaner in it and run it",
+          "quality": "wrong"
+        },
+        {
+          "text": "Note it and finish the faucet first",
+          "quality": "good"
+        }
+      ]
+    }
+  ],
+  "video": {
+    "title": "Faucet swap: so easy!",
+    "channel": "Plumb Simple",
+    "length": "6:12",
+    "minutes": 60
+  },
+  "ask": {
+    "question": "How do I replace a kitchen faucet?",
+    "answer": "Easy! 1. Unscrew the old one. 2. Screw in the new one. 3. Enjoy!",
+    "skipped": "It skipped shutting off the water and the supply lines."
+  },
+  "set": [
+    {
+      "name": "handle",
+      "x": 228,
+      "y": 120,
+      "w": 24,
+      "h": 14,
+      "animate": "wobble"
+    },
+    {
+      "name": "drop",
+      "x": 254,
+      "y": 102,
+      "w": 2,
+      "h": 3,
+      "animate": "drip",
+      "reach": 52,
+      "every": 1.4
+    },
+    {
+      "name": "ripple",
+      "x": 248,
+      "y": 155,
+      "w": 14,
+      "h": 3,
+      "animate": "ripple",
+      "every": 1.4
+    }
+  ]
+}

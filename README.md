@@ -1,33 +1,55 @@
 # DIWhy
 
-![DIWHY?! Do it yourself. Then ask why. The team in front of the house.](assets/banner.png)
+![DIWHY?! Do it yourself. Then ask why. The team in front of the house.](.github/banner.png)
 
 **Do it yourself. Then ask why.**
 
-A game where replacing one faucet snowballs into a very different project. You turn down the contractor's quote and do it yourself. Choices change a hidden state, the state decides which problems come next, and the end report counts the moments you asked "why?".
+A game where replacing one faucet snowballs into a very different project. You turn down the contractor's quote and do it yourself: walk the house, take on the DIY jobs, answer the surprises that come up, and keep an eye on the days, the money and your health. Meanwhile everyone in your life texts you about it.
 
-## For developers
+By Around The World Games: Travis, Aidan, Gigi, Christian, Rachel, Ramy and Fendy.
 
-### Run it
+## Play
 
-You need [Node.js](https://nodejs.org). From the top of the repo:
+Arrow keys (or WASD) to walk, **Enter** to use what you're next to, **P** for the phone, **Esc** to put it away. Or click and tap.
+
+## Run it
+
+You need [Node.js](https://nodejs.org), and Claude for the phone's texts. Once:
 
 ```sh
-npm install   # once
-npm start     # then open http://127.0.0.1:3001
-npm test      # run the tests
+brew install anthropics/tap/ant   # the Anthropic CLI
+ant auth login                    # sign in (no key needed), or put ANTHROPIC_API_KEY= in .env
+npm install
 ```
 
-To watch instead of play, press **watch the demo** at the top left of the character screen: the game plays itself, from the splash to the final report. How that works is in [`demo/`](demo/README.md).
+Then:
 
-### How it's organized
+```sh
+npm run dev    # the game and the API together: open http://localhost:5173
+npm run build  # check the types, then build the game into dist/
+npm start      # after a build: the game and the API on one port (http://localhost:3000)
+```
 
-One small Node server runs everything: it serves the pages and runs the game rules. Each person works in their own folder:
+## How it's organized
 
-- [`app/`](app/README.md): the intro, from the splash to SOLD! (HTML, CSS, JavaScript)
-- [`frontend/`](frontend/README.md): the game itself: the yard, the house, the phone, the post-its (HTML, CSS, JavaScript)
-- [`backend/`](backend/README.md): the game rules, the dice and the API (TypeScript on Node). [`API.md`](backend/API.md) if you're building a front end
-- [`events/`](events/): the events, one CSV per job. Add a row and the next game uses it
-- [`assets/`](assets/README.md): art, sound and brand (SVG, MP3)
-- [`demo/`](demo/README.md): the hands-free playthrough
-- [`plan/`](plan/): the plan: the game's story and flow ([`plan.md`](plan/plan.md)), and a review of the flow and its gaps
+A Vite + TypeScript game and a small Node API. The server runs the game; the game shows it.
+
+- **`src/`**: the game, in the browser
+- **`server/`**: the API: the rules, the DIY jobs, and Claude writing the phone's texts
+- **`jobs/`**: the DIY jobs, one folder each: a `job.json` with everything about it, and its pictures. To add a job, add a folder
+- **`shared/`**: the types both use
+- **`public/`**: the favicon
+
+Inside `src/`:
+
+| Folder | What's in it |
+|---|---|
+| `screens/` | Every screen: menus, cinematics, a DIY job |
+| `levels/` | The places you walk around |
+| `actors/` | What's in a level: props, doors, you, the cat |
+| `engine/` | The machinery: the loop, camera, controls, sound |
+| `state/` | The game as the server sent it |
+| `ui/` | The interface: the HUD (meters, phone, settings) and pieces screens share (the picker, toasts) |
+| `assets/` | Art and sound |
+
+Art and sound we made but don't use go in `unused-assets/` (same layout as `src/assets/`). It stays on your machine (it's in `.gitignore`).

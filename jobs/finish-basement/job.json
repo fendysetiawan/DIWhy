@@ -1,0 +1,458 @@
+{
+  "id": "finish-basement",
+  "title": "Finish the basement",
+  "level": "Basement",
+  "spot": {
+    "x": 1100,
+    "y": 350,
+    "w": 120,
+    "h": 100
+  },
+  "quote": {
+    "days": 14,
+    "money": 17000
+  },
+  "steps": [
+    {
+      "name": "Frame the walls",
+      "act": "carry-box",
+      "sound": "handheld-hacksaw",
+      "minutes": 480
+    },
+    {
+      "name": "Run the wires",
+      "act": "flashlight",
+      "sound": "wire-crimper-tool",
+      "minutes": 360
+    },
+    {
+      "name": "Hang the drywall",
+      "act": "drill",
+      "sound": "power-drill",
+      "tool": "drill-driver",
+      "minutes": 480
+    },
+    {
+      "name": "Mud and sand",
+      "act": "dust-cough",
+      "sound": "scraping",
+      "minutes": 360
+    },
+    {
+      "name": "Paint it",
+      "act": "paint-roller",
+      "sound": "paint-roller",
+      "minutes": 240
+    }
+  ],
+  "surprises": [
+    {
+      "title": "Walls weep water",
+      "description": "After a rainstorm, the foundation wall is damp, and there's a puddle in the corner.",
+      "options": [
+        {
+          "text": "Hang drywall over it",
+          "quality": "wrong"
+        },
+        {
+          "text": "Dig out and waterproof every wall",
+          "quality": "excessive"
+        },
+        {
+          "text": "Fix gutters and grading, then waterproof",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Foundation crack appears",
+      "description": "Behind the old paneling: a crack running from floor to ceiling.",
+      "options": [
+        {
+          "text": "Fill it with spray foam",
+          "quality": "wrong"
+        },
+        {
+          "text": "Have a structural engineer evaluate it",
+          "quality": "good"
+        },
+        {
+          "text": "Replace the foundation",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Ceiling is too low",
+      "description": "A duct and a drain hang so low you'll hit your head. Every time.",
+      "options": [
+        {
+          "text": "Lower the basement floor",
+          "quality": "excessive"
+        },
+        {
+          "text": "Box them into a soffit",
+          "quality": "good"
+        },
+        {
+          "text": "Just duck",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Egress window is missing",
+      "description": "The inspector asks where the egress window is for the new bedroom. There isn't one.",
+      "options": [
+        {
+          "text": "Add egress windows to every room",
+          "quality": "excessive"
+        },
+        {
+          "text": "Cut in an egress window and well",
+          "quality": "good"
+        },
+        {
+          "text": "Call it an office instead",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "Sump pump dies",
+      "description": "The sump pump clicks, hums, and does nothing. It's rained all week.",
+      "options": [
+        {
+          "text": "Install a full perimeter drain system",
+          "quality": "excessive"
+        },
+        {
+          "text": "Bail the pit with a bucket",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the pump and add a backup",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Radon tests high",
+      "description": "The radon test comes back well above the action level.",
+      "options": [
+        {
+          "text": "Install a radon mitigation system",
+          "quality": "good"
+        },
+        {
+          "text": "Seal off the basement forever",
+          "quality": "excessive"
+        },
+        {
+          "text": "Open a window now and then",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Panel runs out of room",
+      "description": "The new circuits need space, and the panel is completely full.",
+      "options": [
+        {
+          "text": "Upgrade the utility service",
+          "quality": "excessive"
+        },
+        {
+          "text": "Double-tap the breakers",
+          "quality": "wrong"
+        },
+        {
+          "text": "Add a subpanel",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Extension cords appear",
+      "description": "Behind the old paneling: a tangle of extension cords stapled to the wall.",
+      "options": [
+        {
+          "text": "Hide them behind the drywall",
+          "quality": "wrong"
+        },
+        {
+          "text": "Rewire the whole house",
+          "quality": "excessive"
+        },
+        {
+          "text": "Replace them with proper wiring in boxes",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Floor drain backs up",
+      "description": "During a storm, the floor drain gurgles and burps up something unpleasant.",
+      "options": [
+        {
+          "text": "Install a backwater valve",
+          "quality": "good"
+        },
+        {
+          "text": "Put a heavy box over the drain",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the main sewer line",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Stairs fail code",
+      "description": "The stairs are steep, and the headroom is low. The inspector is not smiling.",
+      "options": [
+        {
+          "text": "Rebuild the stairs to code",
+          "quality": "good"
+        },
+        {
+          "text": "Move the staircase",
+          "quality": "excessive"
+        },
+        {
+          "text": "Add a handrail and hope",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "Joists grow mold",
+      "description": "Your flashlight finds white fuzz on the floor joists above.",
+      "options": [
+        {
+          "text": "Replace the joists",
+          "quality": "excessive"
+        },
+        {
+          "text": "Dry, clean, and add a dehumidifier",
+          "quality": "good"
+        },
+        {
+          "text": "Paint it white so it blends in",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Basement stays cold",
+      "description": "The new space has one tiny vent. It's a refrigerator down here.",
+      "options": [
+        {
+          "text": "Replace the whole HVAC system",
+          "quality": "excessive"
+        },
+        {
+          "text": "Add supply and return ducts",
+          "quality": "good"
+        },
+        {
+          "text": "Plug in a space heater forever",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "Post blocks the layout",
+      "description": "A steel column sits right where the TV wall should go.",
+      "options": [
+        {
+          "text": "Cut the post out",
+          "quality": "wrong"
+        },
+        {
+          "text": "Add a long-span beam to remove the post",
+          "quality": "excessive"
+        },
+        {
+          "text": "Design the layout around the post",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Drain runs uphill",
+      "description": "The new basement bathroom sits below the sewer line. Water does not flow uphill.",
+      "options": [
+        {
+          "text": "Install an ejector pit",
+          "quality": "good"
+        },
+        {
+          "text": "Dig a deeper sewer line to the street",
+          "quality": "excessive"
+        },
+        {
+          "text": "Hope gravity changes its mind",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Permit is missing",
+      "description": "Your neighbor asks if you pulled a permit. You... did not.",
+      "options": [
+        {
+          "text": "Close the curtains and keep working",
+          "quality": "wrong"
+        },
+        {
+          "text": "Hire an architect for full plans",
+          "quality": "excessive"
+        },
+        {
+          "text": "Apply for a permit now",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Old oil tank appears",
+      "description": "Behind the boxes in the corner: a rusty old heating oil tank.",
+      "options": [
+        {
+          "text": "Paint it and use it as a side table",
+          "quality": "wrong"
+        },
+        {
+          "text": "Have it professionally removed",
+          "quality": "good"
+        },
+        {
+          "text": "Dig up the yard looking for more tanks",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Home theater dream",
+      "description": "It's a basement. It's dark. It's perfect for a home theater.",
+      "options": [
+        {
+          "text": "Stack three TVs on the floor",
+          "quality": "wrong"
+        },
+        {
+          "text": "Run the wiring now, buy gear later",
+          "quality": "good"
+        },
+        {
+          "text": "Install a full projector system this month",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Wet bar beckons",
+      "description": "What's a basement without a wet bar? Lonely, that's what.",
+      "options": [
+        {
+          "text": "Put a cooler on a bookshelf",
+          "quality": "ok"
+        },
+        {
+          "text": "Build a full bar with a kegerator now",
+          "quality": "excessive"
+        },
+        {
+          "text": "Rough in a drain for the future",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Partner wants a gym",
+      "description": "Your partner: \"We could put the gym down here. With the heavy weights.\"",
+      "options": [
+        {
+          "text": "Lay rubber flooring on the slab",
+          "quality": "good"
+        },
+        {
+          "text": "Bolt a pull-up bar to a single joist",
+          "quality": "wrong"
+        },
+        {
+          "text": "Build a climbing wall",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Storage boxes multiply",
+      "description": "To finish the basement, all the boxes have to move. There are... so many boxes.",
+      "options": [
+        {
+          "text": "Stack them in the garage. Bye, car",
+          "quality": "wrong"
+        },
+        {
+          "text": "Rent a storage unit forever",
+          "quality": "excessive"
+        },
+        {
+          "text": "Sort and donate as you go",
+          "quality": "good"
+        }
+      ]
+    }
+  ],
+  "video": {
+    "title": "Finish a basement on a budget",
+    "channel": "Down Under DIY",
+    "length": "42:10",
+    "minutes": 150
+  },
+  "ask": {
+    "question": "How do I finish my basement?",
+    "answer": "Exciting! 1. Put up walls. 2. Paint them. 3. Add a couch!",
+    "skipped": "It skipped moisture, permits, wiring and insulation."
+  },
+  "set": [
+    {
+      "name": "glow",
+      "x": 140,
+      "y": 39,
+      "w": 200,
+      "h": 150,
+      "animate": "flicker"
+    },
+    {
+      "name": "bulb",
+      "x": 220,
+      "y": 30,
+      "w": 40,
+      "h": 92,
+      "animate": "sway"
+    },
+    {
+      "name": "drop",
+      "x": 302,
+      "y": 57,
+      "w": 2,
+      "h": 3,
+      "animate": "drip",
+      "reach": 190,
+      "every": 2
+    },
+    {
+      "name": "ring",
+      "x": 285,
+      "y": 245,
+      "w": 34,
+      "h": 10,
+      "animate": "ripple",
+      "every": 2
+    }
+  ]
+}

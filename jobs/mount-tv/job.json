@@ -1,0 +1,347 @@
+{
+  "id": "mount-tv",
+  "title": "Mount the TV",
+  "level": "Ground",
+  "spot": {
+    "x": 380,
+    "y": 690,
+    "w": 120,
+    "h": 30
+  },
+  "quote": {
+    "days": 1,
+    "money": 300
+  },
+  "steps": [
+    {
+      "name": "Find the studs",
+      "act": "measuring",
+      "sound": "hollow-wood-knocking",
+      "tool": "stud-finder",
+      "minutes": 20
+    },
+    {
+      "name": "Drill the holes",
+      "act": "drill",
+      "sound": "power-drill",
+      "minutes": 30
+    },
+    {
+      "name": "Hang the bracket",
+      "act": "wrench",
+      "sound": "socket-wrench",
+      "minutes": 30
+    },
+    {
+      "name": "Lift the TV on",
+      "act": "carry-box",
+      "sound": "toolbox-2",
+      "minutes": 20
+    }
+  ],
+  "surprises": [
+    {
+      "title": "Studs are off-center",
+      "description": "The studs are exactly 8 inches left of where the TV should go. Of course.",
+      "options": [
+        {
+          "text": "Reframe the wall",
+          "quality": "excessive"
+        },
+        {
+          "text": "Use a mount with a sliding plate",
+          "quality": "good"
+        },
+        {
+          "text": "Hang it off-center",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "Studs are metal",
+      "description": "Your stud finder beeps... it's a metal stud. Wood screws won't help.",
+      "options": [
+        {
+          "text": "Open the wall and add plywood backing",
+          "quality": "excessive"
+        },
+        {
+          "text": "Use wood screws anyway",
+          "quality": "wrong"
+        },
+        {
+          "text": "Use toggle bolts rated for metal studs",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Wall is plaster",
+      "description": "The drill hits plaster and lath. Chunks rain onto the carpet.",
+      "options": [
+        {
+          "text": "Hammer the anchors in",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the wall with drywall",
+          "quality": "excessive"
+        },
+        {
+          "text": "Drill slowly with a masonry bit",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Drill hits a wire",
+      "description": "Zzzt. The lights flicker, and the outlet below is dead.",
+      "options": [
+        {
+          "text": "Rewire the room",
+          "quality": "excessive"
+        },
+        {
+          "text": "Pretend it didn't happen",
+          "quality": "wrong"
+        },
+        {
+          "text": "Breaker off, splice it in a box",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Drill hits a pipe",
+      "description": "Psssh. The drill bit came out wet.",
+      "options": [
+        {
+          "text": "Shut off the water and fix the pipe",
+          "quality": "good"
+        },
+        {
+          "text": "Leave the bit in to plug it",
+          "quality": "wrong"
+        },
+        {
+          "text": "Repipe the whole wall",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Fire block stops the cable",
+      "description": "The fish tape hits a solid horizontal board halfway down the wall.",
+      "options": [
+        {
+          "text": "Remove the fire blocking",
+          "quality": "wrong"
+        },
+        {
+          "text": "Run the cables in a surface raceway",
+          "quality": "ok"
+        },
+        {
+          "text": "Drill through it with a flexible bit",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Power cord can't go in-wall",
+      "description": "You're about to push the TV's power cord through the wall. Code says no.",
+      "options": [
+        {
+          "text": "Install an in-wall power kit",
+          "quality": "good"
+        },
+        {
+          "text": "Push the cord through anyway",
+          "quality": "wrong"
+        },
+        {
+          "text": "Add a dedicated circuit and outlet",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Fireplace claims the spot",
+      "description": "The best spot is above the fireplace. Hot TV, sore neck.",
+      "options": [
+        {
+          "text": "Remove the fireplace",
+          "quality": "excessive"
+        },
+        {
+          "text": "Mount it on another wall",
+          "quality": "good"
+        },
+        {
+          "text": "Use a pull-down mantel mount",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "TV sags forward",
+      "description": "A day after mounting, the TV is tilting like it's bowing to you.",
+      "options": [
+        {
+          "text": "Tighten the mount and check the bolts",
+          "quality": "good"
+        },
+        {
+          "text": "Prop it up with a book",
+          "quality": "wrong"
+        },
+        {
+          "text": "Swap in a heavier-duty mount",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "Holes go crooked",
+      "description": "You drilled four holes. The level says they're all crooked.",
+      "options": [
+        {
+          "text": "Hire someone to finish the job",
+          "quality": "excessive"
+        },
+        {
+          "text": "Patch them and redrill",
+          "quality": "good"
+        },
+        {
+          "text": "Hang a picture over the extra holes",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "HDMI cable falls short",
+      "description": "The cable you fished through the wall stops 6 inches short.",
+      "options": [
+        {
+          "text": "Splice the HDMI wires with tape",
+          "quality": "wrong"
+        },
+        {
+          "text": "Move the whole entertainment center",
+          "quality": "excessive"
+        },
+        {
+          "text": "Pull a longer cable through",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Soundbar blocks the sensor",
+      "description": "The soundbar blocks the TV's remote sensor. Nothing responds.",
+      "options": [
+        {
+          "text": "Use a soundbar bracket under the mount",
+          "quality": "good"
+        },
+        {
+          "text": "Buy a new TV",
+          "quality": "excessive"
+        },
+        {
+          "text": "Raise the TV above eye level",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "Surround sound tempts you",
+      "description": "The wall is already open. Why not run speaker wire for surround sound?",
+      "options": [
+        {
+          "text": "Run speaker wire under the rug",
+          "quality": "ok"
+        },
+        {
+          "text": "Wire speakers into every room",
+          "quality": "excessive"
+        },
+        {
+          "text": "Pull an extra pull-string for later",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Dark wall idea strikes",
+      "description": "A dark wall behind the TV would look so cinematic.",
+      "options": [
+        {
+          "text": "Try a sample swatch first",
+          "quality": "good"
+        },
+        {
+          "text": "Paint the whole room black",
+          "quality": "excessive"
+        },
+        {
+          "text": "Paint only the rectangle behind the TV",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Partner wants a gallery wall",
+      "description": "Your partner: \"Since the drill is out, the hallway gallery wall?\"",
+      "options": [
+        {
+          "text": "Plan the layout on paper first",
+          "quality": "good"
+        },
+        {
+          "text": "Buy all new art",
+          "quality": "excessive"
+        },
+        {
+          "text": "Hang 30 frames by eye tonight",
+          "quality": "wrong"
+        }
+      ]
+    }
+  ],
+  "video": {
+    "title": "Mount a TV on drywall the right way",
+    "channel": "Weekend Wall",
+    "length": "11:05",
+    "minutes": 80
+  },
+  "ask": {
+    "question": "How do I hang a TV?",
+    "answer": "Great question! 1. Drill four holes. 2. Screw on the bracket. 3. Hang the TV!",
+    "skipped": "It skipped finding the studs."
+  },
+  "set": [
+    {
+      "name": "glint",
+      "x": 162,
+      "y": 104,
+      "w": 40,
+      "h": 128,
+      "animate": "sweep",
+      "reach": 116,
+      "every": 4
+    },
+    {
+      "name": "finder",
+      "x": 214,
+      "y": 54,
+      "w": 22,
+      "h": 16,
+      "animate": "swing",
+      "reach": 110,
+      "every": 7
+    }
+  ]
+}

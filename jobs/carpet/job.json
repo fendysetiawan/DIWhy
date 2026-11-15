@@ -1,0 +1,389 @@
+{
+  "id": "carpet",
+  "title": "Replace the bedroom carpet",
+  "level": "Upstairs",
+  "spot": {
+    "x": 300,
+    "y": 320,
+    "w": 60,
+    "h": 50
+  },
+  "quote": {
+    "days": 3,
+    "money": 3500
+  },
+  "steps": [
+    {
+      "name": "Pull up the old carpet",
+      "act": "push-pull",
+      "sound": "carpet-ripping",
+      "minutes": 120
+    },
+    {
+      "name": "Pry out the tack strips",
+      "act": "floor-prying",
+      "sound": "removing-nail-from-board",
+      "tool": "pry-bar",
+      "minutes": 90
+    },
+    {
+      "name": "Measure the room",
+      "act": "measuring",
+      "sound": "tape-measure",
+      "minutes": 30
+    },
+    {
+      "name": "Lay the new carpet",
+      "act": "push-pull",
+      "sound": "fabric-flap",
+      "minutes": 180
+    }
+  ],
+  "surprises": [
+    {
+      "title": "Stains appear",
+      "description": "Peeling back the carpet reveals a map of every pet accident since 2009.",
+      "options": [
+        {
+          "text": "Lay the new carpet right over it",
+          "quality": "wrong"
+        },
+        {
+          "text": "Clean and seal the stains with primer",
+          "quality": "good"
+        },
+        {
+          "text": "Replace all the subfloor",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Subfloor goes soft",
+      "description": "Your foot sinks a little near the bathroom door. That's not supposed to happen.",
+      "options": [
+        {
+          "text": "Replace the subfloor in the whole house",
+          "quality": "excessive"
+        },
+        {
+          "text": "Screw a sheet of plywood on top",
+          "quality": "ok"
+        },
+        {
+          "text": "Cut out and replace that section",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Joist cracks",
+      "description": "Under the bad subfloor, a joist has a crack running halfway through it.",
+      "options": [
+        {
+          "text": "Sister a new joist alongside",
+          "quality": "good"
+        },
+        {
+          "text": "Glue the crack shut",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace every joist in the floor",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Floor squeaks",
+      "description": "With the carpet up, every step sounds like a haunted house.",
+      "options": [
+        {
+          "text": "Screw the subfloor down to the joists",
+          "quality": "good"
+        },
+        {
+          "text": "Tear out and rebuild the floor",
+          "quality": "excessive"
+        },
+        {
+          "text": "Sprinkle baby powder in the seams",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Old tile appears",
+      "description": "Under the carpet: 9-inch tiles from the 1960s. Those might contain asbestos.",
+      "options": [
+        {
+          "text": "Have the whole house abated",
+          "quality": "excessive"
+        },
+        {
+          "text": "Test it and cover it with new flooring",
+          "quality": "good"
+        },
+        {
+          "text": "Chip it up with a hammer",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Doors drag",
+      "description": "The new carpet is plush. Too plush. The doors won't close.",
+      "options": [
+        {
+          "text": "Leave the doors open forever",
+          "quality": "wrong"
+        },
+        {
+          "text": "Buy all new doors",
+          "quality": "excessive"
+        },
+        {
+          "text": "Trim the bottoms of the doors",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Baseboards crack",
+      "description": "Pulling the tack strip cracked two baseboards. They cracked louder than your knees.",
+      "options": [
+        {
+          "text": "Hide the cracks behind furniture",
+          "quality": "ok"
+        },
+        {
+          "text": "Redo every baseboard, repaint everything",
+          "quality": "excessive"
+        },
+        {
+          "text": "Replace the cracked pieces",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Hardwood tempts you",
+      "description": "The subfloor is bare. A tiny voice whispers: hardwood would look amazing.",
+      "options": [
+        {
+          "text": "Paint the subfloor and call it rustic",
+          "quality": "wrong"
+        },
+        {
+          "text": "Switch to hardwood in the whole house",
+          "quality": "excessive"
+        },
+        {
+          "text": "Stick with the carpet plan",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Partner requests TV mount",
+      "description": "Your partner: \"The room is empty anyway. Can you finally mount the TV?\"",
+      "options": [
+        {
+          "text": "Hang it with plain drywall anchors",
+          "quality": "wrong"
+        },
+        {
+          "text": "Mount it after the carpet is in",
+          "quality": "good"
+        },
+        {
+          "text": "Build a full media wall with hidden wiring",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Odor returns",
+      "description": "You sealed the stains, but on hot days the room still smells like 2009.",
+      "options": [
+        {
+          "text": "Treat with enzyme cleaner and reseal",
+          "quality": "good"
+        },
+        {
+          "text": "Spray air freshener under the pad",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the subfloor in the whole room",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "New subfloor sits high",
+      "description": "The new plywood is thicker than the old. There's a hump you can trip on.",
+      "options": [
+        {
+          "text": "Hide it under extra padding",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace the whole room's subfloor to match",
+          "quality": "excessive"
+        },
+        {
+          "text": "Sand the edges flush",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Pipe blocks the sister",
+      "description": "A drain pipe runs right where the new sister joist needs to go.",
+      "options": [
+        {
+          "text": "Move the drain line",
+          "quality": "ok"
+        },
+        {
+          "text": "Use a shorter sister and add blocking",
+          "quality": "good"
+        },
+        {
+          "text": "Cut the pipe to make room",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Screw hits a pipe",
+      "description": "Pssssst. You just screwed the subfloor down into a water line.",
+      "options": [
+        {
+          "text": "Repipe the whole house",
+          "quality": "excessive"
+        },
+        {
+          "text": "Shut off the water and splice the pipe",
+          "quality": "good"
+        },
+        {
+          "text": "Leave the screw in to plug the hole",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Black mastic appears",
+      "description": "Under the old tile: thick black glue. That adhesive may contain asbestos too.",
+      "options": [
+        {
+          "text": "Leave it and cover it with underlayment",
+          "quality": "good"
+        },
+        {
+          "text": "Abate the whole floor",
+          "quality": "excessive"
+        },
+        {
+          "text": "Strip it with a heat gun",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Door turns out hollow",
+      "description": "You trim the door bottom and find... cardboard. It's a hollow-core door.",
+      "options": [
+        {
+          "text": "Leave it open at the bottom",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace every door with solid-core",
+          "quality": "excessive"
+        },
+        {
+          "text": "Glue a wood strip back into the bottom",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Old paint line shows",
+      "description": "The new baseboards are shorter than the old ones. There's a stripe of unpainted wall.",
+      "options": [
+        {
+          "text": "Repaint every wall in the room",
+          "quality": "ok"
+        },
+        {
+          "text": "Touch up the wall above the baseboard",
+          "quality": "good"
+        },
+        {
+          "text": "Install taller baseboards everywhere",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Stairs look worn",
+      "description": "The new carpet is gorgeous. The stairs now look like a hiking trail.",
+      "options": [
+        {
+          "text": "Carpet the stairs and hall too",
+          "quality": "excessive"
+        },
+        {
+          "text": "Flip the stair runner upside down",
+          "quality": "wrong"
+        },
+        {
+          "text": "Add the stairs to the next project",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Partner wants new layout",
+      "description": "Your partner: \"Before the couch goes back, what if we tried it by the window?\"",
+      "options": [
+        {
+          "text": "Drag the couch across the fresh carpet",
+          "quality": "wrong"
+        },
+        {
+          "text": "Buy all new furniture for the new layout",
+          "quality": "excessive"
+        },
+        {
+          "text": "Try it once the carpet is down",
+          "quality": "good"
+        }
+      ]
+    }
+  ],
+  "video": {
+    "title": "Replacing carpet, start to finish",
+    "channel": "Floor It",
+    "length": "18:15",
+    "minutes": 110
+  },
+  "ask": {
+    "question": "How do I replace carpet?",
+    "answer": "Easy! 1. Pull up the old carpet. 2. Roll out the new one. 3. Done!",
+    "skipped": "It skipped the tack strips and the padding."
+  },
+  "set": [
+    {
+      "name": "flap",
+      "x": 250,
+      "y": 134,
+      "w": 230,
+      "h": 140,
+      "animate": "wobble"
+    }
+  ]
+}

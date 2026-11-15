@@ -1,0 +1,382 @@
+{
+  "id": "window-caulking",
+  "title": "Re-caulk the windows",
+  "level": "Upstairs",
+  "spot": {
+    "x": 560,
+    "y": 131,
+    "w": 100,
+    "h": 40
+  },
+  "quote": {
+    "days": 3,
+    "money": 1500
+  },
+  "steps": [
+    {
+      "name": "Scrape off the old caulk",
+      "act": "floor-prying",
+      "sound": "scraping",
+      "minutes": 60
+    },
+    {
+      "name": "Clean the frames",
+      "act": "dust-cough",
+      "sound": "fabric-flap",
+      "minutes": 40
+    },
+    {
+      "name": "Caulk the gaps",
+      "act": "caulking",
+      "sound": "sticky-glue",
+      "tool": "caulk-gun",
+      "minutes": 60
+    },
+    {
+      "name": "Check for drafts",
+      "act": "flashlight",
+      "sound": "wind-whistling-window-frame",
+      "minutes": 20
+    }
+  ],
+  "surprises": [
+    {
+      "title": "Trim is rotten",
+      "description": "Oh no! Your putty knife sinks right into the trim. It's basically wet bread.",
+      "options": [
+        {
+          "text": "Replace all the exterior trim on the house",
+          "quality": "excessive"
+        },
+        {
+          "text": "Replace the rotted trim",
+          "quality": "good"
+        },
+        {
+          "text": "Fill the rot with caulk",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Sheathing is rotten",
+      "description": "Trim off, and the plywood underneath is dark and crumbly. It's been wet for a long time.",
+      "options": [
+        {
+          "text": "Spray it with bleach and cover it up",
+          "quality": "wrong"
+        },
+        {
+          "text": "Cut out and patch the sheathing",
+          "quality": "good"
+        },
+        {
+          "text": "Re-sheathe the whole wall",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Flashing is missing",
+      "description": "Mystery solved: there's no flashing above the window. Water has been walking right in.",
+      "options": [
+        {
+          "text": "Run a bigger bead of caulk on top",
+          "quality": "wrong"
+        },
+        {
+          "text": "Install flashing tape and a drip cap",
+          "quality": "good"
+        },
+        {
+          "text": "Add an awning over every window",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Window frame rots",
+      "description": "The window frame is soft at the corners. This window may be beyond saving.",
+      "options": [
+        {
+          "text": "Replace every window in the house",
+          "quality": "excessive"
+        },
+        {
+          "text": "Replace this window",
+          "quality": "good"
+        },
+        {
+          "text": "Patch it with wood filler",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Sill cracks",
+      "description": "The sill is cracked and holding a little puddle. It's a tiny swimming pool for bugs.",
+      "options": [
+        {
+          "text": "Replace the sill",
+          "quality": "good"
+        },
+        {
+          "text": "Install a whole new window",
+          "quality": "excessive"
+        },
+        {
+          "text": "Drill drain holes in it",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Draft blows through",
+      "description": "You can feel a breeze through a finger-wide gap around the frame.",
+      "options": [
+        {
+          "text": "Fill it with low-expansion foam",
+          "quality": "good"
+        },
+        {
+          "text": "Blow insulation into every wall",
+          "quality": "excessive"
+        },
+        {
+          "text": "Fill it with regular expanding foam",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Lead paint shows up",
+      "description": "The test swab turned red. The trim paint has lead.",
+      "options": [
+        {
+          "text": "Set up containment and wet-scrape",
+          "quality": "good"
+        },
+        {
+          "text": "Sand it off with a power sander",
+          "quality": "wrong"
+        },
+        {
+          "text": "Hire a hazmat crew for the whole house",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Other windows look sad",
+      "description": "This window looks amazing. Every other window now looks sad by comparison.",
+      "options": [
+        {
+          "text": "Caulk the others next weekend",
+          "quality": "good"
+        },
+        {
+          "text": "Caulk over the old caulk on all of them right now",
+          "quality": "wrong"
+        },
+        {
+          "text": "Replace every window this month",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Partner spots gutters",
+      "description": "Your partner yells up: \"While you're on the ladder, the gutters are overflowing!\"",
+      "options": [
+        {
+          "text": "Install gutter guards on the whole house",
+          "quality": "excessive"
+        },
+        {
+          "text": "Lean the ladder on the gutter and reach",
+          "quality": "wrong"
+        },
+        {
+          "text": "Clean the gutter by this window",
+          "quality": "good"
+        }
+      ]
+    },
+    {
+      "title": "Trim profile doesn't match",
+      "description": "The store's trim looks nothing like your 1950s trim. It's modern. Too modern.",
+      "options": [
+        {
+          "text": "Have a millwork shop match the profile",
+          "quality": "good"
+        },
+        {
+          "text": "Install it anyway and squint",
+          "quality": "ok"
+        },
+        {
+          "text": "Replace the trim on every window to match",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Stud rot spreads",
+      "description": "Behind the bad sheathing, the stud next to the window is soft too.",
+      "options": [
+        {
+          "text": "Reframe the whole wall",
+          "quality": "excessive"
+        },
+        {
+          "text": "Sister a new stud alongside",
+          "quality": "good"
+        },
+        {
+          "text": "Fill the rot with expanding foam",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Window size is odd",
+      "description": "Your window is 31 3/8 inches wide. No store carries that. Custom order: 8 weeks.",
+      "options": [
+        {
+          "text": "Reframe the opening to a standard size",
+          "quality": "ok"
+        },
+        {
+          "text": "Order a custom window and protect the opening",
+          "quality": "good"
+        },
+        {
+          "text": "Jam in a standard window with lots of shims",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Interior stool cracks",
+      "description": "Pulling the outside sill cracks the interior window stool. Now it's an inside job too.",
+      "options": [
+        {
+          "text": "Replace the interior stool",
+          "quality": "good"
+        },
+        {
+          "text": "Redo all the interior window trim",
+          "quality": "excessive"
+        },
+        {
+          "text": "Glue and clamp the crack",
+          "quality": "ok"
+        }
+      ]
+    },
+    {
+      "title": "Window starts sticking",
+      "description": "After foaming the gap, the window won't open. The frame bowed just a little.",
+      "options": [
+        {
+          "text": "Replace the window",
+          "quality": "excessive"
+        },
+        {
+          "text": "Trim back the foam and adjust the shims",
+          "quality": "good"
+        },
+        {
+          "text": "Force it open with a pry bar",
+          "quality": "wrong"
+        }
+      ]
+    },
+    {
+      "title": "Paint chips hit garden",
+      "description": "A breeze carries lead paint chips straight into the vegetable garden.",
+      "options": [
+        {
+          "text": "Stop work, clean up, and test the soil",
+          "quality": "good"
+        },
+        {
+          "text": "Rake them into the soil",
+          "quality": "wrong"
+        },
+        {
+          "text": "Pave over the garden",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Blinds look old",
+      "description": "The clean window makes the yellowed blinds look like they lost a fight.",
+      "options": [
+        {
+          "text": "Take them down and tape up a bedsheet",
+          "quality": "wrong"
+        },
+        {
+          "text": "Wash them for now",
+          "quality": "good"
+        },
+        {
+          "text": "Install motorized shades on every window",
+          "quality": "excessive"
+        }
+      ]
+    }
+  ],
+  "video": {
+    "title": "Re-caulk a window, no mess",
+    "channel": "Seal Deal",
+    "length": "8:45",
+    "minutes": 60
+  },
+  "ask": {
+    "question": "How do I re-caulk a window?",
+    "answer": "Simple! 1. Squeeze caulk on the old caulk. 2. Smooth it. 3. Done!",
+    "skipped": "It skipped scraping off the old caulk."
+  },
+  "set": [
+    {
+      "name": "curtain",
+      "x": 120,
+      "y": 27,
+      "w": 52,
+      "h": 152,
+      "animate": "sway"
+    },
+    {
+      "name": "flake",
+      "x": 162,
+      "y": 116,
+      "w": 4,
+      "h": 3,
+      "animate": "drift",
+      "reach": 60,
+      "every": 4
+    },
+    {
+      "name": "drop",
+      "x": 251,
+      "y": 192,
+      "w": 3,
+      "h": 4,
+      "animate": "drip",
+      "reach": 40,
+      "every": 2
+    },
+    {
+      "name": "splash",
+      "x": 248,
+      "y": 234,
+      "w": 9,
+      "h": 3,
+      "animate": "ripple",
+      "every": 2
+    }
+  ]
+}

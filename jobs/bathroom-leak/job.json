@@ -1,0 +1,160 @@
+{
+  "id": "bathroom-leak",
+  "title": "Fix the bathroom leak",
+  "level": "Upstairs",
+  "spot": {
+    "x": 1000,
+    "y": 140,
+    "w": 110,
+    "h": 60
+  },
+  "appears": {
+    "day": 5,
+    "from": "partner",
+    "news": "There's a brown stain spreading on the kitchen ceiling, right under the upstairs bathroom. It's dripping."
+  },
+  "quote": {
+    "days": 10,
+    "money": 3500
+  },
+  "steps": [
+    {
+      "name": "Find the leak",
+      "act": "flashlight",
+      "sound": "water-dripping",
+      "minutes": 40
+    },
+    {
+      "name": "Open up the wall",
+      "act": "push-pull",
+      "sound": "wood-crack",
+      "minutes": 90
+    },
+    {
+      "name": "Swap the bad pipe",
+      "act": "wrench",
+      "sound": "metal-pipe",
+      "tool": "pipe-cutter",
+      "minutes": 120
+    },
+    {
+      "name": "Patch and seal",
+      "act": "caulking",
+      "sound": "sticky-glue",
+      "minutes": 60
+    }
+  ],
+  "surprises": [
+    {
+      "title": "The valve won't close",
+      "description": "You turn the shutoff. It turns beautifully. Nothing else happens. The knob is now in your hand.",
+      "options": [
+        {
+          "text": "Force it with a wrench",
+          "quality": "wrong"
+        },
+        {
+          "text": "Shut off the main and replace it",
+          "quality": "good"
+        },
+        {
+          "text": "Repipe the whole bathroom",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "The pipes are \"vintage\"",
+      "description": "Behind the wall: galvanized pipes from before anyone you know was born. One is weeping.",
+      "options": [
+        {
+          "text": "Patch it with sealant",
+          "quality": "ok"
+        },
+        {
+          "text": "Replace that run of pipe",
+          "quality": "good"
+        },
+        {
+          "text": "Repipe the house",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Water damage, revealed",
+      "description": "The subfloor under the tub is soft. Like cake. Wet cake.",
+      "options": [
+        {
+          "text": "Paint over it",
+          "quality": "wrong"
+        },
+        {
+          "text": "Dry it out and reseal",
+          "quality": "good"
+        },
+        {
+          "text": "Gut the bathroom",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "\"While we're at it...\"",
+      "description": "The wall is open anyway. Your partner wonders aloud about a whole new bathroom.",
+      "options": [
+        {
+          "text": "Sure, do the whole bathroom",
+          "quality": "excessive"
+        },
+        {
+          "text": "Just the leak. Please.",
+          "quality": "good"
+        },
+        {
+          "text": "Add heated floors too",
+          "quality": "excessive"
+        }
+      ]
+    }
+  ],
+  "video": {
+    "title": "Find and fix a hidden leak",
+    "channel": "Plumb Simple",
+    "length": "16:30",
+    "minutes": 100
+  },
+  "ask": {
+    "question": "How do I fix a leak in the wall?",
+    "answer": "Easy! 1. Find the wet spot. 2. Patch it with tape. 3. Problem solved!",
+    "skipped": "It skipped shutting off the water and replacing the pipe."
+  },
+  "set": [
+    {
+      "name": "puddle",
+      "x": 205,
+      "y": 200,
+      "w": 72,
+      "h": 8,
+      "animate": "flicker"
+    },
+    {
+      "name": "drop",
+      "x": 240,
+      "y": 157,
+      "w": 2,
+      "h": 3,
+      "animate": "drip",
+      "reach": 43,
+      "every": 1.6
+    },
+    {
+      "name": "towel",
+      "x": 357,
+      "y": 124,
+      "w": 26,
+      "h": 54,
+      "animate": "sway"
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "id": "pipe",
+  "title": "Stop the whistling pipe",
+  "level": "Ground",
+  "spot": {
+    "x": 1006,
+    "y": 136,
+    "w": 100,
+    "h": 60
+  },
+  "appears": {
+    "day": 4,
+    "from": "partner",
+    "news": "There's a ghost in the downstairs bathroom. It whistles behind the sink at night. They're not going in there.",
+    "sign": true
+  },
+  "quote": {
+    "days": 1,
+    "money": 420
+  },
+  "steps": [
+    {
+      "name": "Shut off the water",
+      "act": "under-sink",
+      "sound": "unscrew-cap",
+      "minutes": 20
+    },
+    {
+      "name": "Find the whistling pipe",
+      "act": "flashlight",
+      "sound": "wind-whistling-window-frame",
+      "minutes": 40
+    },
+    {
+      "name": "Swap the worn washer",
+      "act": "wrench",
+      "sound": "socket-wrench",
+      "tool": "valve-washer-kit",
+      "minutes": 40
+    },
+    {
+      "name": "Turn it on and listen",
+      "act": "water-spray",
+      "sound": "hollow-metal-knocking",
+      "minutes": 20
+    }
+  ],
+  "surprises": [
+    {
+      "title": "The valve is seized",
+      "description": "The shutoff won't budge, and now it's dripping down your wrist.",
+      "options": [
+        {
+          "text": "Crank harder with a pipe wrench",
+          "quality": "wrong"
+        },
+        {
+          "text": "Shut off the main and replace it",
+          "quality": "good"
+        },
+        {
+          "text": "Repipe the whole bathroom",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "It whistles louder",
+      "description": "You opened it up. Now the ghost is whistling a tune.",
+      "options": [
+        {
+          "text": "Turn the radio up",
+          "quality": "wrong"
+        },
+        {
+          "text": "Check the washer and the valve seat",
+          "quality": "good"
+        },
+        {
+          "text": "Hire a ghost hunter",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Banging pipes",
+      "description": "Every time the tap shuts, the pipes go BANG.",
+      "options": [
+        {
+          "text": "Wrap the pipe in a towel",
+          "quality": "wrong"
+        },
+        {
+          "text": "Fit a water hammer arrestor",
+          "quality": "good"
+        },
+        {
+          "text": "Whole-house pressure system",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "A mystery pipe",
+      "description": "There's a pipe here that goes nowhere. It's warm.",
+      "options": [
+        {
+          "text": "Cut it and see",
+          "quality": "wrong"
+        },
+        {
+          "text": "Trace it back before touching it",
+          "quality": "good"
+        },
+        {
+          "text": "Call the city",
+          "quality": "excessive"
+        }
+      ]
+    }
+  ],
+  "video": {
+    "title": "Why your pipes whistle, and how to stop it",
+    "channel": "Plumb Simple",
+    "length": "16:05",
+    "minutes": 100
+  },
+  "ask": {
+    "question": "Why does the pipe behind my sink whistle?",
+    "answer": "That's just air in the pipes! 1. Open all the taps. 2. Problem solved!",
+    "skipped": "It skipped the worn washer."
+  },
+  "set": []
+}

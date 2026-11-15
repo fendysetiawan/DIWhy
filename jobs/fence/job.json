@@ -1,0 +1,133 @@
+{
+  "id": "fence",
+  "title": "Fix the picket fence",
+  "level": "Yard",
+  "spot": {
+    "x": 500,
+    "y": 792,
+    "w": 150,
+    "h": 30
+  },
+  "appears": {
+    "day": 3,
+    "from": "neighbor",
+    "news": "Hit and run! A car drove into the front fence and took off. Red. Or maroon. Possibly a van. The neighbor would know it anywhere."
+  },
+  "quote": {
+    "days": 1,
+    "money": 700
+  },
+  "steps": [
+    {
+      "name": "Pull out the broken pickets",
+      "act": "push-pull",
+      "sound": "wood-crack",
+      "minutes": 40
+    },
+    {
+      "name": "Reset the leaning post",
+      "act": "carry-box",
+      "sound": "hollow-wood-knocking",
+      "minutes": 50
+    },
+    {
+      "name": "Nail on new pickets",
+      "act": "drill",
+      "sound": "removing-nail-from-board",
+      "tool": "fence-pickets",
+      "minutes": 60
+    },
+    {
+      "name": "Paint them white",
+      "act": "paint-roller",
+      "sound": "paint-roller",
+      "minutes": 50
+    }
+  ],
+  "surprises": [
+    {
+      "title": "The post is rotten",
+      "description": "The post the car hit is rotten at the bottom. It was only standing out of habit.",
+      "options": [
+        {
+          "text": "Prop it up with a brick",
+          "quality": "wrong"
+        },
+        {
+          "text": "Set a new post in concrete",
+          "quality": "good"
+        },
+        {
+          "text": "Replace every post on the street",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "A piece of the car",
+      "description": "A piece of red bumper is stuck in the fence. Evidence!",
+      "options": [
+        {
+          "text": "Glue it on as decoration",
+          "quality": "wrong"
+        },
+        {
+          "text": "Photo for the police, then pull it out",
+          "quality": "good"
+        },
+        {
+          "text": "Hire a private detective",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "The paint doesn't match",
+      "description": "The new pickets are a whiter white than the old ones.",
+      "options": [
+        {
+          "text": "Nobody will notice",
+          "quality": "wrong"
+        },
+        {
+          "text": "Paint the whole street side",
+          "quality": "good"
+        },
+        {
+          "text": "Repaint the house to match",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "The neighbor supervises",
+      "description": "The neighbor pulled up a chair to watch. They have opinions about your nails.",
+      "options": [
+        {
+          "text": "Use the neighbor's nails",
+          "quality": "wrong"
+        },
+        {
+          "text": "Smile, nod, keep nailing",
+          "quality": "good"
+        },
+        {
+          "text": "Build a privacy wall",
+          "quality": "excessive"
+        }
+      ]
+    }
+  ],
+  "video": {
+    "title": "Fix a broken picket fence in an afternoon",
+    "channel": "Yard Weekend",
+    "length": "11:48",
+    "minutes": 80
+  },
+  "ask": {
+    "question": "How do I fix a fence after a car hit it?",
+    "answer": "Simple! 1. Push the fence back up. 2. Tie it to a tree. 3. Done!",
+    "skipped": "It skipped the rotten post and the new pickets."
+  },
+  "set": []
+}

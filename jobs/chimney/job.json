@@ -1,0 +1,134 @@
+{
+  "id": "chimney",
+  "title": "Rat-proof the chimney",
+  "level": "Ground",
+  "spot": {
+    "x": 266,
+    "y": 510,
+    "w": 44,
+    "h": 150
+  },
+  "appears": {
+    "day": 2,
+    "from": "partner",
+    "news": "Last night they saw a monster by the fireplace. Standing up. Sniffing. They took a blurry photo.",
+    "sign": true
+  },
+  "quote": {
+    "days": 2,
+    "money": 850
+  },
+  "steps": [
+    {
+      "name": "Find where it gets in",
+      "act": "flashlight",
+      "sound": "sniffing",
+      "minutes": 40
+    },
+    {
+      "name": "Clear out the nest",
+      "act": "bad-smell",
+      "sound": "scraping",
+      "minutes": 60
+    },
+    {
+      "name": "Fit a chimney cap",
+      "act": "ceiling-reach",
+      "sound": "metal-pipe",
+      "tool": "chimney-cap",
+      "minutes": 60
+    },
+    {
+      "name": "Seal the gaps",
+      "act": "caulking",
+      "sound": "sticky-glue",
+      "minutes": 50
+    }
+  ],
+  "surprises": [
+    {
+      "title": "The rat brought a friend",
+      "description": "The rat is back, and it brought a friend. They look comfortable.",
+      "options": [
+        {
+          "text": "Stuff the hole with an old sock",
+          "quality": "wrong"
+        },
+        {
+          "text": "Steel wool and mortar",
+          "quality": "good"
+        },
+        {
+          "text": "Rebuild the whole chimney",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "A nest in the flue",
+      "description": "An old bird nest is wedged in the flue. Possibly the rat's summer house.",
+      "options": [
+        {
+          "text": "Light a fire to burn it out",
+          "quality": "wrong"
+        },
+        {
+          "text": "Pull it out with a sweep brush",
+          "quality": "good"
+        },
+        {
+          "text": "Hire a crane for the roof",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "The crown is cracked",
+      "description": "The chimney crown is cracked. Rain gets in, and so do rats.",
+      "options": [
+        {
+          "text": "Tarp and a brick",
+          "quality": "wrong"
+        },
+        {
+          "text": "Patch it with crown sealant",
+          "quality": "good"
+        },
+        {
+          "text": "Replace the whole stack",
+          "quality": "excessive"
+        }
+      ]
+    },
+    {
+      "title": "Droppings everywhere",
+      "description": "Droppings behind the grate. Lots of them. Lovely.",
+      "options": [
+        {
+          "text": "Sweep it into the fire and light it",
+          "quality": "wrong"
+        },
+        {
+          "text": "Gloves, mask and disinfectant",
+          "quality": "good"
+        },
+        {
+          "text": "Rip out the fireplace",
+          "quality": "excessive"
+        }
+      ]
+    }
+  ],
+  "video": {
+    "title": "Rats in the chimney? Seal it like this",
+    "channel": "Critter Proof",
+    "length": "14:20",
+    "minutes": 90
+  },
+  "ask": {
+    "question": "How do I keep a rat out of my chimney?",
+    "answer": "Easy! 1. Put peppermint oil by the fireplace. 2. Rats hate it. 3. Done!",
+    "skipped": "It skipped finding the gap, the cap and sealing the cracks."
+  },
+  "set": []
+}
